@@ -17,17 +17,25 @@ data class Person {
   val maritalStatus: MaritalStatus = MaritalStatus.single // invalid: ObjectiveC doesn't support default values
 }
 
-fun start(httpClient: HttpClient?) // ok
+fun start(httpClient: HttpClient?) { // ok
+  // ...
+}
 
-fun start(httpClient: HttpClient? = null) // ok, but see the next topic
+fun start(httpClient: HttpClient? = null) { // ok, but see the next topic
+  // ...
+}
 
-fun start(httpClient: HttpClient? = HttpClient() // invalid: ObjectiveC doesn't support default values
+fun start(httpClient: HttpClient? = HttpClient()) { // invalid: ObjectiveC doesn't support default values
+  // ...
+}
 ```
 
 2. Prefer method overload instead of default null values
 
 ```kotlin
-fun paint(tree: ServerDrivenNode, anchor: String? = null, mode: TreeUpdateMode? = null)
+fun paint(tree: ServerDrivenNode, anchor: String? = null, mode: TreeUpdateMode? = null) {
+  // ...
+}
 ```
 
 The function above is ok. It can be called in iOS, but since ObjectiveC doesn't support optional method parameters,
