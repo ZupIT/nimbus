@@ -33,21 +33,21 @@ class Nimbus(config: ServerDrivenConfig) {
     return ServerDrivenNode.fromJsonString(json, idManager)
   }
 
-  private fun <T> addMapToMap(targetMap: Map<String, T>, newMap: Map<String, T>, mapItemName: String) {
-    newMap.forEach {
-      if (targetMap.containsKey(it.key)) {
-        logger.warn("${mapItemName} of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
+  private fun <T>addAll(target: MutableMap<String, T>, source: Map<String, T>, entity: String) {
+    source.forEach {
+      if (target.containsKey(it.key)) {
+        logger.warn("$entity of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
           "consider another name.")
       }
-      targetMap[it.key] = it.value
+      target[it.key] = it.value
     }
   }
 
   fun addActions(newActions: Map<String, ActionHandler>) {
-    addMapToMap(actions, newActions, "Action")
+    addAll(actions, newActions, "Action")
   }
 
   fun addOperations(newOperations: Map<String, OperationHandler>) {
-    addMapToMap(operations, newOperations, "Operation")
+    addAll(operations, newOperations, "Operation")
   }
 }
