@@ -33,23 +33,21 @@ class Nimbus(config: ServerDrivenConfig) {
     return ServerDrivenNode.fromJsonString(json, idManager)
   }
 
-  fun addActions(newActions: Map<String, ActionHandler>) {
-    newActions.forEach {
-      if (actions.containsKey(it.key)) {
-        logger.warn("Action of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
+  private fun <T> addMapToMap(targetMap: Map<String, T>, newMap: Map<String, T>, mapItemName: String) {
+    newMap.forEach {
+      if (targetMap.containsKey(it.key)) {
+        logger.warn("${mapItemName} of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
           "consider another name.")
       }
-      actions[it.key] = it.value
+      targetMap[it.key] = it.value
     }
   }
 
+  fun addActions(newActions: Map<String, ActionHandler>) {
+    addMapToMap(actions, newActions, "Action")
+  }
+
   fun addOperations(newOperations: Map<String, OperationHandler>) {
-    newOperations.forEach {
-      if (operations.containsKey(it.key)) {
-        logger.warn("Operation of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
-          "consider another name.")
-      }
-      operations[it.key] = it.value
-    }
+    addMapToMap(operations, newOperations, "Operation")
   }
 }
