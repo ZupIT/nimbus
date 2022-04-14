@@ -38,7 +38,7 @@ class Renderer(
 
   // fixme: this is just a mock
   fun paint(tree: ServerDrivenNode, anchor: String?, mode: TreeUpdateMode) {
-    val beforeViewSnapshot = view.nimbusInstance.lifecycles?.beforeViewSnapshot
+    val beforeViewSnapshot = view.nimbusInstance.lifecycleHooks?.beforeViewSnapshot
     if (beforeViewSnapshot != null) beforeViewSnapshot(tree)
     onTakeSnapshot(tree)
     val newTree = mockCounterDynamism(tree)
@@ -46,7 +46,7 @@ class Renderer(
   }
 
   fun paint(tree: ServerDrivenNode) {
-    paint(tree, null, TreeUpdateMode.REPLACE_ITSELF)
+    paint(tree, null, TreeUpdateMode.ReplaceItself)
   }
 
   fun paint(tree: ServerDrivenNode, mode: TreeUpdateMode) {
@@ -54,6 +54,6 @@ class Renderer(
   }
 
   fun paint(tree: ServerDrivenNode, anchor: String) {
-    paint(tree, anchor, TreeUpdateMode.REPLACE_ITSELF)
+    paint(tree, anchor, TreeUpdateMode.ReplaceItself)
   }
 }
