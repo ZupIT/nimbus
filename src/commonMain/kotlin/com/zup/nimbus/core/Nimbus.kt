@@ -17,7 +17,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val operations = config.operations?.toMutableMap() ?: HashMap()
   val lifecycles = config.lifecycles
   val logger = config.logger ?: DefaultLogger()
-  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder()
+  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder("/")
   val httpClient = config.httpClient ?: DefaultHttpClient()
   val viewClient = config.viewClient ?: DefaultViewClient()
   val idManager = config.idManager ?: DefaultIdManager()
