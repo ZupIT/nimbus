@@ -8,9 +8,7 @@ class DefaultLogger: Logger {
     BLUE("\u001B[34m"),
     CYAN("\u001B[36m"),
     GREEN("\u001B[32m"),
-    PURPLE("\u001B[35m"),
     RED("\u001B[31m"),
-    WHITE("\u001B[37m"),
     YELLOW("\u001B[33m"),
   }
 
@@ -22,39 +20,29 @@ class DefaultLogger: Logger {
     isEnabled = false
   }
 
-  override fun log(vararg messages: String) {
-    print(LoggerColor.WHITE, *messages)
+  override fun log(message: String) {
+    print(LoggerColor.CYAN, message)
   }
 
-  override fun info(vararg messages: String) {
-    print(LoggerColor.BLUE, *messages)
+  override fun info(message: String) {
+    print(LoggerColor.BLUE, message)
   }
 
-  override fun warn(vararg messages: String) {
-    print(LoggerColor.YELLOW, *messages)
+  override fun warn(message: String) {
+    print(LoggerColor.YELLOW, message)
   }
 
-  override fun success(vararg messages: String) {
-    print(LoggerColor.GREEN, *messages)
+  override fun success(message: String) {
+    print(LoggerColor.GREEN, message)
   }
 
-  override fun error(vararg messages: String) {
-    print(LoggerColor.RED, *messages)
+  override fun error(message: String) {
+    print(LoggerColor.RED, message)
   }
 
-  override fun lifecycle(vararg messages: String) {
-    print(LoggerColor.PURPLE, *messages)
-  }
-
-  override fun expression(vararg messages: String) {
-    print(LoggerColor.CYAN, *messages)
-  }
-
-  private fun print(color: LoggerColor, vararg messages: String) {
+  private fun print(color: LoggerColor, message: String) {
     if (isEnabled) {
-      messages.forEach {
-        println("${color.code}${it}${LoggerColor.RESET.code}")
-      }
+      println("${color.code}${message}${LoggerColor.RESET.code}")
     }
   }
 }
