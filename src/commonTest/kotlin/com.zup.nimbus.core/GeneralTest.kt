@@ -1,7 +1,7 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.ServerDrivenNavigator
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.RawNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,7 +18,7 @@ class GeneralTest {
         val nimbus = Nimbus(config)
         val parsedTree = nimbus.createNodeFromJson(tree)
         val view = nimbus.createView(MyNavigator())
-        val calledWithTree = ArrayList<ServerDrivenNode>()
+        val calledWithTree = ArrayList<RawNode>()
         view.onChange { calledWithTree.add(it) }
 
         view.renderer.paint(parsedTree)

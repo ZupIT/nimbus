@@ -2,8 +2,8 @@ package com.zup.nimbus.core.utils
 
 import kotlinx.serialization.json.*
 
-fun transformJsonObjectToMap(json: JsonObject): Map<String, Any?> {
-  return json.mapValues { transformJsonElementToKotlinType(it.value) }
+fun transformJsonObjectToMap(json: JsonObject): MutableMap<String, Any?> {
+  return mapValuesToMutableMap(json) { transformJsonElementToKotlinType(it.value) }
 }
 
 fun transformJsonArrayToList(json: JsonArray): List<Any?> {

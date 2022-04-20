@@ -1,59 +1,58 @@
 package com.zup.nimbus.core.render
 
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.*
 
 class Renderer(
-    private val view: ServerDrivenView,
-    private val onTakeSnapshot: (tree: ServerDrivenNode) -> Unit,
-    private val onFinish: (tree: ServerDrivenNode) -> Unit,
+  private val view: ServerDrivenView,
+  private val getCurrentTree: () -> RawNode?,
+  private val replaceCurrentTree: (tree: RawNode) -> Unit,
+  private val onFinish: (tree: ServerDrivenNode) -> Unit,
 ) {
-  private var counter = 1
+  private lateinit var renderedTree: RenderedNode
+  private val lifecycle = view.nimbusInstance.lifecycleHookManager
 
-  private fun mockCounterDynamism(current: ServerDrivenNode): ServerDrivenNode {
-    var properties: Map<String, Any?>? = null
-    if (current.properties != null) {
-      properties = current.properties.toMutableMap().apply {
-        this.entries.forEach {
-          if (it.value is String && (it.value as String).contains("@{counter}")) {
-            this[it.key] = (it.value as String).replace("@{counter}", "$counter")
-          }
-          if (it.value == "[[ACTION:INC_COUNTER]]") {
-            this[it.key] = {
-              counter++
-              paint(view.getCurrentTree()!!)
-            }
-          }
-        }
-      }
-    }
+  private fun processRenderedTree(tree: RenderedNode? = null, stateHierarchy: List<ServerDrivenState>? = emptyList()) {
 
-    return ServerDrivenNode(
-      id = current.id,
-      component = current.component,
-      state = current.state,
-      properties = properties,
-      children = current.children?.map { mockCounterDynamism(it) },
-    )
   }
 
-  // fixme: this is just a mock
-  fun paint(tree: ServerDrivenNode, anchor: String?, mode: TreeUpdateMode) {
-    val beforeViewSnapshot = view.nimbusInstance.lifecycleHooks?.beforeViewSnapshot
-    if (beforeViewSnapshot != null) beforeViewSnapshot(tree)
-    onTakeSnapshot(tree)
-    val newTree = mockCounterDynamism(tree)
-    onFinish(newTree)
+  private fun updateEntireTree(tree: RawNode) {
+    replaceCurrentTree(tree)
+    lifecycle.runAfterViewSnapshot(tree)
+    renderedTree = RenderedNode.fromRawNode(tree)
+    processRenderedTree()
+    lifecycle.runBeforeRender(renderedTree)
   }
 
-  fun paint(tree: ServerDrivenNode) {
+  private fun updateBranch(newBranch: RawNode, anchor: String, mode: TreeUpdateMode) {
+    insertIntoTree(getCurrentTree()!!, newBranch, anchor, mode)
+    lifecycle.runAfterViewSnapshot(newBranch)
+    val renderedBranch = RenderedNode.fromRawNode(newBranch)
+    val anchorNode = insertIntoTree(renderedTree, renderedBranch, anchor, mode)
+    processRenderedTree(renderedBranch, anchorNode.stateHierarchy)
+    lifecycle.runBeforeRender(renderedBranch)
+  }
+
+  fun paint(tree: RawNode, anchor: String?, mode: TreeUpdateMode) {
+    lifecycle.runBeforeViewSnapshot(tree)
+    val currentTree = getCurrentTree()
+    val shouldReplaceEntireTree = currentTree == null ||
+      (mode == TreeUpdateMode.ReplaceItself && (anchor == null || anchor == currentTree.id))
+
+    if(shouldReplaceEntireTree) updateEntireTree(tree)
+    else updateBranch(tree, anchor ?: renderedTree.id, mode)
+
+    onFinish(renderedTree)
+  }
+
+  fun paint(tree: RawNode) {
     paint(tree, null, TreeUpdateMode.ReplaceItself)
   }
 
-  fun paint(tree: ServerDrivenNode, mode: TreeUpdateMode) {
+  fun paint(tree: RawNode, mode: TreeUpdateMode) {
     paint(tree, null, mode)
   }
 
-  fun paint(tree: ServerDrivenNode, anchor: String) {
+  fun paint(tree: RawNode, anchor: String) {
     paint(tree, anchor, TreeUpdateMode.ReplaceItself)
   }
 }
