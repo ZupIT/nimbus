@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.render
+package com.zup.nimbus.core.tree
 
 enum class TreeUpdateMode {
   Prepend,

@@ -12,9 +12,9 @@ data class RawNode(
   override val id: String,
   override val component: String,
   override val properties: MutableMap<String, Any?>?,
-  override val children: MutableList<RawNode>?,
+  override val children: List<RawNode>?,
   val state: ServerDrivenState?,
-): ServerDrivenNode {
+): ServerDrivenNode<RawNode>() {
   companion object Factory {
     fun fromJsonString(json: String, idManager: IdManager): RawNode {
       val jsonObject = Json.decodeFromString<JsonObject>(json)
@@ -49,11 +49,5 @@ data class RawNode(
         children = if (children.isEmpty()) null else children,
       )
     }
-  }
-
-  fun deepCopy(): RawNode {
-    val copiedChildren = if (children == null) null else mapValuesToMutableList(children) { it.deepCopy() }
-    val copiedProperties = if (properties == null) null else deepCopyToMutableMap(properties)
-    return copy(children = copiedChildren, properties = copiedProperties)
   }
 }

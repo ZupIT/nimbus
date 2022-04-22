@@ -5,7 +5,7 @@ import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.tree.RawNode
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
-typealias Listener = (tree: ServerDrivenNode) -> Unit
+typealias Listener = (tree: ServerDrivenNode<*>) -> Unit
 
 class ServerDrivenView(
   val nimbusInstance: Nimbus,
@@ -20,12 +20,8 @@ class ServerDrivenView(
     onFinish = { runListeners(it) },
   )
 
-  private fun runListeners(tree: ServerDrivenNode) {
+  private fun runListeners(tree: ServerDrivenNode<*>) {
     listeners.forEach { it(tree) }
-  }
-
-  fun copyCurrentTree(): RawNode? {
-    return current?.copy()
   }
 
   fun onChange(listener: Listener): () -> Unit {
