@@ -13,10 +13,9 @@ data class RenderedNode(
 ): ServerDrivenNode<RenderedNode>() {
   companion object Factory {
     fun fromRawNode(tree: RawNode, parentStateHierarchy: List<ServerDrivenState>): RenderedNode {
-      val children = ArrayList<RenderedNode>()
       val stateHierarchy = if(tree.state == null) parentStateHierarchy
         else listOf(tree.state, *parentStateHierarchy.toTypedArray())
-      tree.children?.forEach { children.add(fromRawNode(it, stateHierarchy)) }
+      val children = tree.children?.map { fromRawNode(it, stateHierarchy) }
 
       return RenderedNode(
         id = tree.id,

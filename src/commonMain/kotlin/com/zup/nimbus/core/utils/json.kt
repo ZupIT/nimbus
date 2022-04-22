@@ -7,7 +7,7 @@ fun transformJsonObjectToMap(json: JsonObject): MutableMap<String, Any?> {
 }
 
 fun transformJsonArrayToList(json: JsonArray): List<Any?> {
-  return json.map { transformJsonElementToKotlinType(it) }
+  return mapValuesToMutableList(json) { transformJsonElementToKotlinType(it) }
 }
 
 fun transformJsonPrimitiveToPrimitive(json: JsonPrimitive): Any? {

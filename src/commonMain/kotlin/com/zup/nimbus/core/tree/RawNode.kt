@@ -1,12 +1,9 @@
 package com.zup.nimbus.core.tree
 
-import com.zup.nimbus.core.utils.deepCopyToMutableMap
-import com.zup.nimbus.core.utils.mapValuesToMutableList
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import kotlinx.serialization.json.*
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 data class RawNode(
   override val id: String,
@@ -29,14 +26,7 @@ data class RawNode(
         value = stateMap.jsonObject["value"]?.let { transformJsonElementToKotlinType(it) },
       )
 
-      // children
-      val children: ArrayList<RawNode> = ArrayList()
-      if (jsonObject.containsKey("children")) {
-        val childList = jsonObject["children"]?.jsonArray
-        childList?.forEach() {
-          children.add(fromJsonObject(it.jsonObject, idManager))
-        }
-      }
+      val children = jsonObject["children"]?.jsonArray?.map { fromJsonObject(it.jsonObject, idManager) }
 
       return RawNode(
         id = jsonObject["id"]?.jsonPrimitive?.content ?: idManager.next(),
@@ -46,7 +36,7 @@ data class RawNode(
         properties = if (jsonObject.containsKey("properties")) transformJsonObjectToMap(
           jsonObject["properties"]?.jsonObject ?: throw MalformedComponentError()
         ) else null,
-        children = if (children.isEmpty()) null else children,
+        children = children,
       )
     }
   }

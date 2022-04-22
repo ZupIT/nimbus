@@ -22,7 +22,7 @@ class Renderer(
     node.children?.forEach { processRenderedTree(it) }
   }
 
-  private fun updateEntireTree(tree: RawNode) {
+  private fun replaceEntireTree(tree: RawNode) {
     replaceCurrentTree(tree)
     lifecycle.runAfterViewSnapshot(tree)
     /* fixme: below, instead of "emptyTree", we should pass a list with all states above the tree. Considering Beagle
@@ -30,6 +30,19 @@ class Renderer(
     renderedTree = RenderedNode.fromRawNode(tree, emptyList())
     processRenderedTree()
     lifecycle.runBeforeRender(renderedTree)
+  }
+
+  private fun replaceBranch(newBranch: RawNode, anchor: String) {
+    val currentTree = getCurrentTree() ?: throw EmptyViewError()
+    currentTree.replace(newBranch, anchor)
+    lifecycle.runAfterViewSnapshot(newBranch)
+    /* no need to worry about attempting to find the parent of the root here. If "anchor" referred to the root,
+    "updateEntireTree" would have been called instead of this method. */
+    val parent = renderedTree.findParentById(anchor) ?: throw AnchorNotFoundError(anchor)
+    val renderedBranch = RenderedNode.fromRawNode(newBranch, parent.stateHierarchy)
+    parent.replaceChild(anchor, renderedBranch)
+    processRenderedTree(renderedBranch)
+    lifecycle.runBeforeRender(renderedBranch)
   }
 
   private fun updateBranch(newBranch: RawNode, anchor: String, mode: TreeUpdateMode) {
@@ -50,8 +63,11 @@ class Renderer(
       val shouldReplaceEntireTree = currentTree == null ||
         (mode == TreeUpdateMode.ReplaceItself && (anchor == null || anchor == currentTree.id))
 
-      if (shouldReplaceEntireTree) updateEntireTree(tree)
-      else updateBranch(tree, anchor ?: renderedTree.id, mode)
+      when {
+          shouldReplaceEntireTree -> replaceEntireTree(tree)
+          mode == TreeUpdateMode.ReplaceItself -> replaceBranch(tree, anchor ?: renderedTree.id)
+          else -> updateBranch(tree, anchor ?: renderedTree.id, mode)
+      }
 
       onFinish(renderedTree)
     } catch (error: RenderingError) {

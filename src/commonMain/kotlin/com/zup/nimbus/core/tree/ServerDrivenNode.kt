@@ -16,6 +16,10 @@ abstract class ServerDrivenNode<ConcreteType: ServerDrivenNode<ConcreteType>> {
     throw Error("Not Implemented yet!")
   }
 
+  fun replaceChild(idOfNodeToReplace: String, newNode: ConcreteType) {
+    throw Error("Not Implemented yet!")
+  }
+
   fun insert(node: ConcreteType, anchor: String, mode: TreeUpdateMode) {
     requireInsertionMode(mode)
     throw Error("Not Implemented yet!")
@@ -27,6 +31,10 @@ abstract class ServerDrivenNode<ConcreteType: ServerDrivenNode<ConcreteType>> {
   }
 
   fun findById(id: String): ConcreteType? {
+    throw Error("Not Implemented yet!")
+  }
+
+  fun findParentById(id: String) : ConcreteType? {
     throw Error("Not Implemented yet!")
   }
 }
