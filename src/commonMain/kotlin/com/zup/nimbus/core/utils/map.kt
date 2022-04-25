@@ -5,3 +5,7 @@ fun <K, V, T>mapValuesToMutableMap(map: Map<K, V>, iteratee: (entry: Map.Entry<K
   map.forEach { result[it.key] = iteratee(it) }
   return result
 }
+
+fun setMapValue(map: MutableMap<*, *>, path: String, newValue: Any) {
+  // todo
+}

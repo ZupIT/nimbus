@@ -1,6 +1,9 @@
 package com.zup.nimbus.core.render
 
 import com.zup.nimbus.core.tree.*
+import com.zup.nimbus.core.utils.setMapValue
+
+private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
 class Renderer(
   private val view: ServerDrivenView,
@@ -20,6 +23,17 @@ class Renderer(
     deserializeActions(node)
     resolveExpressions(node)
     node.children?.forEach { processRenderedTree(it) }
+  }
+
+  private fun changeStateValue(state: ServerDrivenState, path: String, value: Any) {
+    if (path.isEmpty()) {
+      /* the state is the same object in both the raw tree (getCurrentTree()) and the rendered tree, i.e. the next line
+      changes the value in both trees. */
+      state.value = value
+    } else {
+        if (state.value !is MutableMap<*, *>) state.value = HashMap<String, Any>()
+        setMapValue(state.value as MutableMap<*, *>, path, value)
+    }
   }
 
   private fun replaceEntireTree(tree: RawNode) {
@@ -54,6 +68,14 @@ class Renderer(
     anchorNode.insert(renderedBranch, mode)
     processRenderedTree(renderedBranch)
     lifecycle.runBeforeRender(renderedBranch)
+  }
+
+  fun setState(sourceNode: RenderedNode, path: String, newValue: Any) {
+    val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
+    val (stateId, statePath) = matchResult.destructured
+    val state = sourceNode.stateHierarchy.find { it.id == stateId } ?: throw StateNotFoundError(path, sourceNode.id)
+    changeStateValue(state, statePath, newValue)
+
   }
 
   fun paint(tree: RawNode, anchor: String?, mode: TreeUpdateMode) {

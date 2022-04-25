@@ -3,7 +3,10 @@ package com.zup.nimbus.core.tree
 abstract class ServerDrivenNode<ConcreteType: ServerDrivenNode<ConcreteType>> {
   abstract val id: String
   abstract val component: String
-  abstract val properties: MutableMap<String, Any?>?
+  abstract val rawProperties: MutableMap<String, Any?>?
+  abstract var properties: MutableMap<String, Any?>?
+  abstract val state: ServerDrivenState?
+  abstract var stateHierarchy: List<ServerDrivenState>
   abstract val children: List<ConcreteType>?
 
   private fun requireInsertionMode(mode: TreeUpdateMode) {

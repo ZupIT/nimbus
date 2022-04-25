@@ -6,3 +6,8 @@ class AnchorNotFoundError(anchor: String): RenderingError("""The current tree ha
 
 class EmptyViewError(): RenderingError("The current tree was null while trying to update one of its branches. This " +
   "is a bug within the Server Driven Lib. Please, report it to the developer team.")
+
+class InvalidStatePathError(path: String): RenderingError("""The path "$path" is not a valid state path.""")
+
+class StateNotFoundError(stateId: String, componentId: String): RenderingError("""Could not find state "$stateId" from
+  |the component with id "$componentId"""".trimMargin())
