@@ -5,10 +5,9 @@ import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
 import com.zup.nimbus.core.network.DefaultViewClient
-import com.zup.nimbus.core.render.LifecycleHookManager
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.DefaultIdManager
-import com.zup.nimbus.core.tree.RawNode
+import com.zup.nimbus.core.tree.RenderNode
 
 class Nimbus(config: ServerDrivenConfig) {
   // From config
@@ -21,7 +20,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val httpClient = config.httpClient ?: DefaultHttpClient()
   val viewClient = config.viewClient ?: DefaultViewClient()
   val idManager = config.idManager ?: DefaultIdManager()
-  val lifecycleHookManager = LifecycleHookManager(config.lifecycleHooks)
+  internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
 
   // Other
   val globalState = GlobalState()
@@ -30,8 +29,9 @@ class Nimbus(config: ServerDrivenConfig) {
     return ServerDrivenView(this, navigator)
   }
 
-  fun createNodeFromJson(json: String): RawNode {
-    return RawNode.fromJsonString(json, idManager)
+  // todo: remove this method once it's not needed anymore
+  fun createNodeFromJson(json: String): RenderNode {
+    return RenderNode.fromJsonString(json, idManager)
   }
 
   private fun <T>addAll(target: MutableMap<String, T>, source: Map<String, T>, entity: String) {

@@ -1,43 +1,21 @@
 package com.zup.nimbus.core.tree
 
-abstract class ServerDrivenNode<ConcreteType: ServerDrivenNode<ConcreteType>> {
-  abstract val id: String
-  abstract val component: String
-  abstract val rawProperties: MutableMap<String, Any?>?
-  abstract var properties: MutableMap<String, Any?>?
-  abstract val state: ServerDrivenState?
-  abstract var stateHierarchy: List<ServerDrivenState>
-  abstract val children: List<ConcreteType>?
-
-  private fun requireInsertionMode(mode: TreeUpdateMode) {
-    require(mode in listOf(TreeUpdateMode.Prepend, TreeUpdateMode.Append, TreeUpdateMode.Replace)) {
-      "Update mode must be Append, Prepend or Replace"
-    }
-  }
-
-  fun replace(node: ConcreteType, anchor: String) {
-    throw Error("Not Implemented yet!")
-  }
-
-  fun replaceChild(idOfNodeToReplace: String, newNode: ConcreteType) {
-    throw Error("Not Implemented yet!")
-  }
-
-  fun insert(node: ConcreteType, anchor: String, mode: TreeUpdateMode) {
-    requireInsertionMode(mode)
-    throw Error("Not Implemented yet!")
-  }
-
-  fun insert(node: ConcreteType, mode: TreeUpdateMode) {
-    requireInsertionMode(mode)
-    throw Error("Not Implemented yet!")
-  }
-
-  fun findById(id: String): ConcreteType? {
-    throw Error("Not Implemented yet!")
-  }
-
-  fun findParentById(id: String) : ConcreteType? {
-    throw Error("Not Implemented yet!")
-  }
+interface ServerDrivenNode {
+  /**
+   * The unique id for this component.
+   */
+  val id: String
+  /**
+   * Identifies the component to render. This follows the pattern "namespace:name", where "namespace:" is optional.
+   * Components without a namespace are core components.
+   */
+  val component: String
+  /**
+   * The property map for this component. If this component has no properties, this will be null or an empty map.
+   */
+  val properties: Map<String, Any?>?
+  /**
+   * The children of this node. If this is a leaf-node, children will be null or an empty map.
+   */
+  val children: List<ServerDrivenNode>?
 }
