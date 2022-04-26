@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.render
 
-import com.zup.nimbus.core.tree.RenderedNode
+import com.zup.nimbus.core.tree.RenderNode
 
-fun resolveExpressions(node: RenderedNode) {
-
+fun resolveExpressions(node: RenderNode) {
+  throw Error("Not implemented yet!")
 }
