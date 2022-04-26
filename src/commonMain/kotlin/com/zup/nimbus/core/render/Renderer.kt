@@ -34,7 +34,7 @@ class Renderer(
   }
 
   /**
-   * Recursively process the tree, resolving every expression action or structural component.
+   * Recursively processes the tree, resolving every expression action or structural component.
    *
    * This recreates the state hierarchy and must be called whenever the tree structure changes. If the tree structure
    * didn't change, call "processTree" instead (faster).
@@ -51,7 +51,7 @@ class Renderer(
   }
 
   /**
-   * Recursively process the tree, resolving every expression action or structural component.
+   * Recursively processes the tree, resolving every expression action or structural component.
    *
    * This will use the state hierarchy that has already been calculated instead of recalculating it. Be sure to only
    * call it if the tree structure is maintained, otherwise, call "processTreeAndStateHierarchy" instead (slower).
