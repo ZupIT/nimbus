@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 plugins {
   kotlin("multiplatform") version "1.6.21"
-  id("com.android.application")
   kotlin("native.cocoapods") version "1.6.21"
   kotlin("plugin.serialization") version "1.6.21"
+  id("com.android.library")
 }
 
 group = "me.user"
@@ -102,8 +102,7 @@ android {
   compileSdk = 31
   sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
   defaultConfig {
-    applicationId = "me.user.library"
-    minSdk = 21
+    minSdk = 23
     targetSdk = 31
   }
   compileOptions {
