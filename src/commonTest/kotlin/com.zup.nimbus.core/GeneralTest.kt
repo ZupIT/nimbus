@@ -1,7 +1,14 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.ServerDrivenNavigator
+import com.zup.nimbus.core.network.NimbusHttpMethod
+import com.zup.nimbus.core.network.NimbusRequest
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -9,12 +16,24 @@ class MyNavigator: ServerDrivenNavigator {
 
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class GeneralTest {
     private val config = ServerDrivenConfig(baseUrl = "", platform = "")
     private val tree = """{"id":"1","component":"layout:container","children":[{"id":"2","component":"material:text","properties":{"text":"Nimbus App @{counter}"}},{"id":"3","component":"material:text","properties":{"text":"Hi There"}},{"id":"4","component":"custom:personCard","properties":{"person":{"name":"Fulano da Silva","age":28,"company":"ZUP","document":"014.778.547-56"},"address":{"street":"Rua dos bobos","number":0,"zip":"47478-745"}}},{"id":"5","component":"material:button","properties":{"text":"Increment counter","onPress":"[[ACTION:INC_COUNTER]]"}}]}"""
+    private val scope = TestScope()
+
+    @BeforeTest
+    fun setUp() {
+      Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @AfterTest
+    fun tearDown() {
+      Dispatchers.resetMain()
+    }
 
     @Test
-    fun testView() {
+    fun testView() = scope.runTest {
         val nimbus = Nimbus(config)
         val parsedTree = nimbus.createNodeFromJson(tree)
         val view = nimbus.createView(MyNavigator())
@@ -68,5 +87,15 @@ class GeneralTest {
         assertEquals("material:button", calledWithTree[0].children?.get(3)?.component)
         assertEquals("Increment counter", calledWithTree[0].children?.get(3)?.properties?.get("text"))
         assertEquals(true, calledWithTree[0].children?.get(3)?.properties?.get("onPress") is Function<*>)
+
+      val response = nimbus.httpClient.sendRequest(
+        NimbusRequest(
+          "https://mocki.io/v1/bd06cfb6-b794-462f-a7fc-b06daf1fbecd",
+          NimbusHttpMethod.Get,
+          emptyMap(),
+          ""
+        )
+      )
+      assertEquals("{\"status\":200,\"message\":\"Nimbus Core Request OK\"}", response.body)
     }
 }
