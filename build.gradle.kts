@@ -5,7 +5,7 @@ plugins {
   kotlin("multiplatform") version "1.6.21"
   kotlin("native.cocoapods") version "1.6.21"
   kotlin("plugin.serialization") version "1.6.21"
-  id("com.android.library")
+  id("com.android.library") version "7.2"
 }
 
 group = "me.user"
@@ -23,7 +23,7 @@ kotlin {
   iosSimulatorArm64()
 
   cocoapods {
-    version = "1.0.0-beta.1"
+    version = "1.0"
     summary = "Nimbus Core Library"
     homepage = "Link to the Shared Module homepage"
 
@@ -52,6 +52,7 @@ kotlin {
       }
     }
     val commonTest by getting {
+      dependsOn(commonMain)
       dependencies {
         implementation(kotlin("test"))
         implementation(kotlin("test-common"))
@@ -102,7 +103,7 @@ android {
   compileSdk = 31
   sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
   defaultConfig {
-    minSdk = 23
+    minSdk = 21
     targetSdk = 31
   }
   compileOptions {
