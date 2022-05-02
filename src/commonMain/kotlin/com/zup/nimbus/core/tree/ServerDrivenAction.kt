@@ -26,7 +26,7 @@ data class ServerDrivenAction(
             properties = it["properties"] as Map<String, Any>?,
           )
         }
-      } catch (e: Exception) {
+      } catch (e: ClassCastException) {
         throw MalformedActionListError()
       }
     }
