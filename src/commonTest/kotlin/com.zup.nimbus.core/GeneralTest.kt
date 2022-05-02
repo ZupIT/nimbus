@@ -1,8 +1,7 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.ServerDrivenNavigator
-import com.zup.nimbus.core.network.NimbusHttpMethod
-import com.zup.nimbus.core.network.NimbusRequest
+import com.zup.nimbus.core.network.*
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -89,9 +88,9 @@ class GeneralTest {
         assertEquals(true, calledWithTree[0].children?.get(3)?.properties?.get("onPress") is Function<*>)
 
       val response = nimbus.httpClient.sendRequest(
-        NimbusRequest(
+        ServerDrivenRequest(
           "https://mocki.io/v1/bd06cfb6-b794-462f-a7fc-b06daf1fbecd",
-          NimbusHttpMethod.Get,
+          ServerDrivenHttpMethod.Get,
           emptyMap(),
           ""
         )

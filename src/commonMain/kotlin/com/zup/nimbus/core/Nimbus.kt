@@ -12,12 +12,12 @@ class Nimbus(config: ServerDrivenConfig) {
   val platform = config.platform
   val actions = config.actions?.toMutableMap() ?: HashMap()
   val operations = config.operations?.toMutableMap() ?: HashMap()
-  val lifecycleHooks = config.lifecycleHooks
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder("/")
   val httpClient = config.httpClient ?: DefaultHttpClient()
   val viewClient = config.viewClient ?: DefaultViewClient()
   val idManager = config.idManager ?: DefaultIdManager()
+  internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
 
   // Other
   val globalState = GlobalState()
@@ -26,8 +26,9 @@ class Nimbus(config: ServerDrivenConfig) {
     return ServerDrivenView(this, navigator)
   }
 
-  fun createNodeFromJson(json: String): ServerDrivenNode {
-    return ServerDrivenNode.fromJsonString(json, idManager)
+  // todo: remove this method once it's not needed anymore
+  fun createNodeFromJson(json: String): RenderNode {
+    return RenderNode.fromJsonString(json, idManager)
   }
 
   private fun <T>addAll(target: MutableMap<String, T>, source: Map<String, T>, entity: String) {
