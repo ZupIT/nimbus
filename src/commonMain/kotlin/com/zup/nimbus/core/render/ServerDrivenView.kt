@@ -8,11 +8,11 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 typealias Listener = (tree: ServerDrivenNode) -> Unit
 
 class ServerDrivenView(
-    /**
+  /**
    * The instance of Nimbus that created this ServerDrivenView.
    */
   val nimbusInstance: Nimbus,
-    /**
+  /**
    * The navigator that created this view.
    */
   val parentNavigator: ServerDrivenNavigator,
