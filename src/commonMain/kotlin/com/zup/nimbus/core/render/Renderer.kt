@@ -6,7 +6,7 @@ import com.zup.nimbus.core.utils.setMapValue
 private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
 class Renderer(
-  view: ServerDrivenView,
+  private val view: ServerDrivenView,
   private val getCurrentTree: () -> RenderNode?,
   private val replaceCurrentTree: (tree: RenderNode) -> Unit,
   private val onFinish: () -> Unit,
@@ -15,10 +15,40 @@ class Renderer(
   private val structuralComponents = view.nimbusInstance.structuralComponents
 
   /**
+   * Resolves the property "value" of "node" recursively.
+   *
+   * "value" can be resolved to itself, a function (actions) or an expression result.
+   *
+   * @param value the property to resolve.
+   * @param node the node "value" belongs to.
+   * @return the resolved value.
+   */
+  private fun resolveProperty(value: Any?, node: RenderNode): Any? {
+    if (value == null) return null
+    if (value is List<*>) {
+      if (ServerDrivenAction.isActionList(value)) {
+        try {
+          return deserializeActions(
+            actionList = ServerDrivenAction.createActionList(value),
+            node = node,
+            view = view,
+          )
+        } catch (error: MalformedActionListError) {
+          throw RenderingError(error.message)
+        }
+      }
+      return value.map { resolveProperty(it, node) }
+    }
+    if (value is Map<*, *>) return value.mapValues { resolveProperty(it.value, node) }
+    if (value is String && containsExpression(value)) return resolveExpressions(value, node.stateHierarchy)
+    return value
+  }
+
+  /**
    * If this node is a structural component, it unfolds it into actual UI components. Otherwise, it resolves every
    * expression and deserializes every action into functions.
    *
-   * Attention: this operation is not recursive.
+   * Attention: this operation is not recursive on the node.
    *
    * @param node the node to resolve.
    */
@@ -28,8 +58,9 @@ class Renderer(
       // todo: not sure exactly how this is going to work for loops, mainly because it would need a parent.
       componentBuilder(node)
     } else {
-      deserializeActions(node)
-      resolveExpressions(node)
+      node.properties = node.rawProperties?.mapValues {
+        resolveProperty(it.value, node)
+      }
     }
   }
 

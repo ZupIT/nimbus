@@ -12,7 +12,7 @@ class RenderNode(
    * Stores the properties of this component after they've been processed, i.e. after the expressions have been resolved
    * and actions deserialized.
    */
-  override var properties: MutableMap<String, Any?>?,
+  override var properties: Map<String, Any?>?,
   override var children: List<RenderNode>?,
   /**
    * Stores the original properties of this component, before any processing. This can contain expressions in their
