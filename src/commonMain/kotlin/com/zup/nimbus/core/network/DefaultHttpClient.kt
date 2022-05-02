@@ -1,19 +1,23 @@
 package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.utils.then
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Headers
+import io.ktor.http.HttpMethod
+import kotlin.collections.set
 
-class DefaultHttpClient: HttpClient {
+class DefaultHttpClient: com.zup.nimbus.core.network.HttpClient {
   private val client = HttpClient()
 
-  override suspend fun sendRequest(request: NimbusRequest): NimbusResponse {
+  override suspend fun sendRequest(request: ServerDrivenRequest): ServerDrivenResponse {
     val response = doRequest(request)
-    return NimbusResponse(
+    return ServerDrivenResponse(
       response.status.value,
       response.bodyAsText(),
       buildResponseHeaders(response.headers),
@@ -21,8 +25,8 @@ class DefaultHttpClient: HttpClient {
     )
   }
 
-  private suspend fun doRequest(request: NimbusRequest): HttpResponse {
-    val nimbusMethod = (request.method != null) then request.method ?: NimbusHttpMethod.Get
+  private suspend fun doRequest(request: ServerDrivenRequest): HttpResponse {
+    val nimbusMethod = (request.method != null) then request.method ?: ServerDrivenHttpMethod.Get
     return client.request(request.url) {
       method = HttpMethod.parse(nimbusMethod.name.uppercase())
       headers {
@@ -36,8 +40,12 @@ class DefaultHttpClient: HttpClient {
     }
   }
 
-  private fun bodyIsRequired(method: NimbusHttpMethod): Boolean {
-    return (method == NimbusHttpMethod.Post || method == NimbusHttpMethod.Put || method == NimbusHttpMethod.Patch)
+  private fun bodyIsRequired(method: ServerDrivenHttpMethod): Boolean {
+    return (
+      method == ServerDrivenHttpMethod.Post ||
+      method == ServerDrivenHttpMethod.Put ||
+      method == ServerDrivenHttpMethod.Patch
+    )
   }
 
   private fun buildResponseHeaders(headers: Headers): Map<String, String> {

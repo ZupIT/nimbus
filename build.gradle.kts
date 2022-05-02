@@ -23,7 +23,7 @@ kotlin {
   iosSimulatorArm64()
 
   cocoapods {
-    version = "1.0"
+    version = "1.0.0-beta.1"
     summary = "Nimbus Core Library"
     homepage = "Link to the Shared Module homepage"
 

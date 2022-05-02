@@ -1,12 +1,10 @@
 package com.zup.nimbus.core.network
 
 interface HttpClient {
-  suspend fun sendRequest(request: NimbusRequest): NimbusResponse
+  suspend fun sendRequest(request: ServerDrivenRequest): ServerDrivenResponse
 }
 
-typealias RequestCallback = (response: NimbusResponse) -> Unit
-
-enum class NimbusHttpMethod {
+enum class ServerDrivenHttpMethod {
   Post,
   Get,
   Put,
@@ -14,14 +12,14 @@ enum class NimbusHttpMethod {
   Delete
 }
 
-class NimbusRequest (
+class ServerDrivenRequest (
   val url: String,
-  val method: NimbusHttpMethod?,
+  val method: ServerDrivenHttpMethod?,
   val headers: Map<String, String>?,
   val body: String?) {
 }
 
-class NimbusResponse (
+class ServerDrivenResponse (
   val status: Int,
   val body: String,
   val headers: Map<String, String>,
