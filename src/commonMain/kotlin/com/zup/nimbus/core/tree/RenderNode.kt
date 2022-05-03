@@ -135,6 +135,18 @@ class RenderNode(
    * @return the node found or null.
    */
   fun findById(id: String): RenderNode? {
-    throw Error("Not Implemented yet!")
+    if (id.isBlank() || id.isEmpty() || this.children == null || this.children!!.isEmpty()) return null
+
+    val treeChildren = this.children!!
+    var i = 0
+    var parent: RenderNode? = null
+
+    while (i < treeChildren.size && parent == null) {
+      val child = treeChildren[i]
+      parent = if (child.id === id) this else child.findById(id)
+      i++
+    }
+
+    return parent
   }
 }
