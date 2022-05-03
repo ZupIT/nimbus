@@ -4,8 +4,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GeneralTest {
-    @Test
-    fun testView() {
-        assertEquals(true, true)
-    }
+  @Test
+  fun testView() {
+    assertEquals(true, true)
+  }
 }
