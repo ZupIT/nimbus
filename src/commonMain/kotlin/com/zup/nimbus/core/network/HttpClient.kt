@@ -9,19 +9,19 @@ enum class ServerDrivenHttpMethod {
   Get,
   Put,
   Patch,
-  Delete
+  Delete,
 }
 
-class ServerDrivenRequest (
+class ServerDrivenRequest(
   val url: String,
   val method: ServerDrivenHttpMethod?,
   val headers: Map<String, String>?,
-  val body: String?) {
-}
+  val body: String?,
+)
 
-class ServerDrivenResponse (
+class ServerDrivenResponse(
   val status: Int,
   val body: String,
   val headers: Map<String, String>,
-  val bodyBytes: ByteArray) {
-}
+  val bodyBytes: ByteArray,
+)
