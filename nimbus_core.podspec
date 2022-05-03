@@ -8,14 +8,14 @@ Pod::Spec.new do |spec|
     spec.summary                  = 'Nimbus Core Library'
     spec.vendored_frameworks      = 'build/cocoapods/framework/NimbusCore.framework'
     spec.libraries                = 'c++'
-                
-                
-                
+
+
+
     spec.pod_target_xcconfig = {
         'KOTLIN_PROJECT_PATH' => ':',
         'PRODUCT_MODULE_NAME' => 'NimbusCore',
     }
-                
+
     spec.script_phases = [
         {
             :name => 'Build nimbus_core',
@@ -28,12 +28,12 @@ Pod::Spec.new do |spec|
                 fi
                 set -ev
                 REPO_ROOT="$PODS_TARGET_SRCROOT"
-                "$REPO_ROOT/../../../../../../private/var/folders/9h/mclsybm961v80mjtbvtpccjc0000gp/T/wrap1loc/gradlew" -p "$REPO_ROOT" $KOTLIN_PROJECT_PATH:syncFramework \
+                "$REPO_ROOT/gradlew" -p "$REPO_ROOT" $KOTLIN_PROJECT_PATH:syncFramework \
                     -Pkotlin.native.cocoapods.platform=$PLATFORM_NAME \
                     -Pkotlin.native.cocoapods.archs="$ARCHS" \
                     -Pkotlin.native.cocoapods.configuration="$CONFIGURATION"
             SCRIPT
         }
     ]
-                
+
 end
