@@ -13,10 +13,10 @@ class Nimbus(config: ServerDrivenConfig) {
   val actions = config.actions?.toMutableMap() ?: HashMap()
   val operations = config.operations?.toMutableMap() ?: HashMap()
   val logger = config.logger ?: DefaultLogger()
-  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder("/")
+  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
   val httpClient = config.httpClient ?: DefaultHttpClient()
-  val viewClient = config.viewClient ?: DefaultViewClient()
   val idManager = config.idManager ?: DefaultIdManager()
+  val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, idManager, logger, platform)
   internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
 
   // Other
