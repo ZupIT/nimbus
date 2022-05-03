@@ -4,14 +4,11 @@ import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
-import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenAction
+import com.zup.nimbus.core.render.ActionTriggeredEvent
 import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.tree.RenderNode
 
-typealias ActionHandler = (action: ServerDrivenAction, element: RenderNode, view: ServerDrivenView) -> Unit
+typealias ActionHandler = (event: ActionTriggeredEvent) -> Unit
 typealias OperationHandler = (arguments: List<Any>) -> Any
-
 
 data class ServerDrivenConfig(
   val baseUrl: String,
