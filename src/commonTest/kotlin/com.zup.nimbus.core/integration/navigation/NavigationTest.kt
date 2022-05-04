@@ -6,7 +6,7 @@ import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ResponseError
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
