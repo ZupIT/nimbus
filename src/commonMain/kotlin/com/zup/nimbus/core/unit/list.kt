@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.utils
+package com.zup.nimbus.core.unit
 
 /**
  * Equivalent to the map operation of a List, but instead of creating a List as a result, it creates a MutableList.

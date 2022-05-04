@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.tree
 
-import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
-import com.zup.nimbus.core.utils.transformJsonObjectToMap
+import com.zup.nimbus.core.unit.transformJsonElementToKotlinType
+import com.zup.nimbus.core.unit.transformJsonObjectToMap
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 

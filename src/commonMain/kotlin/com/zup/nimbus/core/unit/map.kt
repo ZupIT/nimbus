@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.utils
+package com.zup.nimbus.core.unit
 
 /**
  * Equivalent to the mapValues operation of a Map, but instead of creating a Map as a result, it creates a MutableMap.

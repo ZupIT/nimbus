@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.utils
+package com.zup.nimbus.core.unit
 
 /**
  * Removes a prefix from the string.
