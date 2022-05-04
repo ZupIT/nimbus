@@ -7,6 +7,6 @@ class RequestError(
 ): NetworkError("Error while sending the request.${if (message == null) "" else " See the details below:\n$message"}")
 
 class ResponseError(
-  status: Int,
-  body: String?,
+  val status: Int,
+  val body: String?,
 ): NetworkError("Request failed with status $status.${if (body == null) "" else "\n$body"}")
