@@ -28,7 +28,7 @@ class NavigationTest {
     firstScreen: String = "/screen1",
     onLoad: (pages: ArrayList<Page>) -> Unit = { fail("An error was expected.") },
     onError: ((e: Error) -> Unit) = { fail("Unexpected error: ${it.message}") },
-  ) {
+  ) = scope.runTest {
     val navigator = Navigator(
       scope = scope,
       nimbus = nimbus,
@@ -51,110 +51,94 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldRenderFirstView() = scope.runTest {
-    runNavigationTest(onLoad = {
-      assertEquals(1, it.size)
-      verifyScreen1(it.last().content)
-    })
-  }
+  fun shouldRenderFirstView() = runNavigationTest(onLoad = {
+    assertEquals(1, it.size)
+    verifyScreen1(it.last().content)
+  })
 
   @Test
-  fun shouldNotFindFirstViewWithWrongUrl() = scope.runTest {
-    runNavigationTest(
-      firstScreen = "/none",
-      onError = {
-        assertEquals(true, it is ResponseError)
-        it as ResponseError
-        assertEquals(HttpStatusCode.NotFound.value, it.status)
-      },
-    )
-  }
+  fun shouldNotFindFirstViewWithWrongUrl() = runNavigationTest(
+    firstScreen = "/none",
+    onError = {
+      assertEquals(true, it is ResponseError)
+      it as ResponseError
+      assertEquals(HttpStatusCode.NotFound.value, it.status)
+    },
+  )
 
   @Test
-  fun shouldPushSecondView() = scope.runTest {
-    runNavigationTest(onLoad = {
-      if(it.last().id == "/screen1") {
-        pressNextButton(it.last().content)
-      } else {
-        assertEquals(2, it.size)
-        verifyScreen2(it.last().content)
-      }
-    })
-  }
+  fun shouldPushSecondView() = runNavigationTest(onLoad = {
+    if(it.last().id == "/screen1") {
+      pressNextButton(it.last().content)
+    } else {
+      assertEquals(2, it.size)
+      verifyScreen2(it.last().content)
+    }
+  })
 
   @Test
-  fun shouldPushThirdView() = scope.runTest {
-    runNavigationTest(onLoad = {
-      if(it.last().id == "/screen1" || it.last().id == "/screen2") {
-        pressNextButton(it.last().content)
-      } else {
-        assertEquals(3, it.size)
-        verifyScreen3(it.last().content)
-      }
-    })
-  }
+  fun shouldPushThirdView() = runNavigationTest(onLoad = {
+    if(it.last().id == "/screen1" || it.last().id == "/screen2") {
+      pressNextButton(it.last().content)
+    } else {
+      assertEquals(3, it.size)
+      verifyScreen3(it.last().content)
+    }
+  })
 
   @Test
-  fun shouldShowFallbackWhenPushingFourthView() = scope.runTest {
-    runNavigationTest(onLoad = {
-      if(it.last().id == "/screen1" || it.last().id == "/screen2" || it.last().id == "/screen3") {
-        pressNextButton(it.last().content)
-      } else {
-        assertEquals(4, it.size)
-        verifyFallbackScreen(it.last().content)
-      }
-    })
-  }
+  fun shouldShowFallbackWhenPushingFourthView() = runNavigationTest(onLoad = {
+    if(it.last().id == "/screen1" || it.last().id == "/screen2" || it.last().id == "/screen3") {
+      pressNextButton(it.last().content)
+    } else {
+      assertEquals(4, it.size)
+      verifyFallbackScreen(it.last().content)
+    }
+  })
 
   @Test
-  fun shouldProduceErrorAndNotNavigateWhenGoingToScreen4() = scope.runTest {
-    runNavigationTest(
-      onLoad = {
-        if (it.last().id == "/screen4") fail("we didn't expect to able to load /screen4.")
-        // for "/screen3", there will be two next buttons, we want to press the second
-        val nextButtonIndex = if (it.last().id == "/screen3") 2 else 1
-        pressNextButton(it.last().content, nextButtonIndex)
-      },
-      onError = {
-        assertEquals(true, it is ResponseError)
-        it as ResponseError
-        assertEquals(404, it.status)
-      }
-    )
-  }
+  fun shouldProduceErrorAndNotNavigateWhenGoingToScreen4() = runNavigationTest(
+    onLoad = {
+      if (it.last().id == "/screen4") fail("we didn't expect to able to load /screen4.")
+      // for "/screen3", there will be two next buttons, we want to press the second
+      val nextButtonIndex = if (it.last().id == "/screen3") 2 else 1
+      pressNextButton(it.last().content, nextButtonIndex)
+    },
+    onError = {
+      assertEquals(true, it is ResponseError)
+      it as ResponseError
+      assertEquals(404, it.status)
+    }
+  )
 
   @Test
-  fun shouldPushSecondViewAndPop() = scope.runTest {
-    runNavigationTest(onLoad = {
-      if(it.last().id == "/screen1") {
-        pressNextButton(it.last().content)
-      } else {
-        pressPreviousButton(it.last().content)
-        assertEquals(true, it.size == 1)
-        assertEquals("/screen1", it.last().id)
-      }
-    })
-  }
+  fun shouldPushSecondViewAndPop() = runNavigationTest(onLoad = {
+    if(it.last().id == "/screen1") {
+      pressNextButton(it.last().content)
+    } else {
+      pressPreviousButton(it.last().content)
+      assertEquals(true, it.size == 1)
+      assertEquals("/screen1", it.last().id)
+    }
+  })
 
   @Test
-  fun shouldPopToRootFromFallback() = scope.runTest {
-    runNavigationTest(onLoad = {
-      if(it.last().id == "/screen1" || it.last().id == "/screen2" || it.last().id == "/screen3") {
-        pressNextButton(it.last().content)
-      } else {
-        // fallback to /screen3
-        pressPreviousButton(it.last().content)
-        assertEquals(true, it.size == 3)
-        assertEquals("/screen3", it.last().id)
-        // /screen3 to /screen2
-        pressPreviousButton(it.last().content)
-        assertEquals(true, it.size == 2)
-        assertEquals("/screen2", it.last().id)
-        // /screen2 to /screen1
-        pressPreviousButton(it.last().content)
-        assertEquals(true, it.size == 1)
-        assertEquals("/screen1", it.last().id)
-      }
-    })
-  }
+  fun shouldPopToRootFromFallback() = runNavigationTest(onLoad = {
+    if(it.last().id == "/screen1" || it.last().id == "/screen2" || it.last().id == "/screen3") {
+      pressNextButton(it.last().content)
+    } else {
+      // fallback to /screen3
+      pressPreviousButton(it.last().content)
+      assertEquals(true, it.size == 3)
+      assertEquals("/screen3", it.last().id)
+      // /screen3 to /screen2
+      pressPreviousButton(it.last().content)
+      assertEquals(true, it.size == 2)
+      assertEquals("/screen2", it.last().id)
+      // /screen2 to /screen1
+      pressPreviousButton(it.last().content)
+      assertEquals(true, it.size == 1)
+      assertEquals("/screen1", it.last().id)
+    }
+  })
 }
