@@ -17,7 +17,7 @@ class DefaultViewClient(
 ) : ViewClient {
   override suspend fun fetch(request: ViewRequest): RenderNode {
     val coreHeaders = mapOf(
-      "Content-Type" to "application/json",
+      // "Content-Type" to "application/json", fixme: ktor doesn't like this header
       "platform" to platform,
     )
     val url = urlBuilder.build(request.url)
@@ -32,13 +32,13 @@ class DefaultViewClient(
             body = if (request.body == null) null else Json.encodeToString(request.body),
           )
         )
-      } catch (e: Exception) {
+      } catch (e: Throwable) {
         throw RequestError(e.message)
       }
 
       if (response.status < FIRST_BAD_STATUS) return RenderNode.fromJsonString(response.body, idManager)
       throw ResponseError(response.status, response.body)
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
       if (request.fallback == null) throw e
       logger.error("Failed to perform network request to $url, using the provided fallback view instead. " +
         "Cause:\n${e.message ?: "Unknown"}")

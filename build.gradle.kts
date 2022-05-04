@@ -57,6 +57,7 @@ kotlin {
         implementation(kotlin("test"))
         implementation(kotlin("test-common"))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+        implementation("io.ktor:ktor-client-mock:$ktorVersion")
       }
     }
     val androidMain by getting {
