@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.unit.removeSuffix
+import com.zup.nimbus.core.utils.removeSuffix
 
 class DefaultUrlBuilder(
   /**

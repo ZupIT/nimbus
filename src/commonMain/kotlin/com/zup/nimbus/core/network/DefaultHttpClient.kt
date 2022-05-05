@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.unit.then
+import com.zup.nimbus.core.utils.then
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.*

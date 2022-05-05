@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.unit
+package com.zup.nimbus.core.utils
 
 import kotlinx.serialization.json.*
 
