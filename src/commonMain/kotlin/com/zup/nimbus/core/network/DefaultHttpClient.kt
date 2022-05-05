@@ -3,6 +3,7 @@ package com.zup.nimbus.core.network
 import com.zup.nimbus.core.utils.then
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.*
 import io.ktor.client.request.headers
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -12,8 +13,8 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import kotlin.collections.set
 
-class DefaultHttpClient: com.zup.nimbus.core.network.HttpClient {
-  private val client = HttpClient()
+class DefaultHttpClient(engine: HttpClientEngine? = null): com.zup.nimbus.core.network.HttpClient {
+  private val client = if (engine == null) HttpClient() else HttpClient(engine)
 
   override suspend fun sendRequest(request: ServerDrivenRequest): ServerDrivenResponse {
     val response = doRequest(request)

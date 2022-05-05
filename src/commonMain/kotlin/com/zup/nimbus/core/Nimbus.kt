@@ -1,6 +1,6 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.action.ServerDrivenNavigator
+import com.zup.nimbus.core.action.coreActions
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.network.*
@@ -10,13 +10,13 @@ class Nimbus(config: ServerDrivenConfig) {
   // From config
   val baseUrl = config.baseUrl
   val platform = config.platform
-  val actions = config.actions?.toMutableMap() ?: HashMap()
+  val actions = (coreActions + (config.actions ?: emptyMap())).toMutableMap()
   val operations = config.operations?.toMutableMap() ?: HashMap()
   val logger = config.logger ?: DefaultLogger()
-  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder("/")
+  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
   val httpClient = config.httpClient ?: DefaultHttpClient()
-  val viewClient = config.viewClient ?: DefaultViewClient()
   val idManager = config.idManager ?: DefaultIdManager()
+  val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, idManager, logger, platform)
   internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
 
   // Other

@@ -13,7 +13,7 @@ class RenderNode(
    * Stores the properties of this component after they've been processed, i.e. after the expressions have been resolved
    * and actions deserialized.
    */
-  override var properties: MutableMap<String, Any?>?,
+  override var properties: Map<String, Any?>?,
   override var children: List<RenderNode>?,
   /**
    * Stores the original properties of this component, before any processing. This can contain expressions in their
@@ -70,6 +70,33 @@ class RenderNode(
         stateHierarchy = null,
         properties = null,
       )
+    }
+
+    /**
+     * Creates a RenderNode from a Map.
+     *
+     * @throws MalformedComponentError when a component node contains unexpected data.
+     */
+    fun fromMap(map: Map<String, *>, idManager: IdManager): RenderNode {
+      try {
+        val stateMap = map["state"] as Map<String, *>?
+        val rawChildren = map["children"] as List<Map<String, *>>?
+        val children = rawChildren?.map { fromMap(it, idManager) }
+
+        return RenderNode(
+          id = (map["id"] as String?) ?: idManager.next(),
+          component =
+            (map["component"] as String?) ?: throw MalformedComponentError("property \"component\" is required."),
+          stateId = stateMap?.get("id") as String?,
+          stateValue = stateMap?.get("value"),
+          rawProperties = map["properties"] as MutableMap<String, Any?>?,
+          children = children,
+          stateHierarchy = null,
+          properties = null,
+        )
+      } catch (e: ClassCastException) {
+        throw MalformedComponentError(e.message)
+      }
     }
   }
 
