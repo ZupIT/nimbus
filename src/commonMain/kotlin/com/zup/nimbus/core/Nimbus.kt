@@ -26,7 +26,16 @@ class Nimbus(config: ServerDrivenConfig) {
     return ServerDrivenView(this, navigator)
   }
 
-  // todo: remove this method once it's not needed anymore
+  /**
+   * Creates a RenderNode from a JSON string using the idManager provided in the config (or the default idManager if
+   * none has been provided.
+   *
+   * @param json the json string to deserialize into a RenderNode.
+   * @return the resulting RenderNode.
+   * @throws MalformedJson if the string is not a valid json.
+   * @throws MalformedComponentError if a component in the JSON is malformed.
+   */
+  @Throws(MalformedJson::class, MalformedComponentError::class)
   fun createNodeFromJson(json: String): RenderNode {
     return RenderNode.fromJsonString(json, idManager)
   }

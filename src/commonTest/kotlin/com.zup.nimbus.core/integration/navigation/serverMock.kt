@@ -129,25 +129,25 @@ private const val SCREEN3 = """{
 }"""
 
 val serverMock = MockEngine { request ->
-    return@MockEngine when(request.url.toString()) {
-      "$BASE_URL/screen1" -> respond(
-        content = ByteReadChannel(SCREEN1),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      "$BASE_URL/screen2" -> respond(
-        content = ByteReadChannel(SCREEN2),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      "$BASE_URL/screen3" -> respond(
-        content = ByteReadChannel(SCREEN3),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      else -> respond(
-        content = ByteReadChannel(""),
-        status = HttpStatusCode.NotFound,
-      )
-    }
+  return@MockEngine when(request.url.toString()) {
+    "$BASE_URL/screen1" -> respond(
+      content = ByteReadChannel(SCREEN1),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/screen2" -> respond(
+      content = ByteReadChannel(SCREEN2),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/screen3" -> respond(
+      content = ByteReadChannel(SCREEN3),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    else -> respond(
+      content = ByteReadChannel(""),
+      status = HttpStatusCode.NotFound,
+    )
+  }
 }
