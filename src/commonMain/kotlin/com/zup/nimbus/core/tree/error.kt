@@ -1,9 +1,15 @@
 package com.zup.nimbus.core.tree
 
-open class MalformedJson(override var message: String): Error("$message Please check your JSON file.")
+open class MalformedJson(override val message: String): Error("$message Please check your json string.")
 
 class MalformedComponentError(
-  message: String? = null,
-): MalformedJson("Malformed Component.${if (message == null) "" else "\n$message"}")
+  id: String?,
+  jsonPath: String,
+  cause: String? = null,
+): MalformedJson("") {
+  private val idText = if (id == null) "" else """ id "$id" and"""
+  private val causeText = if (cause == null) "" else "\nCause: $cause"
+  override val message = "Error while trying to deserialize component with$idText JSONPath \"$jsonPath\".$causeText"
+}
 
 class MalformedActionListError: MalformedJson("The list of actions is mal-formed.")
