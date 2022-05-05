@@ -1,0 +1,20 @@
+name: Pull request validation
+
+#on:
+#  pull_request:
+#    branches: [main]
+
+on:
+  push:
+    branches: [ci/tests]
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: clear cache
+        run: ./gradlew test
