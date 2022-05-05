@@ -1,12 +1,8 @@
 name: Pull request validation
 
-#on:
-#  pull_request:
-#    branches: [main]
-
 on:
-  push:
-    branches: [ci/tests]
+  pull_request:
+    branches: [main]
 
 jobs:
   validation:
