@@ -1,5 +1,8 @@
 package com.zup.nimbus.core.tree
 
+import com.zup.nimbus.core.utils.UnexpectedDataTypeError
+import com.zup.nimbus.core.utils.valueOf
+
 data class ServerDrivenAction(
   val action: String,
   val properties: Map<String, Any>?,
@@ -20,14 +23,13 @@ data class ServerDrivenAction(
     fun createActionList(actions: List<*>): List<ServerDrivenAction> {
       try {
         return actions.map {
-          it as Map<*, *>
           ServerDrivenAction(
-            action = it["action"] as String,
-            properties = it["properties"] as Map<String, Any>?,
+            action = valueOf(it, "action"),
+            properties = valueOf(it, "properties"),
           )
         }
-      } catch (e: ClassCastException) {
-        throw MalformedActionListError()
+      } catch (e: UnexpectedDataTypeError) {
+        throw MalformedActionListError(e.message)
       }
     }
   }

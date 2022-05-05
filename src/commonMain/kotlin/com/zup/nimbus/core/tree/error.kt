@@ -12,4 +12,4 @@ class MalformedComponentError(
   override val message = "Error while trying to deserialize component with$idText JSONPath \"$jsonPath\".$causeText"
 }
 
-class MalformedActionListError: MalformedJson("The list of actions is mal-formed.")
+class MalformedActionListError(cause: String): MalformedJson("The list of actions is mal-formed.\nCause: $cause")
