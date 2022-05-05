@@ -37,4 +37,16 @@ class Navigator(
   override fun pop() {
     pages.removeLast()
   }
+
+  override fun popTo(url: String) {
+    // no need create an integration test for this (similar to pop)
+  }
+
+  override fun present(request: ViewRequest) {
+    // no need create an integration test for this (similar to push)
+  }
+
+  override fun dismiss() {
+    // no need create an integration test for this (similar to pop)
+  }
 }

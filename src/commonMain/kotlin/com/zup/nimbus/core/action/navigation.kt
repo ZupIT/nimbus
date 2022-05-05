@@ -53,18 +53,30 @@ private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager,
   return null
 }
 
-fun pushView(event: ActionTriggeredEvent) {
+private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   val url = getUrl(properties) ?: return logger.error("The pushView action requires a URL (string).")
-  event.view.parentNavigator.push(ViewRequest(
+  val request = ViewRequest(
     url = url,
     method = getMethod(properties, logger) ?: ServerDrivenHttpMethod.Get,
     headers = getHeaders(properties, logger),
     fallback = getFallback(properties, event.view.nimbusInstance.idManager, logger),
-  ))
+  )
+  if (isPush) event.view.parentNavigator.push(request)
+  else event.view.parentNavigator.present(request)
 }
 
-fun popView(event: ActionTriggeredEvent) {
-  event.view.parentNavigator.pop()
+fun push(event: ActionTriggeredEvent) = pushOrPresent(event, true)
+
+fun pop(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
+
+fun popTo(event: ActionTriggeredEvent) {
+  val logger = event.view.nimbusInstance.logger
+  val url = getUrl(event.action.properties) ?: return logger.error("The pushView action requires a URL (string).")
+  event.view.parentNavigator.popTo(url)
 }
+
+fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
+
+fun dismiss(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
