@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.tree
 
+import com.zup.nimbus.core.utils.then
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import kotlinx.serialization.decodeFromString
@@ -114,7 +115,33 @@ class RenderNode(
    * was the root node or if it wasn't found.
    */
   private fun replace(newNode: RenderNode, idOfNodeToReplace: String): RenderNode? {
-    throw Error("Not Implemented yet!")
+    if (this.id == idOfNodeToReplace) return null
+
+    fun findAndReplaceChild(parentNode: RenderNode, newNode: RenderNode, idOfNodeToReplace: String,): RenderNode? {
+      try {
+        val children = requireNotNull(parentNode.children)
+        if (children.isEmpty()) throw Error()
+
+        val indexToReplace = children.indexOfFirst { child -> child.id == idOfNodeToReplace }
+        if (indexToReplace >= 0) {
+          val newChildren = children.toMutableList()
+          newChildren[indexToReplace] = newNode
+          parentNode.children = newChildren
+          return parentNode
+        }
+
+        for (child in children) {
+          val parent = findAndReplaceChild(child, newNode, idOfNodeToReplace)
+          if (parent != null) return parent
+        }
+
+        return null
+      } catch (exception: Throwable) {
+        return null
+      }
+    }
+
+    return findAndReplaceChild(this, newNode, idOfNodeToReplace)
   }
 
   /**
@@ -130,7 +157,17 @@ class RenderNode(
    * "idOfParentNode". If "idOfParentNode" wasn't found in the tree, null is returned.
    */
   private fun insert(newNode: RenderNode, idOfParentNode: String, mode: TreeUpdateMode): RenderNode? {
-    throw Error("Not Implemented yet!")
+    val target = if (this.id == idOfParentNode) this else findById(idOfParentNode) ?: return null
+    val children = target.children ?: listOf()
+
+    when(mode) {
+      TreeUpdateMode.Append -> target.children = children + listOf(newNode)
+      TreeUpdateMode.Prepend -> target.children = listOf(newNode) + children
+      TreeUpdateMode.Replace -> target.children = listOf(newNode)
+      else -> return null
+    }
+
+    return target
   }
 
   /**
@@ -162,6 +199,21 @@ class RenderNode(
    * @return the node found or null.
    */
   fun findById(id: String): RenderNode? {
-    throw Error("Not Implemented yet!")
+    try {
+      val children = requireNotNull(this.children)
+      if (id.isBlank() || id.isEmpty()) return null
+
+      var i = 0
+      var parent: RenderNode? = null
+      while (i < children.size && parent == null) {
+        val child = children[i]
+        parent = if (child.id == id) child else child.findById(id)
+        i++
+      }
+
+      return parent
+    } catch (error: Throwable) {
+      return null
+    }
   }
 }
