@@ -103,7 +103,7 @@ class RenderNode(
           return parentNode
         }
 
-        for (child in parentNode.children!!) {
+        for (child in children) {
           val parent = findAndReplaceChild(child, newNode, idOfNodeToReplace)
           if (parent != null) return parent
         }
