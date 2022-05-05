@@ -6,7 +6,7 @@ import io.ktor.utils.io.*
 
 const val BASE_URL = "http://tests.com"
 
-private val screen1 = """{
+private const val SCREEN1 = """{
   "component": "layout:container",
   "children": [
     {
@@ -20,7 +20,7 @@ private val screen1 = """{
       "properties": {
         "text": "Next",
         "onPress": [{
-          "action": "pushView",
+          "action": "push",
           "properties": {
             "url": "/screen2"
           }
@@ -30,7 +30,7 @@ private val screen1 = """{
   ]
 }"""
 
-private val screen2 = """{
+private const val SCREEN2 = """{
   "component": "layout:container",
   "children": [
     {
@@ -44,7 +44,7 @@ private val screen2 = """{
       "properties": {
         "text": "Next",
         "onPress": [{
-          "action": "pushView",
+          "action": "push",
           "properties": {
             "url": "/screen3"
           }
@@ -56,14 +56,14 @@ private val screen2 = """{
       "properties": {
         "text": "Previous",
         "onPress": [{
-          "action": "popView"
+          "action": "pop"
         }]
       }
     }
   ]
 }"""
 
-private val screen3 = """{
+private const val SCREEN3 = """{
   "component": "layout:container",
   "children": [
     {
@@ -77,7 +77,7 @@ private val screen3 = """{
       "properties": {
         "text": "Next (error with fallback)",
         "onPress": [{
-          "action": "pushView",
+          "action": "push",
           "properties": {
             "url": "/screen4",
             "fallback": {
@@ -94,7 +94,7 @@ private val screen3 = """{
                   "properties": {
                     "text": "Back to main flow",
                     "onPress": [{
-                      "action": "popView"
+                      "action": "pop"
                     }]
                   }
                 }
@@ -109,7 +109,7 @@ private val screen3 = """{
       "properties": {
         "text": "Next (error without fallback)",
         "onPress": [{
-          "action": "pushView",
+          "action": "push",
           "properties": {
             "url": "/screen4"
           }
@@ -121,7 +121,7 @@ private val screen3 = """{
       "properties": {
         "text": "Previous",
         "onPress": [{
-          "action": "popView"
+          "action": "pop"
         }]
       }
     }
@@ -129,25 +129,25 @@ private val screen3 = """{
 }"""
 
 val serverMock = MockEngine { request ->
-    return@MockEngine when(request.url.toString()) {
-      "$BASE_URL/screen1" -> respond(
-        content = ByteReadChannel(screen1),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      "$BASE_URL/screen2" -> respond(
-        content = ByteReadChannel(screen2),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      "$BASE_URL/screen3" -> respond(
-        content = ByteReadChannel(screen3),
-        status = HttpStatusCode.OK,
-        headers = headersOf(HttpHeaders.ContentType, "application/json")
-      )
-      else -> respond(
-        content = ByteReadChannel(""),
-        status = HttpStatusCode.NotFound,
-      )
-    }
+  return@MockEngine when(request.url.toString()) {
+    "$BASE_URL/screen1" -> respond(
+      content = ByteReadChannel(SCREEN1),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/screen2" -> respond(
+      content = ByteReadChannel(SCREEN2),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/screen3" -> respond(
+      content = ByteReadChannel(SCREEN3),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    else -> respond(
+      content = ByteReadChannel(""),
+      status = HttpStatusCode.NotFound,
+    )
+  }
 }

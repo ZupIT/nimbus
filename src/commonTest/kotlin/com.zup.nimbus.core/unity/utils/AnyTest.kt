@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.utils.utils
+package com.zup.nimbus.core.unity.utils
 
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
