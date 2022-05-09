@@ -32,10 +32,10 @@ class Nimbus(config: ServerDrivenConfig) {
    *
    * @param json the json string to deserialize into a RenderNode.
    * @return the resulting RenderNode.
-   * @throws MalformedJson if the string is not a valid json.
+   * @throws MalformedJsonError if the string is not a valid json.
    * @throws MalformedComponentError if a component in the JSON is malformed.
    */
-  @Throws(MalformedJson::class, MalformedComponentError::class)
+  @Throws(MalformedJsonError::class, MalformedComponentError::class)
   fun createNodeFromJson(json: String): RenderNode {
     return RenderNode.fromJsonString(json, idManager)
   }
