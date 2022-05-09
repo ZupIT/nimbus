@@ -41,13 +41,13 @@ class NavigationTest {
   private fun pressNextButton(pageContent: ServerDrivenNode?, buttonIndex: Int = 1) {
     val nextButton = pageContent?.children?.get(buttonIndex)
     val onPress = nextButton?.properties?.get("onPress")
-    if (onPress is Function0<*>) onPress.invoke()
+    if (onPress is Function<*>) (onPress as (implicitState: Any?) -> Unit)(null)
   }
 
   private fun pressPreviousButton(pageContent: ServerDrivenNode?) {
     val previousButton = pageContent?.children?.last()
     val onPress = previousButton?.properties?.get("onPress")
-    if (onPress is Function0<*>) onPress.invoke()
+    if (onPress is Function<*>) (onPress as (implicitState: Any?) -> Unit)(null)
   }
 
   @Test

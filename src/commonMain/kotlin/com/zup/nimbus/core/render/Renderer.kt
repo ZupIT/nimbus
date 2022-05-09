@@ -20,27 +20,39 @@ class Renderer(
    * "value" can be resolved to itself, a function (actions) or an expression result.
    *
    * @param value the property to resolve.
+   * @param key the map key.
    * @param node the node "value" belongs to.
+   * @param extraStates use this to declare states that should be implicit.
    * @return the resolved value.
    */
-  private fun resolveProperty(value: Any?, node: RenderNode): Any? {
-    if (value == null) return null
+  private fun resolveProperty(
+    value: Any?,
+    key: String,
+    node: RenderNode,
+    extraStates: List<ServerDrivenState>,
+  ): Any? {
     if (value is List<*>) {
-      if (ServerDrivenAction.isActionList(value)) {
+      if (RenderAction.isActionList(value)) {
         try {
           return deserializeActions(
-            actionList = ServerDrivenAction.createActionList(value),
+            actionList = RenderAction.createActionList(value),
+            event = key,
             node = node,
             view = view,
+            extraStates = extraStates,
+            resolve = { propertyValue, propertyKey, implicitStates ->
+              resolveProperty(propertyValue, propertyKey, node, implicitStates)
+            },
           )
         } catch (error: MalformedActionListError) {
           throw RenderingError(error.message)
         }
       }
-      return value.map { resolveProperty(it, node) }
+      return value.map { resolveProperty(it, key, node, extraStates) }
     }
-    if (value is Map<*, *>) return value.mapValues { resolveProperty(it.value, node) }
-    if (value is String && containsExpression(value)) return resolveExpressions(value, node.stateHierarchy)
+    if (value is Map<*, *>) return value.mapValues { resolveProperty(it.value, it.key.toString(), node, extraStates) }
+    val stateHierarchy = (node.stateHierarchy ?: emptyList()) + extraStates
+    if (value is String && containsExpression(value)) return resolveExpressions(value, stateHierarchy)
     return value
   }
 
@@ -59,7 +71,7 @@ class Renderer(
       componentBuilder(node)
     } else {
       node.properties = node.rawProperties?.mapValues {
-        resolveProperty(it.value, node)
+        resolveProperty(it.value, it.key, node, emptyList())
       }
     }
   }
