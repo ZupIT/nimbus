@@ -37,16 +37,16 @@ class RenderNode(
      * @param json the json string to deserialize into a RenderNode.
      * @param idManager the idManager to use for generating ids for components without ids.
      * @return the resulting RenderNode.
-     * @throws MalformedJson if the string is not a valid json.
+     * @throws MalformedJsonError if the string is not a valid json.
      * @throws MalformedComponentError when a component node contains unexpected data.
      */
-    @Throws(MalformedJson::class, MalformedComponentError::class)
+    @Throws(MalformedJsonError::class, MalformedComponentError::class)
     fun fromJsonString(json: String, idManager: IdManager): RenderNode {
       val jsonObject: JsonObject
       try {
         jsonObject = Json.decodeFromString<JsonObject>(json)
       } catch (e: Throwable) {
-        throw MalformedJson("The string provided is not a valid json.")
+        throw MalformedJsonError("The string provided is not a valid json.")
       }
       return fromJsonObject(jsonObject, idManager)
     }

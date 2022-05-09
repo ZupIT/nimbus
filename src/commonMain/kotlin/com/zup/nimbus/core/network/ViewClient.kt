@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.tree.MalformedComponentError
+import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.RenderNode
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -12,8 +13,10 @@ interface ViewClient {
    * @return the UI tree fetched.
    * @throws RequestError if an error happens while creating the request object.
    * @throws ResponseError if an error happens while obtaining the response from the server.
+   * @throws MalformedJsonError if the string is not a valid json.
    * @throws MalformedComponentError if an error happens while deserializing the response into a RenderNode.
    */
-  @Throws(RequestError::class, ResponseError::class, MalformedComponentError::class, CancellationException::class)
+  @Throws(RequestError::class, ResponseError::class, MalformedJsonError::class, MalformedComponentError::class,
+    CancellationException::class)
   suspend fun fetch(request: ViewRequest): RenderNode
 }
