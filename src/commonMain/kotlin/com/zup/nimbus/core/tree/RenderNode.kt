@@ -6,6 +6,8 @@ import com.zup.nimbus.core.utils.valueOf
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 
+private val validKeys = listOf("component", "properties", "id", "children", "state")
+
 class RenderNode(
   override val id: String,
   override val component: String,
@@ -30,7 +32,7 @@ class RenderNode(
   stateId: String?,
   stateValue: Any?,
 ): ServerDrivenNode {
-  companion object Factory {
+  companion object {
     /**
      * Creates a RenderNode from a Json string.
      *
@@ -89,6 +91,13 @@ class RenderNode(
       } catch (e: UnexpectedDataTypeError) {
         throw MalformedComponentError(originalId, jsonPath, e.message)
       }
+    }
+
+    /**
+     * Verifies if the given map is a ServerDrivenNode.
+     */
+    fun isServerDrivenNode(map: Map<*, *>): Boolean {
+      return map["component"] is String && map.keys.find { !validKeys.contains(it) } == null
     }
   }
 
