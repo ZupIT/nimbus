@@ -1,6 +1,5 @@
 package com.zup.nimbus.core.utils
 
-import com.zup.nimbus.core.log.Logger
 import kotlin.reflect.KClass
 
 val dataPathRegex = """(?:^\w+)|(?:\.\w+)|\[\d+\]""".toRegex()
