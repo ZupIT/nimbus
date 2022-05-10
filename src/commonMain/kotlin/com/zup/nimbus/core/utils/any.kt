@@ -83,3 +83,17 @@ inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
     throw e
   }
 }
+
+/**
+ * Recursively copies a value if it's a list or a map. Otherwise, it returns the received value.
+ *
+ * Attention: the copied lists and maps are immutable.
+ *
+ * @param value the value to copy.
+ * @return the copied value.
+ */
+fun deepCopy(value: Any?): Any? {
+  if (value is Map<*, *>) return value.mapValues { deepCopy(value) }
+  if (value is List<*>) return value.map { deepCopy(it) }
+  return value
+}

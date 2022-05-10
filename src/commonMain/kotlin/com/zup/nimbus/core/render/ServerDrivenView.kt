@@ -21,11 +21,18 @@ class ServerDrivenView(
    * The currently rendered tree.
    */
   private var current: RenderNode? = null
+
   /**
    * The set of listeners looking for changes in the current tree. These listeners must be called only for changes that
    * requires re-rendering.
    */
   private val listeners: ArrayList<Listener> = ArrayList()
+
+  /**
+   * Stores the function to make this view stop listening to the Global State.
+   */
+  private var removeGlobalStateListener: (() -> Unit)? = null
+
   /**
    * The Renderer for this view. Use it to change the UI tree or a view state.
    */
@@ -35,6 +42,12 @@ class ServerDrivenView(
     replaceCurrentTree = { current = it },
     onFinish = { runListeners() },
   )
+
+  init {
+    removeGlobalStateListener = nimbusInstance.globalState.onChange {
+      if (current != null) renderer.refresh()
+    }
+  }
 
   private fun runListeners() {
     listeners.forEach { it(current ?: throw EmptyViewError()) }
@@ -55,5 +68,12 @@ class ServerDrivenView(
   fun onChange(listener: Listener): () -> Unit {
     listeners.add(listener)
     return { listeners.remove(listener) }
+  }
+
+  /**
+   * Destroys this view by properly removing every reference that could become invalid.
+   */
+  fun destroy() {
+    removeGlobalStateListener?.let { it() }
   }
 }
