@@ -9,16 +9,7 @@ import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
-
-private fun getMethod(actionProperties: Map<String, *>?, logger: Logger): ServerDrivenHttpMethod {
-  val method: String = valueOf(actionProperties, "method") ?: "Get"
-  return try {
-    ServerDrivenHttpMethod.valueOf(method)
-  } catch (e: IllegalArgumentException) {
-    logger.error("Invalid method provided for the navigation action: $method.")
-    ServerDrivenHttpMethod.Get
-  }
-}
+import com.zup.nimbus.core.utils.valueOfEnum
 
 private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager, logger: Logger): RenderNode? {
   val fallback: Map<String, Any?> = valueOf(actionProperties, "fallback") ?: return null
@@ -33,10 +24,11 @@ private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager,
 private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
+
   try {
     val request = ViewRequest(
       url = valueOf(properties, "url"),
-      method = getMethod(properties, logger),
+      method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
       headers = valueOf(properties, "headers"),
       fallback = getFallback(properties, event.view.nimbusInstance.idManager, logger),
     )
