@@ -11,7 +11,12 @@ open class ServerDrivenState(
   /**
    * The value of the state.
    *
-   * Note: do not set this directly. Use the method "set" instead.
+   * Note 1: this is internal instead of private for performance reasons. We need to be able to easily read this from
+   * the Renderer. This is not public because we don't want a third-party to be able to change this directly. For third-
+   * parties we only offer a copy of this instead.
+   *
+   * Note 2: if this is an ObservableState you probably want to run every change listener when the value changes. For
+   * this reason, prefer using the method "set" instead of setting this directly.
    */
   internal var value: Any?,
   /**
