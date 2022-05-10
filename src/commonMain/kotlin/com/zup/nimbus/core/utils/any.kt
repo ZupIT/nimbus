@@ -8,9 +8,9 @@ class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
 }
 
-open class UnexpectedDataTypeError(
+class UnexpectedDataTypeError(
   val path: String, val expectedType: KClass<*>, val valueFound: Any?, message: String? = null) : Error() {
-  final override val message: String
+  override val message: String
 
   init {
     if (message != null) this.message = message
