@@ -9,15 +9,6 @@ class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
 }
 
-private inline fun buildUnexpectedDataTypeErrorMessage(
-  path: String, expectedType: KClass<*>, valueFound: Any?,
-): String {
-  val at = if (path.isEmpty()) "" else """ at "$path""""
-  val expected = expectedType.simpleName
-  val found = if (valueFound == null) "null" else valueFound::class.simpleName
-  return """Unexpected value type$at. Expected "$expected", found "$found"."""
-}
-
 open class UnexpectedDataTypeError(
   val path: String, val expectedType: KClass<*>, val valueFound: Any?, message: String? = null) : Error() {
   final override val message: String
