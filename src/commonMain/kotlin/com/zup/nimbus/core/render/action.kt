@@ -34,8 +34,9 @@ internal fun deserializeActions(
           """Action with name "${action.action}" has been triggered, but no associated handler has been found.""",
         )
       } else {
-        val implicitState = ServerDrivenState(event, implicitContextValue, node)
-        val newExtraStates = listOf(implicitState) + extraStates
+        val newExtraStates =
+          if (implicitContextValue == null) extraStates
+          else listOf(ServerDrivenState(event, implicitContextValue, node)) + extraStates
         action.properties = action.rawProperties?.mapValues { resolve(it.value, it.key, newExtraStates) }
         handler(ActionTriggeredEvent(action, node, view))
       }
