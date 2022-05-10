@@ -13,13 +13,13 @@ class UnexpectedDataTypeError(
   override val message: String
 
   init {
-    if (message != null) this.message = message
-    else {
+    if (message == null) {
       val at = if (path.isEmpty()) "" else """ at "$path""""
       val expected = expectedType.simpleName
       val found = if (valueFound == null) "null" else valueFound::class.simpleName
       this.message = """Unexpected value type$at. Expected "$expected", found "$found"."""
     }
+    else this.message = message
   }
 }
 
