@@ -7,20 +7,20 @@ import io.ktor.utils.io.*
 const val BASE_URL = "http://tests.com"
 
 private const val SCREEN1 = """{
-  "component": "layout:container",
+  "_:component": "layout:container",
   "children": [
     {
-      "component": "material:text",
+      "_:component": "material:text",
       "properties": {
         "text": "Screen 1"
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Next",
         "onPress": [{
-          "action": "push",
+          "_:action": "push",
           "properties": {
             "url": "/screen2"
           }
@@ -31,20 +31,20 @@ private const val SCREEN1 = """{
 }"""
 
 private const val SCREEN2 = """{
-  "component": "layout:container",
+  "_:component": "layout:container",
   "children": [
     {
-      "component": "material:text",
+      "_:component": "material:text",
       "properties": {
         "text": "Screen 2"
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Next",
         "onPress": [{
-          "action": "push",
+          "_:action": "push",
           "properties": {
             "url": "/screen3"
           }
@@ -52,11 +52,11 @@ private const val SCREEN2 = """{
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Previous",
         "onPress": [{
-          "action": "pop"
+          "_:action": "pop"
         }]
       }
     }
@@ -64,37 +64,37 @@ private const val SCREEN2 = """{
 }"""
 
 private const val SCREEN3 = """{
-  "component": "layout:container",
+  "_:component": "layout:container",
   "children": [
     {
-      "component": "material:text",
+      "_:component": "material:text",
       "properties": {
         "text": "Screen 3"
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Next (error with fallback)",
         "onPress": [{
-          "action": "push",
+          "_:action": "push",
           "properties": {
             "url": "/screen4",
             "fallback": {
-              "component": "layout:container",
+              "_:component": "layout:container",
               "children": [
                 {
-                  "component": "material:text",
+                  "_:component": "material:text",
                   "properties": {
                     "text": "Error fallback"
                   }
                 },
                 {
-                  "component": "material:button",
+                  "_:component": "material:button",
                   "properties": {
                     "text": "Back to main flow",
                     "onPress": [{
-                      "action": "pop"
+                      "_:action": "pop"
                     }]
                   }
                 }
@@ -105,11 +105,11 @@ private const val SCREEN3 = """{
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Next (error without fallback)",
         "onPress": [{
-          "action": "push",
+          "_:action": "push",
           "properties": {
             "url": "/screen4"
           }
@@ -117,11 +117,11 @@ private const val SCREEN3 = """{
       }
     },
     {
-      "component": "material:button",
+      "_:component": "material:button",
       "properties": {
         "text": "Previous",
         "onPress": [{
-          "action": "pop"
+          "_:action": "pop"
         }]
       }
     }

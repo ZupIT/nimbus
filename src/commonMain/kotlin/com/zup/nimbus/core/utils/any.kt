@@ -2,7 +2,7 @@ package com.zup.nimbus.core.utils
 
 import kotlin.reflect.KClass
 
-val dataPathRegex = """(?:^\w+)|(?:\.\w+)|\[\d+\]""".toRegex()
+val dataPathRegex = """(?:^[^\.\[\]]+)|(?:\.[^\.\[\]]+)|\[\d+\]""".toRegex()
 
 class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
