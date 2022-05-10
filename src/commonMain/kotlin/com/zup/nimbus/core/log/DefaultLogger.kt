@@ -20,8 +20,12 @@ class DefaultLogger: Logger {
     isEnabled = false
   }
 
-  override fun log(message: String) {
-    print(LoggerColor.CYAN, message)
+  override fun log(message: String, level: LogLevel) {
+    when (level) {
+      LogLevel.Error -> error(message)
+      LogLevel.Info -> info(message)
+      LogLevel.Warning -> warn(message)
+    }
   }
 
   override fun info(message: String) {
