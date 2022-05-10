@@ -6,8 +6,6 @@ import com.zup.nimbus.core.utils.valueOf
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 
-private val validKeys = listOf("component", "properties", "id", "children", "state")
-
 class RenderNode(
   override val id: String,
   override val component: String,
@@ -46,7 +44,7 @@ class RenderNode(
     fun fromJsonString(json: String, idManager: IdManager): RenderNode {
       val jsonObject: JsonObject
       try {
-        jsonObject = Json.decodeFromString<JsonObject>(json)
+        jsonObject = Json.decodeFromString(json)
       } catch (e: Throwable) {
         throw MalformedJsonError("The string provided is not a valid json.")
       }
@@ -78,7 +76,7 @@ class RenderNode(
       try {
         return RenderNode(
           id = originalId ?: idManager.next(),
-          component = valueOf(map, "component"),
+          component = valueOf(map, "_:component"),
           stateId = valueOf(map, "state.id"),
           stateValue = valueOf(map, "state.value"),
           rawProperties = valueOf(map, "properties"),
@@ -96,8 +94,8 @@ class RenderNode(
     /**
      * Verifies if the given map is a ServerDrivenNode.
      */
-    fun isServerDrivenNode(map: Map<*, *>): Boolean {
-      return map["component"] is String && map.keys.find { !validKeys.contains(it) } == null
+    fun isServerDrivenNode(maybeNode: Any?): Boolean {
+      return maybeNode is Map<*, *> && maybeNode.containsKey("_:component")
     }
   }
 
