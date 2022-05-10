@@ -8,6 +8,7 @@ private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
 class Renderer(
   private val view: ServerDrivenView,
+  private val detachedStates: List<ServerDrivenState>,
   private val getCurrentTree: () -> RenderNode?,
   private val replaceCurrentTree: (tree: RenderNode) -> Unit,
   private val onFinish: () -> Unit,
@@ -114,8 +115,7 @@ class Renderer(
    */
   private fun replaceEntireTree(tree: RenderNode) {
     replaceCurrentTree(tree)
-    // fixme: emptyList() should be replaced with states of global-like behavior, ex.: globalState, navigationState.
-    processTreeAndStateHierarchy(tree, emptyList())
+    processTreeAndStateHierarchy(tree, detachedStates)
   }
 
   /**

@@ -11,7 +11,7 @@ open class ServerDrivenState(
   /**
    * The value of the state.
    *
-   * Note for developers: do not set this directly. Use the method "set" instead.
+   * Note: do not set this directly. Use the method "set" instead.
    */
   internal var value: Any?,
   /**

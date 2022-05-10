@@ -38,6 +38,7 @@ class ServerDrivenView(
    */
   val renderer = Renderer(
     view = this,
+    detachedStates = listOf(nimbusInstance.globalState),
     getCurrentTree = { current },
     replaceCurrentTree = { current = it },
     onFinish = { runListeners() },
