@@ -90,13 +90,7 @@ inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
 }
 
 /**
- * Same as valueOf, but returns a Enum instead.
- *
- * If a defaultValue is provided and `valueOf(data, path)` is null, the defaultValue is returned. Otherwise
- * UnexpectedDataTypeError is thrown.
- *
- * If `data` at `path` is not a String or if it's a String that doesn't correspond to a enum value,
- * UnexpectedDataTypeError is thrown.
+ * Same as valueOf, but returns an Enum instead.
  *
  * @param data the data structure to fetch the enum from.
  * @param path the path at `data` to look for the enum string.
