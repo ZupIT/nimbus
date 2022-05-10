@@ -37,7 +37,12 @@ internal fun deserializeActions(
         val newExtraStates =
           if (implicitContextValue == null) extraStates
           else listOf(ServerDrivenState(event, implicitContextValue, node)) + extraStates
-        action.properties = action.rawProperties?.mapValues { resolve(it.value, it.key, newExtraStates) }
+        action.properties = action.rawProperties?.mapValues {
+          // we should never deserialize ServerDrivenNodes (components) within actions
+          if (it.value is Map<*, *> && RenderNode.isServerDrivenNode(it.value as Map<*, *>)) it.value
+          else resolve(it.value, it.key, newExtraStates)
+          resolve(it.value, it.key, newExtraStates)
+        }
         handler(ActionTriggeredEvent(action, node, view))
       }
     }
