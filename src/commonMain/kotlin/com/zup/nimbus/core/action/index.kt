@@ -8,4 +8,5 @@ val coreActions = mapOf<String, ActionHandler>(
   "popTo" to { popTo(it) },
   "present" to { present(it) },
   "dismiss" to { dismiss(it) },
+  "log" to { log(it) }
 )

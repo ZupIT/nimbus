@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.utils
 
+import com.zup.nimbus.core.log.Logger
 import kotlin.reflect.KClass
 
 val dataPathRegex = """(?:^\w+)|(?:\.\w+)|\[\d+\]""".toRegex()
@@ -8,14 +9,27 @@ class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
 }
 
-class UnexpectedDataTypeError(val path: String, val expectedType: KClass<*>, val valueFound: Any?) : Error() {
-  override val message: String
+private inline fun buildUnexpectedDataTypeErrorMessage(
+  path: String, expectedType: KClass<*>, valueFound: Any?,
+): String {
+  val at = if (path.isEmpty()) "" else """ at "$path""""
+  val expected = expectedType.simpleName
+  val found = if (valueFound == null) "null" else valueFound::class.simpleName
+  return """Unexpected value type$at. Expected "$expected", found "$found"."""
+}
+
+open class UnexpectedDataTypeError(
+  val path: String, val expectedType: KClass<*>, val valueFound: Any?, message: String? = null) : Error() {
+  final override val message: String
 
   init {
-    val at = if (path.isEmpty()) "" else """ at "$path""""
-    val expected = expectedType.simpleName
-    val found = if (valueFound == null) "null" else valueFound::class.simpleName
-    message = """Unexpected value type$at. Expected "$expected", found "$found"."""
+    if (message != null) this.message = message
+    else {
+      val at = if (path.isEmpty()) "" else """ at "$path""""
+      val expected = expectedType.simpleName
+      val found = if (valueFound == null) "null" else valueFound::class.simpleName
+      this.message = """Unexpected value type$at. Expected "$expected", found "$found"."""
+    }
   }
 }
 
@@ -59,6 +73,7 @@ fun extractValueOfMap(data: Any, accessor: String): Any? {
  *
  * @param data the data source to get the return value from.
  * @param path the path to the item we want in `data`.
+ * @return the value casted to the expected type.
  * @throws InvalidDataPathError if an error is encountered while evaluating the path string.
  * @throws UnexpectedDataTypeError if the type of the encountered result (or null if no result is encountered) is not
  * the same as the expected type (T).
@@ -81,5 +96,35 @@ inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
       throw UnexpectedDataTypeError(path, T::class, current)
     }
     throw e
+  }
+}
+
+/**
+ * Same as valueOf, but returns a Enum instead.
+ *
+ * If a defaultValue is provided and `valueOf(data, path)` is null, the defaultValue is returned. Otherwise
+ * UnexpectedDataTypeError is thrown.
+ *
+ * If `data` at `path` is not a String or if it's a String that doesn't correspond to a enum value,
+ * UnexpectedDataTypeError is thrown.
+ *
+ * @param data the data structure to fetch the enum from.
+ * @param path the path at `data` to look for the enum string.
+ * @return the enum value.
+ * @throws InvalidDataPathError if an error is encountered while evaluating the path string.
+ * @throws UnexpectedDataTypeError if null was found, but no default value was provided; if the value encountered is
+ * not a String; or if the value encountered is a String but doesn't correspond to any value in the enum.
+ */
+@Throws(InvalidDataPathError::class, UnexpectedDataTypeError::class)
+inline fun <reified T : Enum<T>> valueOfEnum(data: Any?, path: String = "", defaultValue: T?): T {
+  val stringValue: String? = valueOf(data, path)
+  return try {
+    if (stringValue == null) (defaultValue ?: throw IllegalArgumentException()) else enumValueOf(stringValue)
+  } catch (e: IllegalArgumentException) {
+    val at = if (path.isEmpty()) "" else """ at "$path""""
+    val expected = enumValues<T>().joinToString(", ")
+    val found = stringValue ?: "null"
+    val message = """Unexpected enum string$at. Expected one of: "$expected", found "$found"."""
+    throw UnexpectedDataTypeError(path, Enum::class, stringValue, message)
   }
 }

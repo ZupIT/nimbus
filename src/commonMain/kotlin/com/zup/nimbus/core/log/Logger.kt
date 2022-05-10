@@ -3,7 +3,7 @@ package com.zup.nimbus.core.log
 interface Logger {
   fun enable()
   fun disable()
-  fun log(message: String)
+  fun log(message: String, level: LogLevel)
   fun info(message: String)
   fun warn(message: String)
   fun error(message: String)
