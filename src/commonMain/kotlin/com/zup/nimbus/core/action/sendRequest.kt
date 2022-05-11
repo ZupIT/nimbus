@@ -27,14 +27,14 @@ fun sendRequest(event: ActionTriggeredEvent) {
     val headers: Map<String, String>? = valueOf(properties, "headers")
     val onSuccess: ((successResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onSuccess")
     val onError: ((errorResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onError")
-    val onFinish: (() -> Unit)? = valueOf(properties, "onFinish")
+    val onFinish: ((_: Any?) -> Unit)? = valueOf(properties, "onFinish")
 
     // create request and coroutine scope
     val request = ServerDrivenRequest(
       url = nimbus.urlBuilder.build(url),
       method = method,
       headers = headers,
-      body = Json.encodeToString(data),
+      body = if (data == null) null else Json.encodeToString(data),
     )
     val coroutineScope = CoroutineScope(Dispatchers.Default)
 
@@ -62,7 +62,7 @@ fun sendRequest(event: ActionTriggeredEvent) {
           "message" to (e.message ?: "Unknown error."),
         ))
       }
-      if (onFinish != null) onFinish()
+      if (onFinish != null) onFinish(null)
     }
   } catch (e: Throwable) {
     nimbus.logger.error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")

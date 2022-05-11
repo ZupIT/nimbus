@@ -9,7 +9,7 @@ data class LogEntry(
 
 class LogTimeoutError: Error("Timeout while waiting for log event!")
 
-class ObservableLogger(private val scope: CoroutineScope): Logger {
+class ObservableLogger: Logger {
   override fun enable() {}
   override fun disable() {}
   var logEntries = ArrayList<LogEntry>()
@@ -27,16 +27,30 @@ class ObservableLogger(private val scope: CoroutineScope): Logger {
     stopLogListening()
   }
 
-  fun waitForLogEvent(maximumWaitTimeMs: Long = 500, callback: (log: LogEntry) -> Unit) {
+  /**
+   * Wait for a number of log events. Once all expected events are fired, the callback function is called with the last
+   * log entry.
+   *
+   * If `timeoutMs` passes and the log events don't fire. LogTimeoutError is thrown.
+   *
+   * @param numberOfEvents the number of events to wait for.
+   * @param timeoutMs the maximum amount of time to wait for the events to fire.
+   * @param callback the callback to execute once the expected number of events is fired.
+   * @throws LogTimeoutError if the expected number of events is not fired within `timeoutMs` milliseconds.
+   */
+  fun waitForLogEvents(numberOfEvents: Int = 1, timeoutMs: Long = 500, callback: (log: LogEntry) -> Unit) {
     if (routine != null) throw Error("Concurrent log observations are not supported.")
-    routine = scope.launch {
-      delay(maximumWaitTimeMs)
+    var events = 0
+    routine = CoroutineScope(Dispatchers.Default).launch {
+      delay(timeoutMs)
       stopLogListening()
       throw LogTimeoutError()
     }
     logListener = {
-      callback(it)
-      stopLogListening()
+      if (++events == numberOfEvents) {
+        callback(it)
+        stopLogListening()
+      }
     }
   }
 

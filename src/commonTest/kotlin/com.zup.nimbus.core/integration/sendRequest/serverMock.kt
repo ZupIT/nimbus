@@ -6,31 +6,32 @@ import io.ktor.utils.io.*
 
 const val BASE_URL = "http://tests.com"
 
-fun buildScreen(sendRequestUrl: String?): String {
+fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true): String {
   return """{
-    "component": "layout:container",
+    "_:component": "layout:container",
     "children": [
       {
-        "component": "material:button",
+        "_:component": "material:button",
         "properties": {
           "text": "Load",
           "onPress": [{
-            "action": "sendRequest",
+            "_:action": "sendRequest",
             "properties": {
               ${if (sendRequestUrl == null) "" else "\"url\": \"$sendRequestUrl\","}
               "onSuccess": [{
-                "action": "log",
+                "_:action": "log",
                 "message": "success"
-              }],
+              }]${if (shouldHaveOnAndOnFinish) """,
               "onError": [{
-                "action": "log",
+                "_:action": "log",
                 "level": "Error",
                 "message": "error"
               }],
               "onFinish": [{
-                "action": "log",
+                "_:action": "log",
                 "message": "finish"
               }]
+              """ else ""}
             }
           }]
         }
