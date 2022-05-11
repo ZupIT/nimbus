@@ -1,8 +1,8 @@
 package com.zup.nimbus.core.tree
 
-import com.zup.nimbus.core.utils.then
-import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
+import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
+import com.zup.nimbus.core.utils.valueOf
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 
@@ -30,73 +30,72 @@ class RenderNode(
   stateId: String?,
   stateValue: Any?,
 ): ServerDrivenNode {
-  companion object Factory {
+  companion object {
     /**
      * Creates a RenderNode from a Json string.
      *
+     * @param json the json string to deserialize into a RenderNode.
+     * @param idManager the idManager to use for generating ids for components without ids.
+     * @return the resulting RenderNode.
+     * @throws MalformedJsonError if the string is not a valid json.
      * @throws MalformedComponentError when a component node contains unexpected data.
      */
+    @Throws(MalformedJsonError::class, MalformedComponentError::class)
     fun fromJsonString(json: String, idManager: IdManager): RenderNode {
-      val jsonObject = Json.decodeFromString<JsonObject>(json)
+      val jsonObject: JsonObject
+      try {
+        jsonObject = Json.decodeFromString(json)
+      } catch (e: Throwable) {
+        throw MalformedJsonError("The string provided is not a valid json.")
+      }
       return fromJsonObject(jsonObject, idManager)
     }
 
     /**
      * Creates a RenderNode from a JsonObject.
-     *
+     * @param jsonObject the json object to deserialize into a RenderNode.
+     * @param idManager the idManager to use for generating ids for components without ids.
+     * @return the resulting RenderNode.
      * @throws MalformedComponentError when a component node contains unexpected data.
      */
+    @Throws(MalformedComponentError::class)
     fun fromJsonObject(jsonObject: JsonObject, idManager: IdManager): RenderNode {
-      var stateId: String? = null
-      var stateValue: Any? = null
-      val stateMap = if (jsonObject.containsKey("state")) jsonObject["state"] else null
-      if (stateMap != null) {
-        stateId = stateMap.jsonObject["id"]?.jsonPrimitive?.content ?: throw MalformedComponentError()
-        stateValue = stateMap.jsonObject["value"]?.let { transformJsonElementToKotlinType(it) }
-      }
-
-      val children = jsonObject["children"]?.jsonArray?.map { fromJsonObject(it.jsonObject, idManager) }
-
-      return RenderNode(
-        id = jsonObject["id"]?.jsonPrimitive?.content ?: idManager.next(),
-        component = jsonObject["component"]?.jsonPrimitive?.content ?: throw MalformedComponentError(),
-        stateId = stateId,
-        stateValue = stateValue,
-        // fixme: validate json structure
-        rawProperties = if (jsonObject.containsKey("properties")) transformJsonObjectToMap(
-          jsonObject["properties"]?.jsonObject ?: throw MalformedComponentError()
-        ) else null,
-        children = children,
-        stateHierarchy = null,
-        properties = null,
-      )
+      return fromMap(transformJsonObjectToMap(jsonObject), idManager)
     }
 
     /**
      * Creates a RenderNode from a Map.
-     *
+     * @param map the map to deserialize into a RenderNode.
+     * @param idManager the idManager to use for generating ids for components without ids.
+     * @return the resulting RenderNode.
      * @throws MalformedComponentError when a component node contains unexpected data.
      */
-    fun fromMap(map: Map<String, *>, idManager: IdManager): RenderNode {
+    @Throws(MalformedComponentError::class)
+    fun fromMap(map: Map<String, *>, idManager: IdManager, jsonPath: String = "$"): RenderNode {
+      val originalId: String? = valueOf(map, "id")
       try {
-        val stateMap = map["state"] as Map<String, *>?
-        val rawChildren = map["children"] as List<Map<String, *>>?
-        val children = rawChildren?.map { fromMap(it, idManager) }
-
         return RenderNode(
-          id = (map["id"] as String?) ?: idManager.next(),
-          component =
-            (map["component"] as String?) ?: throw MalformedComponentError("property \"component\" is required."),
-          stateId = stateMap?.get("id") as String?,
-          stateValue = stateMap?.get("value"),
-          rawProperties = map["properties"] as MutableMap<String, Any?>?,
-          children = children,
+          id = originalId ?: idManager.next(),
+          component = valueOf(map, "_:component"),
+          stateId = valueOf(map, "state.id"),
+          stateValue = valueOf(map, "state.value"),
+          rawProperties = valueOf(map, "properties"),
+          children = valueOf<List<Map<String, *>>?>(map, "children")?.mapIndexed { index, value ->
+            fromMap(value, idManager, "$jsonPath.children[:$index]")
+          },
           stateHierarchy = null,
           properties = null,
         )
-      } catch (e: ClassCastException) {
-        throw MalformedComponentError(e.message)
+      } catch (e: UnexpectedDataTypeError) {
+        throw MalformedComponentError(originalId, jsonPath, e.message)
       }
+    }
+
+    /**
+     * Verifies if the given map is a ServerDrivenNode.
+     */
+    fun isServerDrivenNode(maybeNode: Any?): Boolean {
+      return maybeNode is Map<*, *> && maybeNode.containsKey("_:component")
     }
   }
 

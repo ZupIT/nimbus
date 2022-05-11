@@ -31,7 +31,8 @@ fun transformJsonArrayToList(json: JsonArray): List<Any?> {
  * @return the Kotlin primitive equivalent to "json".
  */
 fun transformJsonPrimitiveToPrimitive(json: JsonPrimitive): Any? {
-  return json.booleanOrNull ?: json.intOrNull ?: json.longOrNull ?: json.doubleOrNull ?: json.contentOrNull
+  if (json.isString) return json.content
+  return json.booleanOrNull ?: json.intOrNull ?: json.longOrNull ?: json.doubleOrNull
 }
 
 /**

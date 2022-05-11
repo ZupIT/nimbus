@@ -28,10 +28,9 @@ class ServerDrivenView(
    */
   private val listeners: ArrayList<Listener> = ArrayList()
   /**
-   * The Renderer for this view. We think the final developer should not be able access this, this is why we made it
-   * internal. This could change given a good use-case.
+   * The Renderer for this view. Use it to change the UI tree or a view state.
    */
-  internal val renderer = Renderer(
+  val renderer = Renderer(
     view = this,
     getCurrentTree = { current },
     replaceCurrentTree = { current = it },

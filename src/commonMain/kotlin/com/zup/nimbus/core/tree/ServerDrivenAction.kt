@@ -1,36 +1,13 @@
 package com.zup.nimbus.core.tree
 
-data class ServerDrivenAction(
-  val action: String,
-  val properties: Map<String, Any>?,
-) {
-  companion object {
-    private fun isAction(maybeAction: Any): Boolean {
-      return maybeAction is Map<*, *>
-        && (
-        (maybeAction.keys.size == 1 && maybeAction["action"] is String)
-          || (maybeAction.keys.size == 2 && maybeAction["action"] is String && maybeAction["properties"] is Map<*, *>)
-        )
-    }
-
-    fun isActionList(maybeActionList: List<*>): Boolean {
-      return maybeActionList.isNotEmpty() && isAction(maybeActionList.first()!!)
-    }
-
-    fun createActionList(actions: List<*>): List<ServerDrivenAction> {
-      try {
-        return actions.map {
-          it as Map<*, *>
-          ServerDrivenAction(
-            action = it["action"] as String,
-            properties = it["properties"] as Map<String, Any>?,
-          )
-        }
-      } catch (e: ClassCastException) {
-        throw MalformedActionListError()
-      }
-    }
-  }
+interface ServerDrivenAction {
+  /**
+   * Identifies the action to execute. This follows the pattern "namespace:name", where "namespace:" is optional.
+   * Actions without a namespace are core actions.
+   */
+  val action: String
+  /**
+   * The property map for this action. If this component has no properties, this will be null or an empty map.
+   */
+  val properties: Map<String, Any?>?
 }
-
-
