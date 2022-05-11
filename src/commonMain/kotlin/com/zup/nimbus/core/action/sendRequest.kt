@@ -24,7 +24,7 @@ fun sendRequest(event: ActionTriggeredEvent) {
     val url: String = valueOf(properties, "url")
     val method: ServerDrivenHttpMethod = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get)
     val data: Any? = valueOf(properties, "data")
-    val headers: Map<String, String> = valueOf(properties, "headers")
+    val headers: Map<String, String>? = valueOf(properties, "headers")
     val onSuccess: ((successResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onSuccess")
     val onError: ((errorResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onError")
     val onFinish: (() -> Unit)? = valueOf(properties, "onFinish")
