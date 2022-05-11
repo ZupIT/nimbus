@@ -8,14 +8,14 @@ Pod::Spec.new do |spec|
     spec.summary                  = 'Nimbus Core Library'
     spec.vendored_frameworks      = 'build/cocoapods/framework/NimbusCore.framework'
     spec.libraries                = 'c++'
-
-
-
+                
+                
+                
     spec.pod_target_xcconfig = {
         'KOTLIN_PROJECT_PATH' => ':',
         'PRODUCT_MODULE_NAME' => 'NimbusCore',
     }
-
+                
     spec.script_phases = [
         {
             :name => 'Build nimbus_core',
@@ -35,5 +35,5 @@ Pod::Spec.new do |spec|
             SCRIPT
         }
     ]
-
+                
 end
