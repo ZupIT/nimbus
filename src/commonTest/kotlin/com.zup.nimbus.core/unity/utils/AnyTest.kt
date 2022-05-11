@@ -214,6 +214,20 @@ class AnyTest {
   }
 
   @Test
+  fun shouldGetPathWithSpecialCharacters() {
+    val data = mapOf(
+      "_:component" to "test",
+      "onPress" to listOf(
+        mapOf(":**/action/:__" to "anotherTest")
+      )
+    )
+    val component: String = valueOf(data, "_:component")
+    val action: String = valueOf(data, "onPress[0].:**/action/:__")
+    assertEquals("test", component)
+    assertEquals("anotherTest", action)
+  }
+
+  @Test
   fun shouldGetValuesFromArrayAtPath() {
     val tienName: String = valueOf(testData, "relationships[0].name.real.first")
     val tienRelationshipType: String = valueOf(testData, "relationships[0].types[0].type")

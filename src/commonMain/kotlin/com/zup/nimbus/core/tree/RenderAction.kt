@@ -17,12 +17,8 @@ data class RenderAction(
   val rawProperties: Map<String, Any?>?,
 ): ServerDrivenAction {
   companion object {
-    private fun isAction(maybeAction: Any): Boolean {
-      return maybeAction is Map<*, *>
-        && (
-        (maybeAction.keys.size == 1 && maybeAction["action"] is String)
-          || (maybeAction.keys.size == 2 && maybeAction["action"] is String && maybeAction["properties"] is Map<*, *>)
-        )
+    private fun isAction(maybeAction: Any?): Boolean {
+      return maybeAction is Map<*, *> && maybeAction.containsKey("_:action")
     }
 
     fun isActionList(maybeActionList: List<*>): Boolean {
@@ -33,7 +29,7 @@ data class RenderAction(
       try {
         return actions.map {
           RenderAction(
-            action = valueOf(it, "action"),
+            action = valueOf(it, "_:action"),
             rawProperties = valueOf(it, "properties"),
             properties = null,
           )
