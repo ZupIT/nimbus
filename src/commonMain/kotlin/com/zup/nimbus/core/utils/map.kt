@@ -25,6 +25,6 @@ fun <K, V, T>mapValuesToMutableMap(map: Map<K, V>, iteratee: (entry: Map.Entry<K
  * This must also not be empty. If the path is invalid or can't be found within the map, the map is not modified.
  * @param newValue the new value to set for "map.$path".
  */
-fun setMapValue(map: MutableMap<*, *>, path: String, newValue: Any) {
+fun setMapValue(map: MutableMap<*, *>, path: String, newValue: Any?) {
   // todo
 }
