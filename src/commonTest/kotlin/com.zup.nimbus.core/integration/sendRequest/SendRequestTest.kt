@@ -39,7 +39,7 @@ class SendRequestTest {
     json: String,
     numberOfLogsToWaitFor: Int = 2,
     onLogEvent: () -> Unit,
-  ) = scope.runTest {
+  ) = scope.runTest(TIMEOUT) {
     var changed = 0
     val screen = nimbus.createNodeFromJson(json)
     val view = nimbus.createView(EmptyNavigator())
