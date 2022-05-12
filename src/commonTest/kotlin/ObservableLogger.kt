@@ -43,7 +43,7 @@ class ObservableLogger: Logger {
    * @param timeoutMs the maximum amount of time to wait for (in ms).
    * @throws LogTimeoutError if the expected number of logs is not reached within `timeoutMs` milliseconds.
    */
-  suspend fun waitForLogEvents(numberOfLogs: Int = 1, timeoutMs: Long = 500) {
+  suspend fun waitForLogEvents(numberOfLogs: Int = 1, timeoutMs: Long = 2000) {
     if (routine != null) throw Error("Concurrent log observations are not supported.")
     if (entries.size == numberOfLogs) return
     routine = CoroutineScope(Dispatchers.Default).async {
