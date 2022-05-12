@@ -1,6 +1,5 @@
 package com.zup.nimbus.core.integration.sendRequest
 
-import LogEntry
 import ObservableLogger
 import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.Nimbus
@@ -36,51 +35,65 @@ class SendRequestTest {
 
   private fun runSendRequestTest(
     json: String,
-    numberOfLogsToWaitFor: Int = 1,
-    onLogEvent: (entry: LogEntry) -> Unit,
+    numberOfLogsToWaitFor: Int = 2,
+    onLogEvent: () -> Unit,
   ) = scope.runTest {
     var changed = 0
     val screen = nimbus.createNodeFromJson(json)
     val view = nimbus.createView(EmptyNavigator())
     logger.clear()
-    logger.waitForLogEvents(numberOfLogsToWaitFor) { onLogEvent(it) }
     view.onChange {
       changed++
       pressButtonToSendRequest(it)
     }
     view.renderer.paint(screen)
     assertEquals(1, changed)
+    logger.waitForLogEvents(numberOfLogsToWaitFor)
+    onLogEvent()
   }
 
   @Test
   fun shouldRunOnSuccess() = runSendRequestTest(buildScreen("/user/1")) {
-    assertEquals("success", it.message)
-    assertEquals(LogLevel.Info, it.level)
+    assertEquals(2, logger.entries.size)
+    val firstLog = logger.entries.first()
+    assertEquals("success", firstLog.message)
+    assertEquals(LogLevel.Info, firstLog.level)
   }
 
   @Test
   fun shouldRunOnError() = runSendRequestTest(buildScreen("/user/2")) {
-    assertEquals("error", it.message)
-    assertEquals(LogLevel.Error, it.level)
+    assertEquals(3, logger.entries.size)
+    val firstLog = logger.entries.first()
+    val secondLog = logger.entries[1]
+    assertEquals(LogLevel.Error, firstLog.level)
+    assertEquals("error", secondLog.message)
+    assertEquals(LogLevel.Error, secondLog.level)
   }
 
   @Test
-  fun shouldRunOnFinish() = runSendRequestTest(buildScreen("/user/1"), 2) {
-    assertEquals("finish", it.message)
-    assertEquals(LogLevel.Info, it.level)
+  fun shouldRunOnFinish() = runSendRequestTest(buildScreen("/user/1")) {
+    assertEquals(2, logger.entries.size)
+    val lastLog = logger.entries.last()
+    assertEquals("finish", lastLog.message)
+    assertEquals(LogLevel.Info, lastLog.level)
   }
 
   @Test
-  fun shouldFailBeforeSendingRequest() = runSendRequestTest(buildScreen(null)) {
-    assertContains(it.message, "Unexpected value type at \"url\". Expected \"String\", found \"null\".")
-    assertEquals(LogLevel.Error, it.level)
+  fun shouldFailBeforeSendingRequest() = runSendRequestTest(buildScreen(null), 1) {
+    assertEquals(1, logger.entries.size)
+    val firstLog = logger.entries.first()
+    assertContains(firstLog.message, "Unexpected value type at \"url\". Expected \"String\", found \"null\".")
+    assertEquals(LogLevel.Error, firstLog.level)
   }
 
   @Test
   fun shouldRunOnSuccessIfOnErrorAndOnFinishAreMissing() = runSendRequestTest(
     buildScreen("/user/1", false),
+    1,
   ) {
-    assertEquals("success", it.message)
-    assertEquals(LogLevel.Info, it.level)
+    assertEquals(1, logger.entries.size)
+    val firstLog = logger.entries.first()
+    assertEquals("success", firstLog.message)
+    assertEquals(LogLevel.Info, firstLog.level)
   }
 }

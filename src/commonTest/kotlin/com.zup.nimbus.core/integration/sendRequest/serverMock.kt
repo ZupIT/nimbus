@@ -20,16 +20,22 @@ fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true
               ${if (sendRequestUrl == null) "" else "\"url\": \"$sendRequestUrl\","}
               "onSuccess": [{
                 "_:action": "log",
-                "message": "success"
+                "properties": {
+                  "message": "success"
+                 }
               }]${if (shouldHaveOnAndOnFinish) """,
               "onError": [{
                 "_:action": "log",
-                "level": "Error",
-                "message": "error"
+                "properties": {
+                  "level": "Error",
+                  "message": "error"
+                }
               }],
               "onFinish": [{
                 "_:action": "log",
-                "message": "finish"
+                "properties": {
+                  "message": "finish"
+                }
               }]
               """ else ""}
             }
