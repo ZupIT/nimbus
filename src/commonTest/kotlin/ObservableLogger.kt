@@ -7,8 +7,6 @@ data class LogEntry(
   val level: LogLevel,
 )
 
-class LogTimeoutError: Error("Timeout while waiting for log event!")
-
 class ObservableLogger: Logger {
   override fun enable() {}
   override fun disable() {}
@@ -32,25 +30,14 @@ class ObservableLogger: Logger {
    * created the expected number of logs, this suspended function completes automatically. Otherwise, it completes once
    * the expected number of logs is created.
    *
-   * If `timeoutMs` milliseconds passes and the expected amount of logs is not created. LogTimeoutError is thrown.
-   *
    * Use `clear` to reset the log count.
    *
-   * Attention: since this throws an exception when it times out, you might want to increase the timeout for debugging
-   * the code that comes before it.
-   *
    * @param numberOfLogs the number of logs to wait for.
-   * @param timeoutMs the maximum amount of time to wait for (in ms).
-   * @throws LogTimeoutError if the expected number of logs is not reached within `timeoutMs` milliseconds.
    */
-  suspend fun waitForLogEvents(numberOfLogs: Int = 1, timeoutMs: Long = 500) {
+  suspend fun waitForLogEvents(numberOfLogs: Int = 1) {
     if (routine != null) throw Error("Concurrent log observations are not supported.")
     if (entries.size == numberOfLogs) return
-    routine = CoroutineScope(Dispatchers.Default).async {
-      delay(timeoutMs)
-      stopLogListening()
-      throw LogTimeoutError()
-    }
+    routine = CoroutineScope(Dispatchers.Default).async {  awaitCancellation() }
     logListener = {
       if (entries.size == numberOfLogs) {
         stopLogListening()
