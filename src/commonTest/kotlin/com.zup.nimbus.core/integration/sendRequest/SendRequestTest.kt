@@ -20,7 +20,7 @@ private const val TIMEOUT = 500L
 @OptIn(ExperimentalCoroutinesApi::class)
 class SendRequestTest {
   private val scope = TestScope()
-  private val logger = ObservableLogger()
+  private val logger = ObservableLogger(scope)
 
   private val nimbus = Nimbus(ServerDrivenConfig(
     baseUrl = BASE_URL,
