@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration.sendRequest
 
+import LogEntry
 import ObservableLogger
 import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.Nimbus
@@ -18,14 +19,6 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class SendRequestTest {
   private val scope = TestScope()
-  private val logger = ObservableLogger()
-
-  private val nimbus = Nimbus(ServerDrivenConfig(
-    baseUrl = BASE_URL,
-    platform = "test",
-    httpClient = DefaultHttpClient(serverMock),
-    logger = logger,
-  ))
 
   private fun pressButtonToSendRequest(content: ServerDrivenNode) {
     val button = content.children?.get(0)!!
@@ -36,12 +29,18 @@ class SendRequestTest {
   private fun runSendRequestTest(
     json: String,
     numberOfLogsToWaitFor: Int = 2,
-    onLogEvent: () -> Unit,
+    onLogEvent: (entries: List<LogEntry>) -> Unit,
   ) = scope.runTest {
+    val logger = ObservableLogger()
+    val nimbus = Nimbus(ServerDrivenConfig(
+      baseUrl = BASE_URL,
+      platform = "test",
+      httpClient = DefaultHttpClient(serverMock),
+      logger = logger,
+    ))
     var changed = 0
     val screen = nimbus.createNodeFromJson(json)
     val view = nimbus.createView(EmptyNavigator())
-    logger.clear()
     view.onChange {
       changed++
       pressButtonToSendRequest(it)
@@ -49,22 +48,22 @@ class SendRequestTest {
     view.renderer.paint(screen)
     assertEquals(1, changed)
     logger.waitForLogEvents(numberOfLogsToWaitFor)
-    onLogEvent()
+    onLogEvent(logger.entries)
   }
 
   @Test
   fun shouldRunOnSuccess() = runSendRequestTest(buildScreen("/user/1")) {
-    assertEquals(2, logger.entries.size)
-    val firstLog = logger.entries.first()
+    assertEquals(2, it.size)
+    val firstLog = it.first()
     assertEquals("success", firstLog.message)
     assertEquals(LogLevel.Info, firstLog.level)
   }
 
   @Test
   fun shouldRunOnError() = runSendRequestTest(buildScreen("/user/2")) {
-    assertEquals(3, logger.entries.size)
-    val firstLog = logger.entries.first()
-    val secondLog = logger.entries[1]
+    assertEquals(3, it.size)
+    val firstLog = it.first()
+    val secondLog = it[1]
     assertEquals(LogLevel.Error, firstLog.level)
     assertEquals("error", secondLog.message)
     assertEquals(LogLevel.Error, secondLog.level)
@@ -72,16 +71,16 @@ class SendRequestTest {
 
   @Test
   fun shouldRunOnFinish() = runSendRequestTest(buildScreen("/user/1")) {
-    assertEquals(2, logger.entries.size)
-    val lastLog = logger.entries.last()
+    assertEquals(2, it.size)
+    val lastLog = it.last()
     assertEquals("finish", lastLog.message)
     assertEquals(LogLevel.Info, lastLog.level)
   }
 
   @Test
   fun shouldFailBeforeSendingRequest() = runSendRequestTest(buildScreen(null), 1) {
-    assertEquals(1, logger.entries.size)
-    val firstLog = logger.entries.first()
+    assertEquals(1, it.size)
+    val firstLog = it.first()
     assertContains(firstLog.message, "Unexpected value type at \"url\". Expected \"String\", found \"null\".")
     assertEquals(LogLevel.Error, firstLog.level)
   }
@@ -91,8 +90,8 @@ class SendRequestTest {
     buildScreen("/user/1", false),
     1,
   ) {
-    assertEquals(1, logger.entries.size)
-    val firstLog = logger.entries.first()
+    assertEquals(1, it.size)
+    val firstLog = it.first()
     assertEquals("success", firstLog.message)
     assertEquals(LogLevel.Info, firstLog.level)
   }
