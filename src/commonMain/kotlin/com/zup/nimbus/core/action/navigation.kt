@@ -10,6 +10,9 @@ import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager, logger: Logger): RenderNode? {
   val fallback: Map<String, Any?> = valueOf(actionProperties, "fallback") ?: return null
@@ -21,17 +24,21 @@ private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager,
   }
 }
 
-private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
+private fun requestFromEvent(event: ActionTriggeredEvent): ViewRequest {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
+  return ViewRequest(
+    url = valueOf(properties, "url"),
+    method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
+    headers = valueOf(properties, "headers"),
+    fallback = getFallback(properties, event.view.nimbusInstance.idManager, logger),
+  )
+}
 
+private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
+  val logger = event.view.nimbusInstance.logger
   try {
-    val request = ViewRequest(
-      url = valueOf(properties, "url"),
-      method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
-      headers = valueOf(properties, "headers"),
-      fallback = getFallback(properties, event.view.nimbusInstance.idManager, logger),
-    )
+    val request = requestFromEvent(event)
     if (isPush) event.view.parentNavigator.push(request)
     else event.view.parentNavigator.present(request)
   } catch (e: UnexpectedDataTypeError) {
@@ -55,3 +62,14 @@ fun popTo(event: ActionTriggeredEvent) {
 fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
 
 fun dismiss(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
+
+fun onPushOrPresentRendered(event: ActionTriggeredEvent) {
+  val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
+  if (!prefetch) return
+  try {
+    val request = requestFromEvent(event)
+    event.view.nimbusInstance.viewClient.preFetch(request)
+  } catch (e: Throwable) {
+    event.view.nimbusInstance.logger.error("Error while pre-fetching view.\n${e.message}")
+  }
+}

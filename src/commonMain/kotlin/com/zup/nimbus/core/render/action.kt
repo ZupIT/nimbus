@@ -7,6 +7,8 @@ import com.zup.nimbus.core.tree.ServerDrivenState
 /**
  * Deserializes a list of ServerDrivenAction into a function.
  *
+ * When an action is deserialized, if there's any onActionRendered handler for it, it's run.
+ *
  * @param actionList the list of actions to parse into a function.
  * @param event name of the event that triggers the actionList, i.e. the key of the map entry. This will act as the id
  * of the implicit state (if any).
@@ -26,6 +28,18 @@ internal fun deserializeActions(
   extraStates: List<ServerDrivenState>,
   resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
 ): (implicitContextValue: Any?) -> Unit {
+  val missingHandlers = ArrayList<String>()
+  actionList.forEach { action ->
+    val appearHandler = view.nimbusInstance.onActionRendered[action.action]
+    val executionHandler = view.nimbusInstance.actions[action.action]
+    if (appearHandler != null) appearHandler(ActionTriggeredEvent(action, node, view))
+    if (executionHandler == null) missingHandlers.add(action.action)
+  }
+  if (missingHandlers.isNotEmpty()) {
+    view.nimbusInstance.logger.warn("The following actions used in the current screen don't have any associated " +
+      "handler: ${missingHandlers.distinct().joinToString(", ")}")
+  }
+
   return { implicitContextValue ->
     actionList.forEach { action ->
       val handler = view.nimbusInstance.actions[action.action]

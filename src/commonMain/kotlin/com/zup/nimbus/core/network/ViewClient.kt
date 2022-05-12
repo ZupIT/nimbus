@@ -19,4 +19,6 @@ interface ViewClient {
   @Throws(RequestError::class, ResponseError::class, MalformedJsonError::class, MalformedComponentError::class,
     CancellationException::class)
   suspend fun fetch(request: ViewRequest): RenderNode
+
+  fun preFetch(request: ViewRequest)
 }
