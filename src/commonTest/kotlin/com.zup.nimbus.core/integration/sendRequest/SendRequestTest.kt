@@ -15,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-private const val TIMEOUT = 500L
+private const val TIMEOUT = 1000L
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SendRequestTest {
