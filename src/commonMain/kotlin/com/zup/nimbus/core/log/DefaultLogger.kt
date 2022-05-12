@@ -36,10 +36,6 @@ class DefaultLogger: Logger {
     print(LoggerColor.YELLOW, message)
   }
 
-  override fun success(message: String) {
-    print(LoggerColor.GREEN, message)
-  }
-
   override fun error(message: String) {
     print(LoggerColor.RED, message)
   }

@@ -75,8 +75,4 @@ class ObservableLogger(private val scope: CoroutineScope): Logger {
   override fun error(message: String) {
     log(message, LogLevel.Error)
   }
-
-  override fun success(message: String) {
-    TODO("Not yet implemented")
-  }
 }
