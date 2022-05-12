@@ -2,11 +2,13 @@ package com.zup.nimbus.core.render
 
 import com.zup.nimbus.core.tree.*
 import com.zup.nimbus.core.utils.setMapValue
+import com.zup.nimbus.core.utils.valueOf
 
 private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
 class Renderer(
   private val view: ServerDrivenView,
+  private val detachedStates: List<ServerDrivenState>,
   private val getCurrentTree: () -> RenderNode?,
   private val replaceCurrentTree: (tree: RenderNode) -> Unit,
   private val onFinish: () -> Unit,
@@ -107,33 +109,13 @@ class Renderer(
   }
 
   /**
-   * Changes the value of the state passed as parameter. This doesn't reprocess the tree or trigger any re-render event,
-   * it just alters the state value according to a path.
-   *
-   * @param state the state to alter.
-   * @param path the path within the state to modify. Example: "" to alter the entire state. "foo.bar" to alter the
-   * property "bar" of "foo" in the map "state.value". If "path" is not empty and "state.value" is not a mutable map, it
-   * is converted to one. The path must only contain letters, numbers and underscores separated by dots.
-   * @param value the new value of "state.value.$path".
-   */
-  private fun changeStateValue(state: ServerDrivenState, path: String, value: Any) {
-    if (path.isEmpty()) {
-      state.value = value
-    } else {
-        if (state.value !is MutableMap<*, *>) state.value = HashMap<String, Any>()
-        setMapValue(state.value as MutableMap<*, *>, path, value)
-    }
-  }
-
-  /**
    * Replaces the current tree with a new one. This processes the tree but doesn't trigger a re-render.
    *
    * @param tree the new tree to render.
    */
   private fun replaceEntireTree(tree: RenderNode) {
     replaceCurrentTree(tree)
-    // fixme: emptyList() should be replaced with states of global-like behavior, ex.: globalState, navigationState.
-    processTreeAndStateHierarchy(tree, emptyList())
+    processTreeAndStateHierarchy(tree, detachedStates)
   }
 
   /**
@@ -176,6 +158,16 @@ class Renderer(
   }
 
   /**
+   * Reprocesses the entire tree without changing its structure. Useful for updating values of states that live outside
+   * the tree, example: the global state.
+   */
+  fun refresh() {
+    val current = getCurrentTree() ?: return logger.error("Can't refresh blank ServerDrivenView.")
+    processTree(current)
+    onFinish()
+  }
+
+  /**
    * Changes the current state, reprocesses every node that could've been affected and triggers a re-render event.
    *
    * If the state is not accessible from "sourceNode" no re-render will happen and the error will be logged.
@@ -194,8 +186,8 @@ class Renderer(
       val (stateId, statePath) = matchResult.destructured
       val stateHierarchy = sourceNode.stateHierarchy ?: throw InvalidTreeError()
       val state = stateHierarchy.find { it.id == stateId } ?: throw StateNotFoundError(path, sourceNode.id)
-      changeStateValue(state, statePath, newValue)
-      processTree(state.parent)
+      state.set(newValue, statePath)
+      if (state.parent != null) processTree(state.parent)
       onFinish()
     } catch (error: RenderingError) {
       logger.error(error.message)

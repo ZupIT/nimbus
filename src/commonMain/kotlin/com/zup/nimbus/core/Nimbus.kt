@@ -4,6 +4,7 @@ import com.zup.nimbus.core.action.coreActions
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.network.*
+import com.zup.nimbus.core.tree.ObservableState
 import com.zup.nimbus.core.tree.*
 
 class Nimbus(config: ServerDrivenConfig) {
@@ -20,7 +21,7 @@ class Nimbus(config: ServerDrivenConfig) {
   internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
 
   // Other
-  val globalState = GlobalState()
+  val globalState = ObservableState("global", null)
 
   fun createView(navigator: ServerDrivenNavigator): ServerDrivenView {
     return ServerDrivenView(this, navigator)
