@@ -6,8 +6,6 @@ import com.zup.nimbus.core.tree.RenderNode
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-const val FIRST_BAD_STATUS = 400
-
 class DefaultViewClient(
   private val httpClient: HttpClient,
   private val urlBuilder: UrlBuilder,

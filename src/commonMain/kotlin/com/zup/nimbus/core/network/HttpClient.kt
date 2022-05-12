@@ -1,5 +1,7 @@
 package com.zup.nimbus.core.network
 
+const val FIRST_BAD_STATUS = 400
+
 interface HttpClient {
   suspend fun sendRequest(request: ServerDrivenRequest): ServerDrivenResponse
 }
