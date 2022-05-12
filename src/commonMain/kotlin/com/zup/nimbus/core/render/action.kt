@@ -32,7 +32,7 @@ internal fun deserializeActions(
   actionList.forEach { action ->
     val appearHandler = view.nimbusInstance.onActionRendered[action.action]
     val executionHandler = view.nimbusInstance.actions[action.action]
-    if (appearHandler != null) appearHandler(ActionTriggeredEvent(action, node, view))
+    if (appearHandler != null) appearHandler(ActionEvent(action, node, view))
     if (executionHandler == null) missingHandlers.add(action.action)
   }
   if (missingHandlers.isNotEmpty()) {
@@ -58,7 +58,7 @@ internal fun deserializeActions(
           if (it.value is Map<*, *> && RenderNode.isServerDrivenNode(it.value as Map<*, *>)) it.value
           else resolve(it.value, it.key, newExtraStates)
         }
-        handler(ActionTriggeredEvent(action, node, view))
+        handler(ActionEvent(action, node, view))
       }
     }
   }

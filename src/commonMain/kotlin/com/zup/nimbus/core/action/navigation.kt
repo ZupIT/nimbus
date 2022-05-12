@@ -3,16 +3,13 @@ package com.zup.nimbus.core.action
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.render.ActionTriggeredEvent
+import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager, logger: Logger): RenderNode? {
   val fallback: Map<String, Any?> = valueOf(actionProperties, "fallback") ?: return null
@@ -24,7 +21,7 @@ private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager,
   }
 }
 
-private fun requestFromEvent(event: ActionTriggeredEvent): ViewRequest {
+private fun requestFromEvent(event: ActionEvent): ViewRequest {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   return ViewRequest(
@@ -35,7 +32,7 @@ private fun requestFromEvent(event: ActionTriggeredEvent): ViewRequest {
   )
 }
 
-private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
+private fun pushOrPresent(event: ActionEvent, isPush: Boolean) {
   val logger = event.view.nimbusInstance.logger
   try {
     val request = requestFromEvent(event)
@@ -46,11 +43,11 @@ private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
   }
 }
 
-fun push(event: ActionTriggeredEvent) = pushOrPresent(event, true)
+fun push(event: ActionEvent) = pushOrPresent(event, true)
 
-fun pop(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
+fun pop(event: ActionEvent) = event.view.parentNavigator.pop()
 
-fun popTo(event: ActionTriggeredEvent) {
+fun popTo(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   try {
     event.view.parentNavigator.popTo(valueOf(event.action.properties, "url"))
@@ -59,11 +56,11 @@ fun popTo(event: ActionTriggeredEvent) {
   }
 }
 
-fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
+fun present(event: ActionEvent) = pushOrPresent(event, false)
 
-fun dismiss(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
+fun dismiss(event: ActionEvent) = event.view.parentNavigator.pop()
 
-fun onPushOrPresentRendered(event: ActionTriggeredEvent) {
+fun onPushOrPresentRendered(event: ActionEvent) {
   val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
   if (!prefetch) return
   try {
