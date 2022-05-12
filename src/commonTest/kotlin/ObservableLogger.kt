@@ -1,6 +1,7 @@
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.log.Logger
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 data class LogEntry(
   val message: String,
@@ -36,11 +37,13 @@ class ObservableLogger: Logger {
    */
   suspend fun waitForLogEvents(numberOfLogs: Int = 1) {
     if (routine != null) throw Error("Concurrent log observations are not supported.")
-    if (entries.size == numberOfLogs) return
-    routine = CoroutineScope(Dispatchers.Default).async {  awaitCancellation() }
-    logListener = {
-      if (entries.size == numberOfLogs) {
-        stopLogListening()
+    // withContext makes the block atomic (thread-safe)
+    withContext(Dispatchers.Default) {
+      if (entries.size < numberOfLogs) {
+        routine = this.async { awaitCancellation() }
+        logListener = {
+          if (entries.size == numberOfLogs) { stopLogListening() }
+        }
       }
     }
     try {
