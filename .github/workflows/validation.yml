@@ -19,6 +19,7 @@ jobs:
           java-version: '11'
 
       - name: Run tests
+        id: gradle
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --scan
