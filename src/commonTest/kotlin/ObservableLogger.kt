@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.Volatile
 
 data class LogEntry(
   val message: String,
@@ -13,9 +14,11 @@ data class LogEntry(
 class ObservableLogger(private val scope: CoroutineScope): Logger {
   override fun enable() {}
   override fun disable() {}
+  @Volatile
   var entries = ArrayList<LogEntry>()
   private var routine: Deferred<Unit>? = null
   private var logListener: (() -> Unit)? = null
+  private val mutex = Mutex()
 
   private fun stopLogListening() {
     logListener = null
@@ -39,8 +42,6 @@ class ObservableLogger(private val scope: CoroutineScope): Logger {
    */
   suspend fun waitForLogEvents(numberOfLogs: Int = 1) {
     if (routine != null) throw Error("Concurrent log observations are not supported.")
-    val mutex = Mutex()
-    // withLock makes the block atomic (thread-safe)
     mutex.withLock {
       if (entries.size < numberOfLogs) {
         routine = scope.async { awaitCancellation() }
@@ -55,8 +56,12 @@ class ObservableLogger(private val scope: CoroutineScope): Logger {
   }
 
   override fun log(message: String, level: LogLevel) {
-    entries.add(LogEntry(message, level))
-    if (logListener != null) logListener!!()
+    scope.launch {
+      mutex.withLock {
+        entries.add(LogEntry(message, level))
+        if (logListener != null) logListener!!()
+      }
+    }
   }
 
   override fun info(message: String) {
