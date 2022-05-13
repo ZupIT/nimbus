@@ -26,7 +26,7 @@ class Nimbus(config: ServerDrivenConfig) {
 
   /**
    * Functions to run once an action goes through the rendering process for the first time.
-   * This is currently used for performing pre-fetches in navigation actions.
+   * This is currently used only for performing pre-fetches in navigation actions.
    */
   val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
