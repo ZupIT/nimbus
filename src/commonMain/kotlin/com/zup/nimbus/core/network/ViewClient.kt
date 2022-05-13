@@ -20,5 +20,14 @@ interface ViewClient {
     CancellationException::class)
   suspend fun fetch(request: ViewRequest): RenderNode
 
+  /**
+   * Pre-fetches a view (UI tree) from the server and stores it. The next fetch will get the stored value instead of
+   * performing a network request.
+   *
+   * Each implementation of the ViewClient decides how its pre-fetch logic works. See `DefaultViewClient` for the
+   * default logic.
+   *
+   * @param request the data for the request to make.
+   */
   fun preFetch(request: ViewRequest)
 }

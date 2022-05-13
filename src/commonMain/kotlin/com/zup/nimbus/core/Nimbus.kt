@@ -23,6 +23,11 @@ class Nimbus(config: ServerDrivenConfig) {
 
   // Other
   val globalState = ObservableState("global", null)
+
+  /**
+   * Functions to run once an action goes through the rendering process for the first time.
+   * This is currently used for performing pre-fetches in navigation actions.
+   */
   val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
   fun createView(navigator: ServerDrivenNavigator): ServerDrivenView {

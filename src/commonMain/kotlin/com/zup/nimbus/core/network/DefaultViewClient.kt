@@ -2,6 +2,8 @@ package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.IdManager
+import com.zup.nimbus.core.tree.MalformedComponentError
+import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.RenderNode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -67,6 +69,21 @@ class DefaultViewClient(
     }
   }
 
+  /**
+   * Pre-fetches a view (UI tree) from the server and stores it in memory. The next fetch will get the stored value
+   * instead of performing a network request.
+   *
+   * Rules:
+   * - A prefetch is identified by a string in the format "method:url".
+   * - The prefetched result is used only once by the fetch function.
+   * - A prefetch for a view that has already been prefetched will:
+   *   1. fetch the view again and replace the current pre-fetched value if the request has finished;
+   *   2. Do nothing if there's already a pending request to the view.
+   * - A fetch call for a view that has been prefetched, but the request has not yet finished will await the response
+   * instead of making another network call.
+   *
+   * @param request the data for the request to make.
+   */
   override fun preFetch(request: ViewRequest) {
     CoroutineScope(Dispatchers.Default).launch {
       mutex.withLock {

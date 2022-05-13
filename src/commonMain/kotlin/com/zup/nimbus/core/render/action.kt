@@ -28,16 +28,20 @@ internal fun deserializeActions(
   extraStates: List<ServerDrivenState>,
   resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
 ): (implicitContextValue: Any?) -> Unit {
-  val missingHandlers = ArrayList<String>()
-  actionList.forEach { action ->
-    val appearHandler = view.nimbusInstance.onActionRendered[action.action]
-    val executionHandler = view.nimbusInstance.actions[action.action]
-    if (appearHandler != null) appearHandler(ActionEvent(action, node, view))
-    if (executionHandler == null) missingHandlers.add(action.action)
-  }
-  if (missingHandlers.isNotEmpty()) {
-    view.nimbusInstance.logger.warn("The following actions used in the current screen don't have any associated " +
-      "handler: ${missingHandlers.distinct().joinToString(", ")}")
+  if (!node.isRendered) {
+    val missingHandlers = ArrayList<String>()
+    actionList.forEach { action ->
+      val onRenderedHandler = view.nimbusInstance.onActionRendered[action.action]
+      val executionHandler = view.nimbusInstance.actions[action.action]
+      if (onRenderedHandler != null) onRenderedHandler(ActionEvent(action, node, view))
+      if (executionHandler == null) missingHandlers.add(action.action)
+    }
+    if (missingHandlers.isNotEmpty()) {
+      view.nimbusInstance.logger.warn(
+        "The following actions used in component with id ${node.id} don't have any associated " +
+          "handler: ${missingHandlers.distinct().joinToString(", ")}"
+      )
+    }
   }
 
   return { implicitContextValue ->
