@@ -58,7 +58,7 @@ fun popTo(event: ActionEvent) {
 
 fun present(event: ActionEvent) = pushOrPresent(event, false)
 
-fun dismiss(event: ActionEvent) = event.view.parentNavigator.pop()
+fun dismiss(event: ActionEvent) = event.view.parentNavigator.dismiss()
 
 fun onPushOrPresentRendered(event: ActionEvent) {
   val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false

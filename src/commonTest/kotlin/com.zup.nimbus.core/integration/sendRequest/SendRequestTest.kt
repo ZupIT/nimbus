@@ -1,9 +1,6 @@
 package com.zup.nimbus.core.integration.sendRequest
 
-import ObservableLogger
-import com.zup.nimbus.core.EmptyNavigator
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.*
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.tree.ServerDrivenNode
@@ -15,12 +12,10 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-private const val TIMEOUT = 500L
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class SendRequestTest {
   private val scope = TestScope()
-  private val logger = ObservableLogger(scope)
+  private val logger = ObservableLogger()
 
   private val nimbus = Nimbus(ServerDrivenConfig(
     baseUrl = BASE_URL,
@@ -39,7 +34,7 @@ class SendRequestTest {
     json: String,
     numberOfLogsToWaitFor: Int = 2,
     onLogEvent: () -> Unit,
-  ) = scope.runTest(TIMEOUT) {
+  ) = scope.runTest {
     var changed = 0
     val screen = nimbus.createNodeFromJson(json)
     val view = nimbus.createView(EmptyNavigator())
@@ -50,7 +45,7 @@ class SendRequestTest {
     }
     view.renderer.paint(screen)
     assertEquals(1, changed)
-    logger.waitForLogEvents(numberOfLogsToWaitFor)
+    AsyncUtils.waitUntil { logger.entries.size >= numberOfLogsToWaitFor }
     onLogEvent()
   }
 
@@ -63,7 +58,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldRunOnError() = runSendRequestTest(buildScreen("/user/2")) {
+  fun shouldRunOnError() = runSendRequestTest(buildScreen("/user/2"), 3) {
     assertEquals(3, logger.entries.size)
     val firstLog = logger.entries.first()
     val secondLog = logger.entries[1]
