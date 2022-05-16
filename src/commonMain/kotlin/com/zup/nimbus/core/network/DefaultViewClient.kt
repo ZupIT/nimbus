@@ -81,6 +81,7 @@ class DefaultViewClient(
    *   2. Do nothing if there's already a pending request to the view.
    * - A fetch call for a view that has been prefetched, but the request has not yet finished will await the response
    * instead of making another network call.
+   * - Fetch makes another request if the prefetch failed.
    *
    * @param request the data for the request to make.
    */
@@ -91,7 +92,12 @@ class DefaultViewClient(
         val deferred = preFetched[key]
         if (deferred?.isActive != true) {
           preFetched[key] = this.async {
-            return@async fetchView(request)
+            try {
+              return@async fetchView(request)
+            } catch (e: Throwable) {
+              this.cancel("Error while prefetching.\n${e.message}")
+              return@async RenderNode("", "", null, null, null, null, null, null)
+            }
           }
         }
       }

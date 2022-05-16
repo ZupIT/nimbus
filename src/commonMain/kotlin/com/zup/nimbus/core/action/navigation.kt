@@ -61,9 +61,9 @@ fun present(event: ActionEvent) = pushOrPresent(event, false)
 fun dismiss(event: ActionEvent) = event.view.parentNavigator.dismiss()
 
 fun onPushOrPresentRendered(event: ActionEvent) {
-  val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
-  if (!prefetch) return
   try {
+    val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
+    if (!prefetch) return
     val request = requestFromEvent(event)
     event.view.nimbusInstance.viewClient.preFetch(request)
   } catch (e: Throwable) {

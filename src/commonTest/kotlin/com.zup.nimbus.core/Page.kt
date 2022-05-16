@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.integration.navigation
+package com.zup.nimbus.core
 
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
