@@ -120,4 +120,21 @@ class PreFetchTest {
     // THEN it should have called the httpClient only once (for the current view)
     assertEquals(1, httpClient.entries.size)
   }
+
+  @Test
+  fun shouldNotPreFetchIfTheNodeHasAlreadyBeenRendered() = scope.runTest {
+    // WHEN /prefetch1 is rendered
+    navigator.push(ViewRequest("/prefetch1"))
+    navigator.awaitPushCompletion()
+    // WHEN all prefetch requests have finished
+    AsyncUtils.waitUntil { httpClient.entries.size == 4 }
+    httpClient.awaitAllCurrentRequestsToFinish()
+    httpClient.clear()
+    // WHEN the global state is updated and every node in the page is forced to refresh
+    nimbus.globalState.set("test")
+    // WHEN we give enough time for every asynchronous pre-fetch to be triggered
+    AsyncUtils.flush()
+    // THEN no prefetch should have been triggered again
+    assertTrue(httpClient.entries.isEmpty())
+  }
 }
