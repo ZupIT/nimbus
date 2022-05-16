@@ -91,6 +91,10 @@ class RenderNode(
       }
     }
 
+    fun empty(): RenderNode {
+      return RenderNode("", "", null, null, null, null, null, null)
+    }
+
     /**
      * Verifies if the given map is a ServerDrivenNode.
      */

@@ -37,13 +37,17 @@ class PreFetchTest {
     // WHEN we give enough time for every asynchronous pre-fetch to be triggered
     AsyncUtils.flush()
     // THEN it should have called the httpClient 4 times (should not prefetch same url twice)
-    assertEquals(4, httpClient.entries.size)
-    // THEN it should have called the httpClient for /prefetch1.json
+    assertEquals(6, httpClient.entries.size)
+    // THEN it should have called the httpClient for /prefetch1.json (required fetch for the current view)
     assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/prefetch1"))
     // THEN it should have called the httpClient for /prefetch2.json
     assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/prefetch2"))
-    // THEN it should have called the httpClient for /screen1.json
+    // THEN it should have called the httpClient for /screen1.json (single prefetch for multiple calls to the same url)
     assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/screen1"))
+    // THEN it should have called the httpClient for /screen2.json (two prefetches on the same node)
+    assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/screen2"))
+    // THEN it should have called the httpClient for /screen3.json (two prefetches on the same action)
+    assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/screen3"))
     // THEN it should have called the httpClient for /bad.json
     assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/bad"))
   }
@@ -81,7 +85,7 @@ class PreFetchTest {
     navigator.push(ViewRequest("/prefetch1"))
     val prefetch1 = navigator.awaitPushCompletion()
     // WHEN all fetch and pre-fetch requests complete
-    AsyncUtils.waitUntil { httpClient.entries.size == 4 }
+    AsyncUtils.waitUntil { httpClient.entries.size == 6 }
     httpClient.awaitAllCurrentRequestsToFinish()
     httpClient.clear()
     // When the user navigates to /bad.json
@@ -127,7 +131,7 @@ class PreFetchTest {
     navigator.push(ViewRequest("/prefetch1"))
     navigator.awaitPushCompletion()
     // WHEN all prefetch requests have finished
-    AsyncUtils.waitUntil { httpClient.entries.size == 4 }
+    AsyncUtils.waitUntil { httpClient.entries.size == 6 }
     httpClient.awaitAllCurrentRequestsToFinish()
     httpClient.clear()
     // WHEN the global state is updated and every node in the page is forced to refresh

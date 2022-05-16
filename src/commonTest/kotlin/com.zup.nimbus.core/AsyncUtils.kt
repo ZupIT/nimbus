@@ -10,8 +10,8 @@ private const val TIMEOUT = 500L
 
 object AsyncUtils {
   /**
-   * Suspend the current thread until the condition expressed by `validator` is met or `timeout` is reached.
-   * If timeout is reached, and error is thrown.
+   * Suspend the current thread until the condition expressed by `validator` is met.
+   * If timeout is reached, an error is thrown and the coroutine is cancelled.
    */
   suspend fun waitUntil(timeout: Long = TIMEOUT, validator: () -> Boolean) {
     var timePassed = 0L
@@ -28,7 +28,7 @@ object AsyncUtils {
    * Suspend the current thread for a minimal amount of time, just to make sure every thread have been given enough time
    * to run, i.e. "flush" its content.
    */
-  suspend fun flush() {
-    withContext(CoroutineScope(Dispatchers.Default).coroutineContext) { delay(10) }
+  suspend fun flush(timeMs: Long = 10) {
+    withContext(CoroutineScope(Dispatchers.Default).coroutineContext) { delay(timeMs) }
   }
 }

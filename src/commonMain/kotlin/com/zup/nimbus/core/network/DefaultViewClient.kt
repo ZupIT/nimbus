@@ -2,8 +2,6 @@ package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.RenderNode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -96,7 +94,7 @@ class DefaultViewClient(
               return@async fetchView(request)
             } catch (e: Throwable) {
               this.cancel("Error while prefetching.\n${e.message}")
-              return@async RenderNode("", "", null, null, null, null, null, null)
+              return@async RenderNode.empty()
             }
           }
         }

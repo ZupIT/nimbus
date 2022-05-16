@@ -140,11 +140,18 @@ const val PREFETCH1 = """{
     {
       "_:component": "material:button",
       "properties": {
-        "text": "Go to Prefetch 2",
+        "text": "Go to Prefetch 2 (onPress) or Screen 2 (onLongPress)",
         "onPress": [{
           "_:action": "push",
           "properties": {
             "url": "/prefetch2",
+            "prefetch": true
+          }
+        }],
+        "onLongPress": [{
+          "_:action": "push",
+          "properties": {
+            "url": "/screen2",
             "prefetch": true
           }
         }]
@@ -158,7 +165,14 @@ const val PREFETCH1 = """{
           "_:action": "push",
           "properties": {
             "url": "/screen1",
-            "prefetch": true
+            "prefetch": true,
+            "onFinish": [{
+              "_:action": "push",
+              "properties": {
+                "url": "/screen3",
+                "prefetch": true
+              }
+            }]
           }
         }]
       }
