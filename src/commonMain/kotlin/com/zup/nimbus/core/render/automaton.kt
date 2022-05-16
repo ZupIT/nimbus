@@ -55,7 +55,7 @@ class Automaton {
      * `An entire paragraph.`, instead of sequence of transitions for each letter. Moreover, to simplify
      * the state machine, we can also use a regular expression in the property `read` of the transition.
      *
-     * @param param an object with the initial state (string), final state (string) and the state
+     * @param params an object with the initial state (string), final state (string) and the state
      * transitions. The state transitions are a map where the key is the state and the value is an array
      * of transitions for the state. A transition is composed by `read` (the string or regex to read
      * from the input string); `push` (the value to push to the stack); `pop` (the value to pop from
@@ -100,7 +100,7 @@ class Automaton {
             remainingInput = remainingInput.substring(matchedValue.length)
             currentState = transition.next
             if (transition.pop != null) stack.removeLast()
-            if (transition.push != null) stack.add(transition.push!!)
+            if (transition.push != null) stack.add(transition.push)
           }
 
           return input.substring(0, input.length - remainingInput.length)
