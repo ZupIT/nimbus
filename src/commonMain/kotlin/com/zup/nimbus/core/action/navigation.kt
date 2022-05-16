@@ -54,4 +54,4 @@ fun popTo(event: ActionTriggeredEvent) {
 
 fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
 
-fun dismiss(event: ActionTriggeredEvent) = event.view.parentNavigator.pop()
+fun dismiss(event: ActionTriggeredEvent) = event.view.parentNavigator.dismiss()
