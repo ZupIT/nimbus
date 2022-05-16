@@ -19,7 +19,7 @@ class DefaultViewClient(
   // used to prevent the ViewClient from launching multiple requests to the same URL in sub-sequent pre-fetches
   private val mutex = Mutex()
   // the keys here are in the format $method:$url
-  private val preFetched = HashMap<String, Deferred<RenderNode>>()
+  private var preFetched = HashMap<String, Deferred<RenderNode>>()
 
   private fun createPreFetchKey(request: ViewRequest): String {
     return "${request.method}:${request.url}"
@@ -58,8 +58,9 @@ class DefaultViewClient(
 
   override suspend fun fetch(request: ViewRequest): RenderNode {
     val key = createPreFetchKey(request)
-    // .remove because the pre-fetch result must be used only once
-    val deferred = preFetched.remove(key) ?: return fetchView(request)
+    val deferred = preFetched[key]
+    preFetched = HashMap()
+    if (deferred == null) return fetchView(request)
     return try {
       deferred.await()
     } catch (e: Throwable) {
@@ -73,10 +74,8 @@ class DefaultViewClient(
    *
    * Rules:
    * - A prefetch is identified by a string in the format "method:url".
-   * - The prefetched result is used only once by the fetch function.
-   * - A prefetch for a view that has already been prefetched will:
-   *   1. fetch the view again and replace the current pre-fetched value if the request has finished;
-   *   2. Do nothing if there's already a pending request to the view.
+   * - A call to `fetch` uses the prefetched result (if there's one) and removes all prefetched views from the pool.
+   * - A prefetch for a view that has already been prefetched will do nothing.
    * - A fetch call for a view that has been prefetched, but the request has not yet finished will await the response
    * instead of making another network call.
    * - Fetch makes another request if the prefetch failed.
@@ -88,7 +87,7 @@ class DefaultViewClient(
       mutex.withLock {
         val key = createPreFetchKey(request)
         val deferred = preFetched[key]
-        if (deferred?.isActive != true) {
+        if (deferred == null) {
           preFetched[key] = this.async {
             try {
               return@async fetchView(request)

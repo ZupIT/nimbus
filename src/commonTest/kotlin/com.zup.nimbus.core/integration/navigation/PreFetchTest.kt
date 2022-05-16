@@ -36,7 +36,7 @@ class PreFetchTest {
     navigator.awaitPushCompletion()
     // WHEN we give enough time for every asynchronous pre-fetch to be triggered
     AsyncUtils.flush()
-    // THEN it should have called the httpClient 4 times (should not prefetch same url twice)
+    // THEN it should have called the httpClient 6 times (should not prefetch same url twice)
     assertEquals(6, httpClient.entries.size)
     // THEN it should have called the httpClient for /prefetch1.json (required fetch for the current view)
     assertTrue(httpClient.hasFetchedUrl("${BASE_URL}/prefetch1"))
