@@ -16,6 +16,11 @@ class ServerDrivenView(
    * The navigator that created this view.
    */
   val parentNavigator: ServerDrivenNavigator,
+  /**
+   * A description for this view. Suggestion: the URL used to load the content of this view or "JSON", if a local json
+   * string was used to load it.
+   */
+  val description: String? = null,
 ) {
   /**
    * The currently rendered tree.
