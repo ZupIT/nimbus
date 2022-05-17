@@ -52,7 +52,7 @@ internal fun deserializeActions(
       val executionHandler = view.nimbusInstance.actions[action.action]
       if (onRenderedHandler != null) {
         resolveActionPropertiesAndMetadata(action, emptyList(), resolve)
-        onRenderedHandler(ActionEvent(action, node, view))
+        onRenderedHandler(ActionEvent(action, event, node, view))
       }
       if (executionHandler == null) missingHandlers.add(action.action)
     }
@@ -76,7 +76,7 @@ internal fun deserializeActions(
           if (implicitStateValue == null) extraStates
           else listOf(ServerDrivenState(event, implicitStateValue, node)) + extraStates
         resolveActionPropertiesAndMetadata(action, newExtraStates, resolve)
-        val actionEvent = ActionEvent(action, node, view)
+        val actionEvent = ActionEvent(action, event, node, view)
         handler(actionEvent)
         view.nimbusInstance.actionObservers.forEach { it(actionEvent) }
       }
