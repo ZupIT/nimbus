@@ -13,6 +13,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val baseUrl = config.baseUrl
   val platform = config.platform
   val actions = (coreActions + (config.actions ?: emptyMap())).toMutableMap()
+  val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
   val operations = config.operations?.toMutableMap() ?: HashMap()
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
@@ -60,6 +61,10 @@ class Nimbus(config: ServerDrivenConfig) {
 
   fun addActions(newActions: Map<String, ActionHandler>) {
     addAll(actions, newActions, "Action")
+  }
+
+  fun addActionObservers(observers: List<ActionHandler>) {
+    actionObservers.addAll(observers)
   }
 
   fun addOperations(newOperations: Map<String, OperationHandler>) {
