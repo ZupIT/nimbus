@@ -15,6 +15,15 @@ data class RenderAction(
    * string form and actions in their Object form (Action).
    */
   val rawProperties: Map<String, Any?>?,
+  /**
+   * Stores the original metadata of this action, before any processing. This can contain expressions in their
+   * string form.
+   */
+  val rawMetadata: Map<String, Any?>?,
+  /**
+   * Stores the metadata of this action after it's been processed, i.e. after the expressions have been resolved.
+   */
+  override var metadata: Map<String, Any?>?,
 ): ServerDrivenAction {
   companion object {
     private fun isAction(maybeAction: Any?): Boolean {
@@ -31,7 +40,9 @@ data class RenderAction(
           RenderAction(
             action = valueOf(it, "_:action"),
             rawProperties = valueOf(it, "properties"),
+            rawMetadata = valueOf(it, "metadata"),
             properties = null,
+            metadata = null,
           )
         }
       } catch (e: UnexpectedDataTypeError) {
