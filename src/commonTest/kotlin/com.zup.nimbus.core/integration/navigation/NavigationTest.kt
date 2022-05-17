@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.integration.navigation
 
 import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.Page
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ResponseError

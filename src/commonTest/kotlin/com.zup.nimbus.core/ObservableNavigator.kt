@@ -1,23 +1,27 @@
-package com.zup.nimbus.core.integration.navigation
+package com.zup.nimbus.core
 
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.Page
-import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.NetworkError
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.tree.MalformedComponentError
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class Navigator(
+class ObservableNavigator(
   private val scope: TestScope,
   private val nimbus: Nimbus,
-  private val onError: (e: Error) -> Unit,
-  private val onLoad: (pages: ArrayList<Page>) -> Unit,
 ): ServerDrivenNavigator {
-  private val pages = ArrayList<Page>()
+  private var pages = ArrayList<Page>()
+  private var deferredPush: CompletableDeferred<Page>? = null
+
+  suspend fun awaitPushCompletion(): Page {
+    deferredPush = CompletableDeferred()
+    return deferredPush!!.await()
+  }
+
+  fun clear() {
+    pages = ArrayList()
+  }
 
   override fun push(request: ViewRequest) {
     val view = nimbus.createView(this)
@@ -26,11 +30,11 @@ class Navigator(
       try {
         val tree = nimbus.viewClient.fetch(request)
         view.renderer.paint(tree)
-        onLoad(pages)
+        deferredPush?.complete(pages.last())
       } catch (e: NetworkError) {
-        onError(e)
+        deferredPush?.cancel(e.message, e)
       } catch (e: MalformedComponentError) {
-        onError(e)
+        deferredPush?.cancel(e.message, e)
       }
     }
   }
