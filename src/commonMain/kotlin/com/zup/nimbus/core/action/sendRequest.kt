@@ -3,7 +3,7 @@ package com.zup.nimbus.core.action
 import com.zup.nimbus.core.network.FIRST_BAD_STATUS
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ServerDrivenRequest
-import com.zup.nimbus.core.render.ActionTriggeredEvent
+import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
@@ -16,7 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
-fun sendRequest(event: ActionTriggeredEvent) {
+fun sendRequest(event: ActionEvent) {
   val nimbus = event.view.nimbusInstance
   val properties = event.action.properties
   try {

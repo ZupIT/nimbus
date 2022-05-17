@@ -4,8 +4,24 @@ import com.zup.nimbus.core.tree.RenderAction
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenState
 
+private fun resolveActionProperties(
+  action: RenderAction,
+  states: List<ServerDrivenState>,
+  resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
+) {
+  action.properties = action.rawProperties?.mapValues {
+    /* we should never deserialize ServerDrivenNodes (components) within actions. This would cause all their
+    actions to run in the context of this node, which is wrong, they should be run in the context of their own
+    parent node. */
+    if (it.value is Map<*, *> && RenderNode.isServerDrivenNode(it.value as Map<*, *>)) it.value
+    else resolve(it.value, it.key, states)
+  }
+}
+
 /**
  * Deserializes a list of ServerDrivenAction into a function.
+ *
+ * When an action is deserialized, if there's any onActionRendered handler for it, it's run.
  *
  * @param actionList the list of actions to parse into a function.
  * @param event name of the event that triggers the actionList, i.e. the key of the map entry. This will act as the id
@@ -26,6 +42,26 @@ internal fun deserializeActions(
   extraStates: List<ServerDrivenState>,
   resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
 ): (implicitContextValue: Any?) -> Unit {
+
+  if (!node.isRendered) {
+    val missingHandlers = ArrayList<String>()
+    actionList.forEach { action ->
+      val onRenderedHandler = view.nimbusInstance.onActionRendered[action.action]
+      val executionHandler = view.nimbusInstance.actions[action.action]
+      if (onRenderedHandler != null) {
+        resolveActionProperties(action, emptyList(), resolve)
+        onRenderedHandler(ActionEvent(action, node, view))
+      }
+      if (executionHandler == null) missingHandlers.add(action.action)
+    }
+    if (missingHandlers.isNotEmpty()) {
+      view.nimbusInstance.logger.warn(
+        "The following actions used in component with id ${node.id} don't have any associated " +
+          "handler: ${missingHandlers.distinct().joinToString(", ")}"
+      )
+    }
+  }
+
   return { implicitContextValue ->
     actionList.forEach { action ->
       val handler = view.nimbusInstance.actions[action.action]
@@ -37,14 +73,8 @@ internal fun deserializeActions(
         val newExtraStates =
           if (implicitContextValue == null) extraStates
           else listOf(ServerDrivenState(event, implicitContextValue, node)) + extraStates
-        action.properties = action.rawProperties?.mapValues {
-          /* we should never deserialize ServerDrivenNodes (components) within actions. This would cause all their
-          actions to run in the context of this node, which is wrong, they should be run in the context of their own
-          parent node. */
-          if (it.value is Map<*, *> && RenderNode.isServerDrivenNode(it.value as Map<*, *>)) it.value
-          else resolve(it.value, it.key, newExtraStates)
-        }
-        handler(ActionTriggeredEvent(action, node, view))
+        resolveActionProperties(action, newExtraStates, resolve)
+        handler(ActionEvent(action, node, view))
       }
     }
   }

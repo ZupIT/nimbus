@@ -76,6 +76,7 @@ class Renderer(
         resolveProperty(it.value, it.key, node, emptyList())
       }
     }
+    node.isRendered = true
   }
 
   /**
