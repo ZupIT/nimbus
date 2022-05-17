@@ -11,3 +11,8 @@ val coreActions = mapOf<String, ActionHandler>(
   "log" to { log(it) },
   "sendRequest" to { sendRequest(it) }
 )
+
+val onCoreActionRendered = mapOf<String, ActionHandler>(
+  "push" to { onPushOrPresentRendered(it) },
+  "present" to { onPushOrPresentRendered(it) },
+)

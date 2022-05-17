@@ -1,6 +1,7 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.coreActions
+import com.zup.nimbus.core.action.onCoreActionRendered
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.network.*
@@ -22,6 +23,12 @@ class Nimbus(config: ServerDrivenConfig) {
 
   // Other
   val globalState = ObservableState("global", null)
+
+  /**
+   * Functions to run once an action goes through the rendering process for the first time.
+   * This is currently used only for performing pre-fetches in navigation actions.
+   */
+  val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
   fun createView(navigator: ServerDrivenNavigator): ServerDrivenView {
     return ServerDrivenView(this, navigator)

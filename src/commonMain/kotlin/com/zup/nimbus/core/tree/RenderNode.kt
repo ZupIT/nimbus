@@ -91,6 +91,10 @@ class RenderNode(
       }
     }
 
+    fun empty(): RenderNode {
+      return RenderNode("", "", null, null, null, null, null, null)
+    }
+
     /**
      * Verifies if the given map is a ServerDrivenNode.
      */
@@ -103,6 +107,11 @@ class RenderNode(
    * The state declared by this component. Null if it doesn't declare a state.
    */
   val state: ServerDrivenState? = if (stateId == null) null else ServerDrivenState(stateId, stateValue, this)
+
+  /**
+   * True if this node has been rendered at least once.
+   */
+  var isRendered = false
 
   /**
    * Replaces the node with id "idOfNodeToReplace" of this tree by "newNode".
