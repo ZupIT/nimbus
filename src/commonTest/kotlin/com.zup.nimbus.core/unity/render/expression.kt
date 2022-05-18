@@ -44,7 +44,7 @@ class ExpressionTest {
   fun shouldReplaceByStateString() {
     val expectedResult = "Hello World!"
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(expectedResult, result)
   }
 
@@ -52,7 +52,7 @@ class ExpressionTest {
   fun shouldReplaceByStateNumber() {
     val expectedResult = 584
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(expectedResult, result)
   }
 
@@ -60,7 +60,7 @@ class ExpressionTest {
   fun shouldReplaceByStateFloatNumber() {
     val expectedResult = 584.73
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(result, expectedResult)
   }
 
@@ -68,7 +68,7 @@ class ExpressionTest {
   fun shouldReplaceByStateBoolean() {
     val expectedResult = true
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(result, expectedResult)
   }
 
@@ -76,7 +76,7 @@ class ExpressionTest {
   fun shouldReplaceByStateArray() {
     val expectedResult = arrayOf(1, 2, 3, 4)
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(expectedResult, result)
   }
 
@@ -89,28 +89,28 @@ class ExpressionTest {
     )
 
     val stateHierarchy = listOf(ServerDrivenState("sds", expectedResult, defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(expectedResult, result)
   }
 
   @Test
   fun shouldReplaceBindingInTheMiddleOfTextString() {
     val stateHierarchy = listOf(ServerDrivenState("sds", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: Hello World.", result)
   }
 
   @Test
   fun shouldReplaceBindingInTheMiddleOfTextNumber() {
     val stateHierarchy = listOf(ServerDrivenState("sds", 584, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: 584.", result)
   }
 
   @Test
   fun shouldReplaceBindingInTheMiddleOfTextBoolean() {
     val stateHierarchy = listOf(ServerDrivenState("sds", true, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: true.", result)
   }
 
@@ -118,7 +118,7 @@ class ExpressionTest {
   fun shouldReplaceBindingInTheMiddleOfTextArrayAsString() {
     val stateValue = arrayOf(1, 2, 3, 4)
     val stateHierarchy = listOf(ServerDrivenState("sds", stateValue, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: ${stateValue}.", result)
   }
 
@@ -131,7 +131,7 @@ class ExpressionTest {
     )
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: $person.", result)
   }
 
@@ -144,7 +144,7 @@ class ExpressionTest {
     )
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds.lastName}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds.lastName}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: de Oliveira.", result)
   }
 
@@ -158,7 +158,7 @@ class ExpressionTest {
     )
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
-    val result = resolveExpressions("@{sds.phones[1]}", stateHierarchy)
+    val result = resolveExpressions("@{sds.phones[1]}", stateHierarchy, null, null)
     assertEquals("@{sds.phones[1]}", result)
   }
 
@@ -166,7 +166,7 @@ class ExpressionTest {
   fun shouldNotReplaceBindingInTheMiddleOfTextWithArrayPosition() {
     val array = arrayOf("one", "two", "three", "four")
     val stateHierarchy = listOf(ServerDrivenState("sds", array, defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds[2]}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds[2]}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: .", result)
   }
 
@@ -195,21 +195,21 @@ class ExpressionTest {
       ServerDrivenState("sport", sport, defaultRenderNode),
     )
 
-    val result = resolveExpressions("Mid text expression: @{product.price}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{product.price}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: 133.7.", result)
   }
 
   @Test
   fun shouldReplaceWithEmptyStringIfNotStateIsFoundOnStringInterpolation() {
     val stateHierarchy = listOf(ServerDrivenState("sds2", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy)
+    val result = resolveExpressions("Mid text expression: @{sds}.", stateHierarchy, null, null)
     assertEquals("Mid text expression: .", result)
   }
 
   @Test
   fun shouldReplaceWithNullIfNoStateIsFound() {
     val stateHierarchy = listOf(ServerDrivenState("sds2", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("@{sds}", stateHierarchy)
+    val result = resolveExpressions("@{sds}", stateHierarchy, null, null)
     assertEquals(null, result)
   }
 
@@ -222,28 +222,28 @@ class ExpressionTest {
     )
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
-    val result = resolveExpressions("@{sds.description}", stateHierarchy)
+    val result = resolveExpressions("@{sds.description}", stateHierarchy, null, null)
     assertEquals("@{sds.description}", result)
   }
 
   @Test
   fun shouldEscapeExpression() {
     val stateHierarchy = listOf(ServerDrivenState("sds", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("\\@{sds}", stateHierarchy)
+    val result = resolveExpressions("\\@{sds}", stateHierarchy, null, null)
     assertEquals("@{sds}", result)
   }
 
   @Test
   fun shouldNotEscapeExpressionWhenSlashIsAlsoEscaped() {
     val stateHierarchy = listOf(ServerDrivenState("sds", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("\\\\@{sds}", stateHierarchy)
+    val result = resolveExpressions("\\\\@{sds}", stateHierarchy, null, null)
     assertEquals("\\Hello World", result)
   }
 
   @Test
   fun shouldNotEscapeExpressionWhenAEscapedSlashIsPresentButAnotherSlashIsAlsoPresent() {
     val stateHierarchy = listOf(ServerDrivenState("sds", "Hello World", defaultRenderNode))
-    val result = resolveExpressions("\\\\\\@{sds}", stateHierarchy)
+    val result = resolveExpressions("\\\\\\@{sds}", stateHierarchy, null, null)
     assertEquals("\\@{sds}", result)
   }
 
@@ -252,54 +252,54 @@ class ExpressionTest {
   fun shouldResolveLiterals() {
     val stateHierarchy = listOf<ServerDrivenState>()
 
-    var result = resolveExpressions("@{true}", stateHierarchy)
+    var result = resolveExpressions("@{true}", stateHierarchy, null, null)
     assertEquals(true, result)
 
-    result = resolveExpressions("@{false}", stateHierarchy)
+    result = resolveExpressions("@{false}", stateHierarchy, null, null)
     assertEquals(false, result)
 
-    result = resolveExpressions("@{null}", stateHierarchy)
+    result = resolveExpressions("@{null}", stateHierarchy, null, null)
     assertEquals(null, result)
 
-    result = resolveExpressions("@{10}", stateHierarchy)
+    result = resolveExpressions("@{10}", stateHierarchy, null, null)
     assertEquals(10f, result)
 
-    result = resolveExpressions("@{'true'}", stateHierarchy)
+    result = resolveExpressions("@{'true'}", stateHierarchy, null, null)
     assertEquals("true", result)
 
-    result = resolveExpressions("@{'hello world, this is { beagle }!'}", stateHierarchy)
+    result = resolveExpressions("@{'hello world, this is { beagle }!'}", stateHierarchy, null, null)
     assertEquals("hello world, this is { beagle }!", result)
   }
 
   @Test
   fun shouldEscapeString() {
-    val result = resolveExpressions("@{'hello \\'world\\'!'}", listOf())
+    val result = resolveExpressions("@{'hello \\'world\\'!'}", listOf(), null, null)
     assertEquals("hello 'world'!", result)
   }
 
   @Test
   fun shouldKeepControlSymbols() {
-    val result = resolveExpressions("@{'hello\nworld!'}", listOf())
+    val result = resolveExpressions("@{'hello\nworld!'}", listOf(), null, null)
     assertEquals("hello\nworld!", result)
   }
 
   @Test
   fun shouldDoNothingForMalformedString() {
-    val result = resolveExpressions("@{\'test}", listOf())
+    val result = resolveExpressions("@{\'test}", listOf(), null, null)
     assertEquals("@{\'test}", result)
   }
 
   @Test
   fun shouldTreatMalformedNumberAsContextId() {
     val stateHierarchy = listOf(ServerDrivenState("5o1", "test", defaultRenderNode))
-    val result = resolveExpressions("@{5o1}", stateHierarchy)
+    val result = resolveExpressions("@{5o1}", stateHierarchy, null, null)
     assertEquals("test", result)
   }
 
   @Test
   fun shouldReturnNullForMalformedNumberAndInvalidContextId() {
     val stateHierarchy = listOf(ServerDrivenState("58.72.98", "test", defaultRenderNode))
-    val result = resolveExpressions("@{58.72.98}", stateHierarchy)
+    val result = resolveExpressions("@{58.72.98}", stateHierarchy, null, null)
     assertEquals(null, result)
   }
 }

@@ -54,7 +54,9 @@ class Renderer(
     }
     if (value is Map<*, *>) return value.mapValues { resolveProperty(it.value, it.key.toString(), node, extraStates) }
     val stateHierarchy = (node.stateHierarchy ?: emptyList()) + extraStates
-    if (value is String && containsExpression(value)) return resolveExpressions(value, stateHierarchy)
+    if (value is String && containsExpression(value)) {
+      return resolveExpressions(value, stateHierarchy, view.nimbusInstance.operations, logger)
+    }
     return value
   }
 
