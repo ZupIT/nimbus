@@ -31,8 +31,17 @@ class Nimbus(config: ServerDrivenConfig) {
    */
   val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
-  fun createView(navigator: ServerDrivenNavigator): ServerDrivenView {
-    return ServerDrivenView(this, navigator)
+  /**
+   * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.
+   *
+   * Check the documentation for ServerDrivenView for more details on the parameters.
+   *
+   * @param navigator the navigator for the new ServerDrivenView.
+   * @param description a description for the new ServerDrivenView.
+   * @return the new ServerDrivenView.
+   */
+  fun createView(navigator: ServerDrivenNavigator, description: String? = null): ServerDrivenView {
+    return ServerDrivenView(this, navigator, description)
   }
 
   /**
