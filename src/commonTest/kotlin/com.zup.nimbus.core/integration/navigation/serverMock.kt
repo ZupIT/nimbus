@@ -17,6 +17,7 @@ private const val SCREEN1 = """{
     },
     {
       "_:component": "material:button",
+      "id": "next",
       "properties": {
         "text": "Next",
         "onPress": [{
@@ -41,6 +42,7 @@ private const val SCREEN2 = """{
     },
     {
       "_:component": "material:button",
+      "id": "next",
       "properties": {
         "text": "Next",
         "onPress": [{
@@ -53,6 +55,7 @@ private const val SCREEN2 = """{
     },
     {
       "_:component": "material:button",
+      "id": "previous",
       "properties": {
         "text": "Previous",
         "onPress": [{
@@ -74,6 +77,7 @@ private const val SCREEN3 = """{
     },
     {
       "_:component": "material:button",
+      "id": "next",
       "properties": {
         "text": "Next (error with fallback)",
         "onPress": [{
@@ -91,6 +95,7 @@ private const val SCREEN3 = """{
                 },
                 {
                   "_:component": "material:button",
+                  "id": "previous",
                   "properties": {
                     "text": "Back to main flow",
                     "onPress": [{
@@ -106,6 +111,7 @@ private const val SCREEN3 = """{
     },
     {
       "_:component": "material:button",
+      "id": "next-error",
       "properties": {
         "text": "Next (error without fallback)",
         "onPress": [{
@@ -118,6 +124,7 @@ private const val SCREEN3 = """{
     },
     {
       "_:component": "material:button",
+      "id": "previous",
       "properties": {
         "text": "Previous",
         "onPress": [{
@@ -139,6 +146,7 @@ const val PREFETCH1 = """{
     },
     {
       "_:component": "material:button",
+      "id": "go-to-prefetch2",
       "properties": {
         "text": "Go to Prefetch 2 (onPress) or Screen 2 (onLongPress)",
         "onPress": [{
@@ -159,6 +167,7 @@ const val PREFETCH1 = """{
     },
     {
       "_:component": "material:button",
+      "id": "go-to-screen1-push",
       "properties": {
         "text": "Go to Screen 1 (push)",
         "onPress": [{
@@ -179,6 +188,7 @@ const val PREFETCH1 = """{
     },
     {
       "_:component": "material:button",
+      "id": "go-to-screen1-present",
       "properties": {
         "text": "Go to Screen 1 (present)",
         "onPress": [{
@@ -192,6 +202,7 @@ const val PREFETCH1 = """{
     },
     {
       "_:component": "material:button",
+      "id": "go-to-bad-url",
       "properties": {
         "text": "Go to to bad URL",
         "onPress": [{
