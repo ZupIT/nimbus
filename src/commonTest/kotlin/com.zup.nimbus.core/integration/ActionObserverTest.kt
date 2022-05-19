@@ -108,7 +108,7 @@ class ActionObserverTest {
 
   @Test
   fun shouldCreateAnalyticsRecordForLog() {
-    val view = nimbus.createView(EmptyNavigator(), "json")
+    val view = nimbus.createView({ EmptyNavigator() }, "json")
     val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
     var hasRendered = false
     view.renderer.paint(screen)
@@ -131,7 +131,7 @@ class ActionObserverTest {
 
   @Test
   fun shouldNotCreateAnalyticsRecordForLog() {
-    val view = nimbus.createView(EmptyNavigator(), "json")
+    val view = nimbus.createView({ EmptyNavigator() }, "json")
     val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
     var hasRendered = false
     view.renderer.paint(screen)
@@ -147,7 +147,7 @@ class ActionObserverTest {
 
   @Test
   fun shouldCreateAnalyticsRecordForPush() {
-    val view = nimbus.createView(EmptyNavigator(), "json")
+    val view = nimbus.createView({ EmptyNavigator() }, "json")
     val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
     var hasRendered = false
     view.renderer.paint(screen)
