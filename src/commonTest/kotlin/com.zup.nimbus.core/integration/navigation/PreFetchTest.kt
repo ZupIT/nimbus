@@ -65,7 +65,7 @@ class PreFetchTest {
     // WHEN a request to /prefetch2 takes 1 second to complete
     httpClient.delayMsPerUrl["${BASE_URL}/prefetch2"] = 1000
     // WHEN the user navigates to /prefetch2.json
-    NodeUtils.pressButton(prefetch1.content, 1)
+    NodeUtils.pressButton(prefetch1.content, "go-to-prefetch2")
     // THEN it should use the prefetched result to render /prefetch2. Since this test fails after 100ms and the request
     // will take 1s, it fails if the prefetched result is not used.
     navigator.awaitPushCompletion()
@@ -89,7 +89,7 @@ class PreFetchTest {
     httpClient.awaitAllCurrentRequestsToFinish()
     httpClient.clear()
     // When the user navigates to /bad.json
-    NodeUtils.pressButton(prefetch1.content, 4)
+    NodeUtils.pressButton(prefetch1.content, "go-to-bad-url")
     // THEN it should ignore the failed prefetched result and make a new network call
     AsyncUtils.flush()
     assertEquals(1, httpClient.entries.size)
@@ -107,7 +107,7 @@ class PreFetchTest {
     AsyncUtils.flush()
     httpClient.clear()
     // When the user navigates to /prefetch2.json
-    NodeUtils.pressButton(prefetch1.content, 1)
+    NodeUtils.pressButton(prefetch1.content, "go-to-prefetch2")
     // WHEN we give enough time for every asynchronous pre-fetch to be triggered (less than 1 second)
     AsyncUtils.flush()
     // THEN it should await the existing request instead of making another one
