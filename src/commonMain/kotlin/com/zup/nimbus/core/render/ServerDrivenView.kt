@@ -13,9 +13,12 @@ class ServerDrivenView(
    */
   val nimbusInstance: Nimbus,
   /**
-   * The navigator that created this view.
+   * A function to get the navigator that spawned this view.
+   *
+   * Attention: this is a function so we can prevent a cyclical reference between Kotlin Native and Swift. Replacing
+   * this with a direct reference will cause memory leaks.
    */
-  val parentNavigator: ServerDrivenNavigator,
+  val getNavigator: () -> ServerDrivenNavigator,
   /**
    * A description for this view. Suggestion: the URL used to load the content of this view or "json", if a local json
    * string was used to load it.

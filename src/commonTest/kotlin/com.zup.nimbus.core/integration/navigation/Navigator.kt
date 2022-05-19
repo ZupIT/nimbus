@@ -20,7 +20,7 @@ class Navigator(
   private val pages = ArrayList<Page>()
 
   override fun push(request: ViewRequest) {
-    val view = nimbus.createView(this)
+    val view = nimbus.createView({ this })
     pages.add(Page(request.url, view))
     scope.launch {
       try {

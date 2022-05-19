@@ -36,12 +36,12 @@ class Nimbus(config: ServerDrivenConfig) {
    *
    * Check the documentation for ServerDrivenView for more details on the parameters.
    *
-   * @param navigator the navigator for the new ServerDrivenView.
+   * @param getNavigator a function that returns the ServerDrivenView's navigator.
    * @param description a description for the new ServerDrivenView.
    * @return the new ServerDrivenView.
    */
-  fun createView(navigator: ServerDrivenNavigator, description: String? = null): ServerDrivenView {
-    return ServerDrivenView(this, navigator, description)
+  fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null): ServerDrivenView {
+    return ServerDrivenView(this, getNavigator, description)
   }
 
   /**
