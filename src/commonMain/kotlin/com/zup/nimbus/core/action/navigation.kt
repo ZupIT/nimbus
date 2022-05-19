@@ -36,8 +36,8 @@ private fun pushOrPresent(event: ActionEvent, isPush: Boolean) {
   val logger = event.view.nimbusInstance.logger
   try {
     val request = requestFromEvent(event)
-    if (isPush) event.view.parentNavigator.push(request)
-    else event.view.parentNavigator.present(request)
+    if (isPush) event.view.getNavigator().push(request)
+    else event.view.getNavigator().present(request)
   } catch (e: UnexpectedDataTypeError) {
     logger.error("Error while navigating.\n${e.message}")
   }
@@ -45,12 +45,12 @@ private fun pushOrPresent(event: ActionEvent, isPush: Boolean) {
 
 fun push(event: ActionEvent) = pushOrPresent(event, true)
 
-fun pop(event: ActionEvent) = event.view.parentNavigator.pop()
+fun pop(event: ActionEvent) = event.view.getNavigator().pop()
 
 fun popTo(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   try {
-    event.view.parentNavigator.popTo(valueOf(event.action.properties, "url"))
+    event.view.getNavigator().popTo(valueOf(event.action.properties, "url"))
   } catch (e: UnexpectedDataTypeError) {
     logger.error("Error while navigating.\n${e.message}")
   }
@@ -58,7 +58,7 @@ fun popTo(event: ActionEvent) {
 
 fun present(event: ActionEvent) = pushOrPresent(event, false)
 
-fun dismiss(event: ActionEvent) = event.view.parentNavigator.dismiss()
+fun dismiss(event: ActionEvent) = event.view.getNavigator().dismiss()
 
 fun onPushOrPresentRendered(event: ActionEvent) {
   try {
