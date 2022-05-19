@@ -16,6 +16,11 @@ class ServerDrivenView(
    * The navigator that created this view.
    */
   val parentNavigator: ServerDrivenNavigator,
+  /**
+   * A description for this view. Suggestion: the URL used to load the content of this view or "json", if a local json
+   * string was used to load it.
+   */
+  val description: String? = null,
 ) {
   /**
    * The currently rendered tree.
@@ -23,10 +28,10 @@ class ServerDrivenView(
   private var current: RenderNode? = null
 
   /**
-   * The set of listeners looking for changes in the current tree. These listeners must be called only for changes that
-   * requires re-rendering.
+   * The listener that observes changes in the current tree. This will be called only for changes that requires
+   * re-rendering.
    */
-  private val listeners: ArrayList<Listener> = ArrayList()
+  private var listener: Listener? = null
 
   /**
    * Stores the function to make this view stop listening to the Global State.
@@ -51,12 +56,17 @@ class ServerDrivenView(
   }
 
   private fun runListeners() {
-    listeners.forEach { it(current ?: throw EmptyViewError()) }
+    listener?.let { it(current ?: throw EmptyViewError()) }
   }
 
   /**
    * Observes for changes in the current tree. Everytime a change that requires a re-render is made, the listener
    * passed as parameter will be called with the current tree.
+   *
+   * If there's already something rendered in this view, the listener is automatically called with it.
+   *
+   * The ServerDrivenView accepts only one observer. A second call to this method replaces the current listener. To
+   * remove the listener call this method with null.
    *
    * Note:
    * The tree received as parameter by the listener is a ServerDrivenNode, which is immutable. It wouldn't take much for
@@ -66,15 +76,16 @@ class ServerDrivenView(
    * @param listener the function to call every time the tree needs to be re-rendered. This receives the current tree as
    * parameter.
    */
-  fun onChange(listener: Listener): () -> Unit {
-    listeners.add(listener)
-    return { listeners.remove(listener) }
+  fun onChange(listener: Listener?) {
+    this.listener = listener
+    if (current != null && listener != null) listener(current ?: return)
   }
 
   /**
    * Destroys this view by properly removing every reference that could become invalid.
    */
   fun destroy() {
+    listener = null
     removeGlobalStateListener?.let { it() }
   }
 }

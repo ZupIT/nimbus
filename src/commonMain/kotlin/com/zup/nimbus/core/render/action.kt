@@ -4,18 +4,21 @@ import com.zup.nimbus.core.tree.RenderAction
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenState
 
-private fun resolveActionProperties(
+private fun resolveActionPropertiesAndMetadata(
   action: RenderAction,
   states: List<ServerDrivenState>,
   resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
 ) {
-  action.properties = action.rawProperties?.mapValues {
+  fun mapToResolved(entry: Map.Entry<String, Any?>): Any? {
     /* we should never deserialize ServerDrivenNodes (components) within actions. This would cause all their
     actions to run in the context of this node, which is wrong, they should be run in the context of their own
     parent node. */
-    if (it.value is Map<*, *> && RenderNode.isServerDrivenNode(it.value as Map<*, *>)) it.value
-    else resolve(it.value, it.key, states)
+    return if (entry.value is Map<*, *> && RenderNode.isServerDrivenNode(entry.value as Map<*, *>)) entry.value
+    else resolve(entry.value, entry.key, states)
   }
+
+  action.properties = action.rawProperties?.mapValues { mapToResolved(it) }
+  action.metadata = action.rawMetadata?.mapValues { mapToResolved(it) }
 }
 
 /**
@@ -42,14 +45,13 @@ internal fun deserializeActions(
   extraStates: List<ServerDrivenState>,
   resolve: (value: Any?, key: String, extraStates: List<ServerDrivenState>) -> Any?,
 ): (implicitContextValue: Any?) -> Unit {
-
   if (!node.isRendered) {
     val missingHandlers = ArrayList<String>()
     actionList.forEach { action ->
       val onRenderedHandler = view.nimbusInstance.onActionRendered[action.action]
       val executionHandler = view.nimbusInstance.actions[action.action]
       if (onRenderedHandler != null) {
-        resolveActionProperties(action, emptyList(), resolve)
+        resolveActionPropertiesAndMetadata(action, emptyList(), resolve)
         onRenderedHandler(ActionEvent(action, event, node, view))
       }
       if (executionHandler == null) missingHandlers.add(action.action)
@@ -62,7 +64,7 @@ internal fun deserializeActions(
     }
   }
 
-  return { implicitContextValue ->
+  return { implicitStateValue ->
     actionList.forEach { action ->
       val handler = view.nimbusInstance.actions[action.action]
       if (handler == null) {
@@ -71,10 +73,12 @@ internal fun deserializeActions(
         )
       } else {
         val newExtraStates =
-          if (implicitContextValue == null) extraStates
-          else listOf(ServerDrivenState(event, implicitContextValue, node)) + extraStates
-        resolveActionProperties(action, newExtraStates, resolve)
-        handler(ActionEvent(action, event, node, view))
+          if (implicitStateValue == null) extraStates
+          else listOf(ServerDrivenState(event, implicitStateValue, node)) + extraStates
+        resolveActionPropertiesAndMetadata(action, newExtraStates, resolve)
+        val actionEvent = ActionEvent(action, event, node, view)
+        handler(actionEvent)
+        view.nimbusInstance.actionObservers.forEach { it(actionEvent) }
       }
     }
   }

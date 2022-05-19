@@ -13,6 +13,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val baseUrl = config.baseUrl
   val platform = config.platform
   val actions = (coreActions + (config.actions ?: emptyMap())).toMutableMap()
+  val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
   val operations = config.operations?.toMutableMap() ?: HashMap()
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
@@ -30,8 +31,17 @@ class Nimbus(config: ServerDrivenConfig) {
    */
   val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
-  fun createView(navigator: ServerDrivenNavigator): ServerDrivenView {
-    return ServerDrivenView(this, navigator)
+  /**
+   * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.
+   *
+   * Check the documentation for ServerDrivenView for more details on the parameters.
+   *
+   * @param navigator the navigator for the new ServerDrivenView.
+   * @param description a description for the new ServerDrivenView.
+   * @return the new ServerDrivenView.
+   */
+  fun createView(navigator: ServerDrivenNavigator, description: String? = null): ServerDrivenView {
+    return ServerDrivenView(this, navigator, description)
   }
 
   /**
@@ -60,6 +70,10 @@ class Nimbus(config: ServerDrivenConfig) {
 
   fun addActions(newActions: Map<String, ActionHandler>) {
     addAll(actions, newActions, "Action")
+  }
+
+  fun addActionObservers(observers: List<ActionHandler>) {
+    actionObservers.addAll(observers)
   }
 
   fun addOperations(newOperations: Map<String, OperationHandler>) {
