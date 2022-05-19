@@ -12,28 +12,27 @@ import kotlinx.serialization.json.encodeToJsonElement
 
 private val expressionRegex = """(\\*)@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}""".toRegex()
 private val fullMatchExpressionRegex = """^@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}$""".toRegex()
+private val dpaTransitions: Map<String, List<Transition>> = mapOf(
+  "initial" to listOf(
+    Transition(""",|$""".toRegex(), null, null, "final"), // end of parameter
+    Transition("(", "(", null, "insideParameterList"), // start of a parameter list
+    Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "initial"), // strings
+    Transition("""[^\)]""".toRegex(), null, null, "initial"), // general symbols
+  ),
+  "insideParameterList" to listOf(
+    Transition("(", "(", null, "insideParameterList"), // start of another parameter list
+    Transition(")", null, "(", "isParameterListOver"), // end of a parameter list, check if still inside a parameter list
+    Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "insideParameterList"), // strings
+    Transition(".".toRegex(), null, null, "insideParameterList"), // general symbols
+  ),
+  "isParameterListOver" to listOf(
+    Transition(null, EMPTY, "initial"), // end of parameter list, go back to initial state
+    Transition(null, null, "insideParameterList"), // still inside a parameter list, go back to state "insideParameterList"
+  ),
+)
+private val dpa = DPA("initial", "final", dpaTransitions)
 
 private fun parseParameters(parameterString: String): List<String> {
-  val transitions: Map<String, List<Transition>> = mapOf(
-    "initial" to listOf(
-      Transition(""",|$""".toRegex(), null, null, "final"), // end of parameter
-      Transition("(", "(", null, "insideParameterList"), // start of a parameter list
-      Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "initial"), // strings
-      Transition("""[^\)]""".toRegex(), null, null, "initial"), // general symbols
-    ),
-    "insideParameterList" to listOf(
-      Transition("(", "(", null, "insideParameterList"), // start of another parameter list
-      Transition(")", null, "(", "isParameterListOver"), // end of a parameter list, check if still inside a parameter list
-      Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "insideParameterList"), // strings
-      Transition(".".toRegex(), null, null, "insideParameterList"), // general symbols
-    ),
-    "isParameterListOver" to listOf(
-      Transition(null, EMPTY, "initial"), // end of parameter list, go back to initial state
-      Transition(null, null, "insideParameterList"), // still inside a parameter list, go back to state "insideParameterList"
-    ),
-  )
-
-  val dpa = DPA("initial", "final", transitions)
   val parameters: MutableList<String> = mutableListOf()
   var position = 0
 
@@ -47,20 +46,20 @@ private fun parseParameters(parameterString: String): List<String> {
   return parameters
 }
 
-private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>?, logger: Logger?): Any? {
+private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>, logger: Logger): Any? {
   if (!path.matches("""^[\w\d_]+(\[\d+\])*(\.([\w\d_]+(\[\d+\])*))*$""".toRegex())) {
     throw Error("invalid path \"$path\". Please, make sure your variable names contain only letters, numbers and the symbol \"_\". To access substructures use \".\" and to access array indexes use \"[index]\".")
   }
 
   val pathMatch = Regex("""^([^\.\[\]]+)\.?(.*)""").find(path) ?: return null
   val (stateId, statePath) = pathMatch.destructured
-  val state = stateHierarchy?.find { it.id == stateId } ?: throw Error("Couldn't find context with id \"$stateId\"")
+  val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find context with id \"$stateId\"")
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
     return try {
       valueOf(state.value, statePath)
     } catch (error: Throwable) {
       error.message?.let {
-        logger?.warn(it)
+        logger.warn(it)
       }
       null
     }
@@ -88,15 +87,15 @@ private fun getLiteralValue(literal: String): Any? {
 
 private fun getOperationValue(
   operation: String,
-  stateHierarchy: List<ServerDrivenState>?,
-  operationHandlers: Map<String, OperationHandler>?,
-  logger: Logger?,
+  stateHierarchy: List<ServerDrivenState>,
+  operationHandlers: Map<String, OperationHandler>,
+  logger: Logger,
 ): Any? {
   val match = """^(\w+)\((.*)\)$""".toRegex().find(operation)
     ?: throw Error("invalid operation in expression: $operation")
 
   val (operationName, paramString) = match.destructured
-  if (operationHandlers == null || operationHandlers[operationName] == null) {
+  if (operationHandlers[operationName] == null) {
     throw Error("operation with name \"$operationName\" doesn't exist.")
   }
 
@@ -110,11 +109,11 @@ private fun getOperationValue(
   return null
 }
 
-fun evaluateExpression(
+private fun evaluateExpression(
   expression: String,
-  stateHierarchy: List<ServerDrivenState>?,
-  operationHandlers: Map<String, OperationHandler>?,
-  logger: Logger?,
+  stateHierarchy: List<ServerDrivenState>,
+  operationHandlers: Map<String, OperationHandler>,
+  logger: Logger,
 ): Any? {
   val literalValue = getLiteralValue(expression)
   if (literalValue != null) return literalValue
@@ -131,9 +130,9 @@ fun containsExpression(value: String): Boolean {
 
 fun resolveExpressions(
   value: String,
-  stateHierarchy: List<ServerDrivenState>?,
-  operationHandlers: Map<String, OperationHandler>?,
-  logger: Logger?,
+  stateHierarchy: List<ServerDrivenState>,
+  operationHandlers: Map<String, OperationHandler>,
+  logger: Logger,
 ): Any? {
   val fullMatch = fullMatchExpressionRegex.find(value)
   if (fullMatch != null) {
@@ -143,7 +142,7 @@ fun resolveExpressions(
       ((expressionValue == null) then value) ?: expressionValue
     } catch (error: Throwable) {
       error.message?.let {
-        logger?.warn(it)
+        logger.warn(it)
       }
       null
     }
@@ -163,7 +162,7 @@ fun resolveExpressions(
     }
   } catch (error: Throwable) {
     error.message?.let {
-      logger?.warn(it)
+      logger.warn(it)
     }
     return value.replace(expressionRegex, "")
   }
