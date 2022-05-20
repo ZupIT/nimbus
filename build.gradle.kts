@@ -5,7 +5,15 @@ plugins {
   kotlin("multiplatform") version "1.6.21"
   kotlin("native.cocoapods") version "1.6.21"
   kotlin("plugin.serialization") version "1.6.21"
+  id("io.gitlab.arturbosch.detekt") version "1.20.0"
   id("com.android.library") version "7.2"
+}
+
+detekt {
+  toolVersion = "1.20.0"
+  config = files("detekt.yml")
+  buildUponDefaultConfig = true
+  source = files("src/commonMain/kotlin")
 }
 
 group = "me.user"

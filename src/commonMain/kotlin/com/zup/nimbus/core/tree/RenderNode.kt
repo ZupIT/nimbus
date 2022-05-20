@@ -4,7 +4,8 @@ import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import com.zup.nimbus.core.utils.valueOf
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class RenderNode(
   override val id: String,
@@ -125,10 +126,10 @@ class RenderNode(
   private fun replace(newNode: RenderNode, idOfNodeToReplace: String): RenderNode? {
     if (this.id == idOfNodeToReplace) return null
 
-    fun findAndReplaceChild(parentNode: RenderNode, newNode: RenderNode, idOfNodeToReplace: String,): RenderNode? {
+    fun findAndReplaceChild(parentNode: RenderNode, newNode: RenderNode, idOfNodeToReplace: String): RenderNode? {
       try {
         val children = requireNotNull(parentNode.children)
-        if (children.isEmpty()) throw Error()
+        if (children.isEmpty()) @Suppress("TooGenericExceptionThrown") throw Error() // todo: verify
 
         val indexToReplace = children.indexOfFirst { child -> child.id == idOfNodeToReplace }
         if (indexToReplace >= 0) {
