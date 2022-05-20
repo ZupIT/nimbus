@@ -1,3 +1,4 @@
+@file:Suppress("ComplexCondition") // todo: verify
 package com.zup.nimbus.core.render
 
 class Transition {

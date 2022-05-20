@@ -52,7 +52,8 @@ fun sendRequest(event: ActionEvent) {
         } catch (e: Throwable) {
           callbackData["data"] = response.body
         }
-        if (response.status >= FIRST_BAD_STATUS) throw Error(statusText)
+        // todo: verify
+        if (response.status >= FIRST_BAD_STATUS) @Suppress("TooGenericExceptionThrown") throw Error(statusText)
         if (onSuccess != null) onSuccess(callbackData)
       } catch (e: Throwable) {
         nimbus.logger.error("Unable to send request.\n${e.message ?: ""}")

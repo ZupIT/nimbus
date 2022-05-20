@@ -1,8 +1,10 @@
 package com.zup.nimbus.core.render
 
-import com.zup.nimbus.core.tree.*
-import com.zup.nimbus.core.utils.setMapValue
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.tree.MalformedActionListError
+import com.zup.nimbus.core.tree.RenderAction
+import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.tree.ServerDrivenState
+import com.zup.nimbus.core.tree.TreeUpdateMode
 
 private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
@@ -93,6 +95,7 @@ class Renderer(
    * the tree (e.g. global context). This list must be ordered from the state with the highest priority to the lowest.
    */
   private fun processTreeAndStateHierarchy(node: RenderNode, stateHierarchy: List<ServerDrivenState>) {
+    @Suppress("SpreadOperator")
     node.stateHierarchy = if(node.state == null) stateHierarchy else listOf(node.state, *stateHierarchy.toTypedArray())
     resolve(node)
     node.children?.forEach { processTreeAndStateHierarchy(it, node.stateHierarchy!!) }

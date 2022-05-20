@@ -26,5 +26,8 @@ fun <K, V, T>mapValuesToMutableMap(map: Map<K, V>, iteratee: (entry: Map.Entry<K
  * @param newValue the new value to set for "map.$path".
  */
 fun setMapValue(map: MutableMap<*, *>, path: String, newValue: Any?) {
-  // todo
+  // todo, remove the code below
+  print(map)
+  print(path)
+  print(newValue)
 }

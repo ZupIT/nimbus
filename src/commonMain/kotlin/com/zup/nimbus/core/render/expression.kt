@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionThrown") // todo: verify
 package com.zup.nimbus.core.render
 
 import com.zup.nimbus.core.OperationHandler
@@ -5,10 +6,6 @@ import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.ServerDrivenState
 import com.zup.nimbus.core.utils.then
 import com.zup.nimbus.core.utils.valueOf
-import kotlin.reflect.typeOf
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 
 private val expressionRegex = """(\\*)@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}""".toRegex()
 private val fullMatchExpressionRegex = """^@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}$""".toRegex()
@@ -21,13 +18,15 @@ private val dpaTransitions: Map<String, List<Transition>> = mapOf(
   ),
   "insideParameterList" to listOf(
     Transition("(", "(", null, "insideParameterList"), // start of another parameter list
-    Transition(")", null, "(", "isParameterListOver"), // end of a parameter list, check if still inside a parameter list
+    // end of a parameter list, check if still inside a parameter list
+    Transition(")", null, "(", "isParameterListOver"),
     Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "insideParameterList"), // strings
     Transition(".".toRegex(), null, null, "insideParameterList"), // general symbols
   ),
   "isParameterListOver" to listOf(
     Transition(null, EMPTY, "initial"), // end of parameter list, go back to initial state
-    Transition(null, null, "insideParameterList"), // still inside a parameter list, go back to state "insideParameterList"
+    // still inside a parameter list, go back to state "insideParameterList"
+    Transition(null, null, "insideParameterList"),
   ),
 )
 private val dpa = DPA("initial", "final", dpaTransitions)
@@ -48,7 +47,8 @@ private fun parseParameters(parameterString: String): List<String> {
 
 private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>, logger: Logger): Any? {
   if (!path.matches("""^[\w\d_]+(\[\d+\])*(\.([\w\d_]+(\[\d+\])*))*$""".toRegex())) {
-    throw Error("invalid path \"$path\". Please, make sure your variable names contain only letters, numbers and the symbol \"_\". To access substructures use \".\" and to access array indexes use \"[index]\".")
+    throw Error("invalid path \"$path\". Please, make sure your variable names contain only letters, numbers and the " +
+      "symbol \"_\". To access substructures use \".\" and to access array indexes use \"[index]\".")
   }
 
   val pathMatch = Regex("""^([^\.\[\]]+)\.?(.*)""").find(path) ?: return null

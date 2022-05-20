@@ -3,7 +3,7 @@ package com.zup.nimbus.core.network
 import com.zup.nimbus.core.utils.then
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.*
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.headers
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -27,7 +27,7 @@ class DefaultHttpClient(engine: HttpClientEngine? = null): com.zup.nimbus.core.n
   }
 
   private suspend fun doRequest(request: ServerDrivenRequest): HttpResponse {
-    val nimbusMethod = (request.method != null) then request.method ?: ServerDrivenHttpMethod.Get
+    val nimbusMethod = ((request.method != null) then request.method) ?: ServerDrivenHttpMethod.Get
     return client.request(request.url) {
       method = HttpMethod.parse(nimbusMethod.name.uppercase())
       headers {
@@ -52,7 +52,7 @@ class DefaultHttpClient(engine: HttpClientEngine? = null): com.zup.nimbus.core.n
   private fun buildResponseHeaders(headers: Headers): Map<String, String> {
     val responseHeaders = emptyMap<String, String>().toMutableMap()
     headers.entries().map {
-      responseHeaders[it.key] = (it.value.size > 1) then it.value.joinToString("; ") ?: it.value[0]
+      responseHeaders[it.key] = ((it.value.size > 1) then it.value.joinToString("; ")) ?: it.value[0]
     }
     return responseHeaders
   }
