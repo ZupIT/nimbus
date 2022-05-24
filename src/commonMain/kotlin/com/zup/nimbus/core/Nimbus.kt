@@ -25,7 +25,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val httpClient = config.httpClient ?: DefaultHttpClient()
   val idManager = config.idManager ?: DefaultIdManager()
   val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, idManager, logger, platform)
-  internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
+  internal val structuralComponents = emptyMap<String, (node: RenderNode) -> List<RenderNode>>() // todo
 
   // Other
   val globalState = ObservableState("global", null)
