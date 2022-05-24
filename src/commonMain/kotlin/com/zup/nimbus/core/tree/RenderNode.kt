@@ -36,6 +36,7 @@ class RenderNode(
    * stateHierarchy will be null if this node has not yet been processed by the renderer.
    */
   var stateHierarchy: List<ServerDrivenState>?,
+  implicitStates: Map<String, Any?>?,
   stateId: String?,
   stateValue: Any?,
 ): ServerDrivenNode {
@@ -95,6 +96,7 @@ class RenderNode(
           children = null,
           stateHierarchy = null,
           properties = null,
+          implicitStates = null,
         )
       } catch (e: UnexpectedDataTypeError) {
         throw MalformedComponentError(originalId, jsonPath, e.message)
@@ -102,7 +104,8 @@ class RenderNode(
     }
 
     fun empty(): RenderNode {
-      return RenderNode("", "", null, null, null, null, null, null, null)
+      return RenderNode("", "", null, null, null, null,
+        null, null, null, null)
     }
 
     /**
@@ -117,6 +120,8 @@ class RenderNode(
    * The state declared by this component. Null if it doesn't declare a state.
    */
   val state: ServerDrivenState? = if (stateId == null) null else ServerDrivenState(stateId, stateValue, this)
+
+  val implicitStates: List<ServerDrivenState>? = implicitStates?.map { ServerDrivenState(it.key, it.value, this) }
 
   /**
    * True if this node has been rendered at least once.

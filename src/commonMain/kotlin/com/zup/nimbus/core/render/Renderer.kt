@@ -157,8 +157,15 @@ class Renderer(
    * the tree (e.g. global context). This list must be ordered from the state with the highest priority to the lowest.
    */
   private fun processTreeAndStateHierarchy(node: RenderNode, stateHierarchy: List<ServerDrivenState>) {
-    @Suppress("SpreadOperator")
-    node.stateHierarchy = if(node.state == null) stateHierarchy else listOf(node.state, *stateHierarchy.toTypedArray())
+    if (node.state == null && node.implicitStates?.isEmpty() != false) {
+      node.stateHierarchy = stateHierarchy
+    } else {
+      val newHierarchy = ArrayList<ServerDrivenState>()
+      if (node.state != null) newHierarchy.add(node.state)
+      if (node.implicitStates != null) newHierarchy.addAll(node.implicitStates)
+      newHierarchy.addAll(stateHierarchy)
+      node.stateHierarchy = newHierarchy
+    }
     resolve(node)
     createChildrenFromRawChildren(node, true)
   }
