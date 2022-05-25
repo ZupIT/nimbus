@@ -24,7 +24,6 @@ jobs:
               GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
 
           - name: Generate release artifact
-            id: gradle
             uses: gradle/gradle-build-action@v2
             env:
               VERSION_NAME: ${{ github.REF }}
@@ -32,7 +31,6 @@ jobs:
               arguments: assembleRelease
 
           - name: Generate metadata file for publication
-            id: gradle
             uses: gradle/gradle-build-action@v2
             env:
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
@@ -43,7 +41,6 @@ jobs:
               arguments: generateMetadataFileForAndroidReleasePublication
 
           - name: Sign the artifact
-            id: gradle
             uses: gradle/gradle-build-action@v2
             env:
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
@@ -54,7 +51,6 @@ jobs:
               arguments: signAndroidReleasePublication
 
           - name: Publish the artifact
-            id: gradle
             uses: gradle/gradle-build-action@v2
             env:
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
