@@ -76,17 +76,49 @@ class Renderer(
     node.isRendered = true
   }
 
+  private fun computeStateHierarchy(node: RenderNode, parentHierarchy: List<ServerDrivenState>) {
+    if (node.state == null && node.implicitStates?.isEmpty() != false) {
+      node.stateHierarchy = parentHierarchy
+    } else {
+      val newHierarchy = ArrayList<ServerDrivenState>()
+      if (node.state != null) newHierarchy.add(node.state)
+      if (node.implicitStates != null) newHierarchy.addAll(node.implicitStates)
+      newHierarchy.addAll(parentHierarchy)
+      node.stateHierarchy = newHierarchy
+    }
+  }
+
+  /* This needs to be recursive because a structural component can yield another structural component, without a
+  wrapping component. If this was not recursive, this new structural component would never get processed. */
+  private fun buildStructuralComponent(
+    node: RenderNode,
+    builder: (node: RenderNode) -> List<RenderNode>,
+    stateHierarchy: List<ServerDrivenState>,
+  ): List<RenderNode> {
+    val children = ArrayList<RenderNode>()
+    computeStateHierarchy(node, stateHierarchy)
+    resolve(node)
+    val result = builder(node)
+    result.forEach {
+      val componentBuilder = structuralComponents[it.component]
+      if (componentBuilder == null) {
+        processTreeAndStateHierarchy(it, node.stateHierarchy!!)
+        children.add(it)
+      } else {
+        children.addAll(buildStructuralComponent(it, componentBuilder, node.stateHierarchy!!))
+      }
+    }
+    return children
+  }
+
   private fun unfoldStructuralComponents(node: RenderNode) {
     val children = ArrayList<RenderNode>()
     node.rawChildren?.forEach { child ->
-      val componentBuilder = structuralComponents[node.component]
-      if (componentBuilder != null) {
-        val result = componentBuilder(child)
-        result.forEach { processTreeAndStateHierarchy(it, node.stateHierarchy!!) }
-        children.addAll(result)
-      }
-      else children.add(child)
+      val componentBuilder = structuralComponents[child.component]
+      if (componentBuilder == null) children.add(child)
+      else children.addAll(buildStructuralComponent(child, componentBuilder, node.stateHierarchy!!))
     }
+    node.children = children
   }
 
   /**
@@ -130,7 +162,7 @@ class Renderer(
     var hasStructuralNode = false
 
     node.rawChildren?.forEach {
-      val isStructuralNode = structuralComponents.containsKey(node.component)
+      val isStructuralNode = structuralComponents.containsKey(it.component)
       if (isStructuralNode) {
         hasStructuralNode = true
         return@forEach
@@ -157,15 +189,7 @@ class Renderer(
    * the tree (e.g. global context). This list must be ordered from the state with the highest priority to the lowest.
    */
   private fun processTreeAndStateHierarchy(node: RenderNode, stateHierarchy: List<ServerDrivenState>) {
-    if (node.state == null && node.implicitStates?.isEmpty() != false) {
-      node.stateHierarchy = stateHierarchy
-    } else {
-      val newHierarchy = ArrayList<ServerDrivenState>()
-      if (node.state != null) newHierarchy.add(node.state)
-      if (node.implicitStates != null) newHierarchy.addAll(node.implicitStates)
-      newHierarchy.addAll(stateHierarchy)
-      node.stateHierarchy = newHierarchy
-    }
+    computeStateHierarchy(node, stateHierarchy)
     resolve(node)
     createChildrenFromRawChildren(node, true)
   }

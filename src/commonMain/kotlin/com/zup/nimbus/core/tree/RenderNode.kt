@@ -28,7 +28,7 @@ class RenderNode(
    * Stores the original properties of this component, before any processing. This can contain expressions in their
    * string form and actions in their Object form (Action).
    */
-  var rawProperties: MutableMap<String, Any?>?,
+  var rawProperties: Map<String, Any?>?,
   /**
    * All states accessible by this component in descending order of priority, i.e. the first element will be the state
    * of highest priority and the last element will be the state of lowest priority.
