@@ -126,8 +126,8 @@ android {
 // TODO Extract the code below to another file
 // ------------------------- Publication configuration --------------------- //
 
-val sonatypeUsername = System.getenv("SONATYPE_NEXUS_USERNAME") ?: ""
-val sonatypePassword = System.getenv("SONATYPE_NEXUS_PASSWORD") ?: ""
+val sonatypeUsername = System.getenv("ORG_GRADLE_PROJECT_mavenCentralUsername") ?: ""
+val sonatypePassword = System.getenv("ORG_GRADLE_PROJECT_mavenCentralPassword") ?: ""
 val versionName = System.getenv("VERSION_NAME") ?: project.property("VERSION_NAME").toString()
 val signinKeyId = System.getenv("ORG_GRADLE_PROJECT_SIGNINGKEYID") ?: ""
 val signinPassword = System.getenv("ORG_GRADLE_PROJECT_SIGNINGPASSWORD") ?: ""
