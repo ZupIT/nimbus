@@ -43,17 +43,6 @@ jobs:
             with:
               arguments: generateMetadataFileForAndroidReleasePublication
 
-          - name: Sign the artifact
-            uses: gradle/gradle-build-action@v2
-            env:
-              VERSION_NAME: ${{ env.TAGNAME }}
-              SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-              SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-              ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-              ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
-            with:
-              arguments: signAndroidReleasePublication
-
           - name: Publish the artifact
             uses: gradle/gradle-build-action@v2
             env:
