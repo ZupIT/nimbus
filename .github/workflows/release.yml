@@ -33,6 +33,7 @@ jobs:
           - name: Generate metadata file for publication
             uses: gradle/gradle-build-action@v2
             env:
+              VERSION_NAME: ${{ github.REF }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
@@ -43,6 +44,7 @@ jobs:
           - name: Sign the artifact
             uses: gradle/gradle-build-action@v2
             env:
+              VERSION_NAME: ${{ github.REF }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
@@ -53,6 +55,7 @@ jobs:
           - name: Publish the artifact
             uses: gradle/gradle-build-action@v2
             env:
+              VERSION_NAME: ${{ github.REF }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
