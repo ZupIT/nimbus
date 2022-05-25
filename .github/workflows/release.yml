@@ -11,6 +11,8 @@ jobs:
         steps:
           - name: Checkout repo
             uses: actions/checkout@v3
+          - name: Get the tag name
+            run: echo "TAGNAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
           - name: Stup Java version
             uses: actions/setup-java@v3
@@ -26,14 +28,14 @@ jobs:
           - name: Generate release artifact
             uses: gradle/gradle-build-action@v2
             env:
-              VERSION_NAME: ${{ github.REF }}
+              VERSION_NAME: ${{ env.TAGNAME }}
             with:
               arguments: assembleRelease
 
           - name: Generate metadata file for publication
             uses: gradle/gradle-build-action@v2
             env:
-              VERSION_NAME: ${{ github.REF }}
+              VERSION_NAME: ${{ env.TAGNAME }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
@@ -44,7 +46,7 @@ jobs:
           - name: Sign the artifact
             uses: gradle/gradle-build-action@v2
             env:
-              VERSION_NAME: ${{ github.REF }}
+              VERSION_NAME: ${{ env.TAGNAME }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
@@ -55,7 +57,7 @@ jobs:
           - name: Publish the artifact
             uses: gradle/gradle-build-action@v2
             env:
-              VERSION_NAME: ${{ github.REF }}
+              VERSION_NAME: ${{ env.TAGNAME }}
               SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
               SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
