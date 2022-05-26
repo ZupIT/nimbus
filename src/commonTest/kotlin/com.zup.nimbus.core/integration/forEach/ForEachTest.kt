@@ -3,6 +3,7 @@ package com.zup.nimbus.core.integration.forEach
 import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -157,6 +158,30 @@ class ForEachTest {
     assertTrue(hasRendered)
   }
 
+  private fun assertThatPlanColumnIsCorrect(
+    column: ServerDrivenNode?,
+    expectedHeaderId: String,
+    expectedHeaderContent: String,
+    expectedTextIds: List<String>,
+    expectedTextContent: List<String>,
+  ) {
+    // THEN the column (plan container) should have 1 child for the header and 2 children for each client
+    assertEquals(1 + expectedTextIds.size, column?.children?.size)
+    // THEN the header of the column should have the correct id
+    val header = column?.children?.get(0)
+    assertEquals(expectedHeaderId, header?.id)
+    // THEN the header of the column should have the correct content
+    assertEquals(expectedHeaderContent, header?.properties?.get("text"))
+    // THEN the components corresponding to the clients of the this plan should have the correct id
+    expectedTextIds.forEachIndexed { index, id ->
+      assertEquals(id, column?.children?.get(index + 1)?.id)
+    }
+    // THEN the components corresponding to the clients of this plan should have the correct content
+    expectedTextContent.forEachIndexed { index, content ->
+      assertEquals(content, column?.children?.get(index + 1)?.properties?.get("text"))
+    }
+  }
+
   @Test
   fun shouldCorrectlyProcessNestedForEachScreen() {
     // WHEN the NESTED_FOR_EACH screen is rendered
@@ -171,31 +196,37 @@ class ForEachTest {
       // THEN it should have 3 column components as children of the root (one for each plan)
       assertEquals(3, it.children?.size)
 
-      // ASSERTIONS FOR THE PREMIUM PLAN (FIRST COLUMN)
-      // THEN the first column (premium) should have 7 text components: 1 for the header and 2 for each client (3)
-      var column = it.children?.get(0)
-      assertEquals(7, column?.children?.size)
-      // THEN the header of the premium column (first) should have the correct id
-      var header = column?.children?.get(0)
-      assertEquals("header:0", header?.id)
-      // THEN the header of the premium column (first) should have the correct content
-      assertEquals("Documents of clients for the premium plan (59.9):", header?.properties?.get("text"))
-      // THEN the components corresponding to the clients of the premium plan should have the correct id
-      var documents = listOf(column?.children?.get(1), column?.children?.get(2), column?.children?.get(3),
-        column?.children?.get(4), column?.children?.get(5), column?.children?.get(6))
-      assertEquals("document:0:0:0", documents[0]?.id)
-      assertEquals("document:0:0:1", documents[1]?.id)
-      assertEquals("document:0:1:0", documents[2]?.id)
-      assertEquals("document:0:1:1", documents[3]?.id)
-      assertEquals("document:0:2:0", documents[4]?.id)
-      assertEquals("document:0:2:1", documents[5]?.id)
-      // THEN the components corresponding to the clients of the premium plan should have the correct content
-      assertEquals("045.445.875-96 (belonging to John)", documents[0]?.properties?.get("text"))
-      assertEquals("MG14785987 (belonging to John)", documents[1]?.properties?.get("text"))
-      assertEquals("854.112.745-98 (belonging to Mary)", documents[2]?.properties?.get("text"))
-      assertEquals("SP51476321 (belonging to Mary)", documents[3]?.properties?.get("text"))
-      assertEquals("856.334.857-85 (belonging to Anthony)", documents[4]?.properties?.get("text"))
-      assertEquals("PR14786320 (belonging to Anthony)", documents[5]?.properties?.get("text"))
+      // THEN the column for the premium plan (first) should be correct
+      assertThatPlanColumnIsCorrect(
+        column = it.children?.get(0),
+        expectedHeaderId = "header:0",
+        expectedHeaderContent = "Documents of clients for the premium plan (59.9):",
+        expectedTextIds = listOf("document:0:0:0", "document:0:0:1", "document:0:1:0", "document:0:1:1",
+          "document:0:2:0", "document:0:2:1"),
+        expectedTextContent = listOf("045.445.875-96 (belonging to John)", "MG14785987 (belonging to John)",
+          "854.112.745-98 (belonging to Mary)", "SP51476321 (belonging to Mary)",
+          "856.334.857-85 (belonging to Anthony)", "PR14786320 (belonging to Anthony)"),
+      )
+
+      // THEN the column for the super plan (second) should be correct
+      assertThatPlanColumnIsCorrect(
+        column = it.children?.get(1),
+        expectedHeaderId = "header:1",
+        expectedHeaderContent = "Documents of clients for the super plan (39.9):",
+        expectedTextIds = listOf("document:1:0:0", "document:1:0:1"),
+        expectedTextContent = listOf("555.412.744-88 (belonging to Helen)", "MG45127889 (belonging to Helen)"),
+      )
+
+      // THEN the column for the basic plan (third) should be correct
+      assertThatPlanColumnIsCorrect(
+        column = it.children?.get(2),
+        expectedHeaderId = "header:2",
+        expectedHeaderContent = "Documents of clients for the basic plan (19.9):",
+        expectedTextIds = listOf("document:2:0:0", "document:2:0:1", "document:2:1:0", "document:2:1:1"),
+        expectedTextContent = listOf("124.111.458-44 (belonging to Rose)", "RJ41775652 (belonging to Rose)",
+          "122.225.974-87 (belonging to Paul)", "SC41257896 (belonging to Paul)"),
+      )
+
       hasRendered = true
     }
     assertTrue(hasRendered)
