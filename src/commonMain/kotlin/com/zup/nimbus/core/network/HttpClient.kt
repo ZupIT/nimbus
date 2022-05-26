@@ -16,9 +16,9 @@ enum class ServerDrivenHttpMethod {
 
 class ServerDrivenRequest(
   val url: String,
-  val method: ServerDrivenHttpMethod?,
-  val headers: Map<String, String>?,
-  val body: String?,
+  val method: ServerDrivenHttpMethod? = ServerDrivenHttpMethod.Get,
+  val headers: Map<String, String>? = emptyMap(),
+  val body: String? = null,
 )
 
 class ServerDrivenResponse(

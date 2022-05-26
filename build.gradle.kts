@@ -62,7 +62,7 @@ kotlin {
     }
     val androidMain by getting {
       dependencies {
-        implementation("com.google.android.material:material:1.5.0")
+        implementation("com.google.android.material:material:1.6.0")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
         implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
       }
@@ -90,12 +90,12 @@ kotlin {
       dependsOn(commonTest)
     }
   }
+}
 
-  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions{
-      kotlin.sourceSets.all {
-        languageSettings.optIn("kotlin.RequiresOptIn")
-      }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  kotlinOptions{
+    kotlin.sourceSets.all {
+      languageSettings.optIn("kotlin.RequiresOptIn")
     }
   }
 }

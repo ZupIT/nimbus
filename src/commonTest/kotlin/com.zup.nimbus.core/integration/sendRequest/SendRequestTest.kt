@@ -50,7 +50,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldRunOnSuccess() = runSendRequestTest(buildScreen("/user/1")) {
+  fun `should run on success`() = runSendRequestTest(buildScreen("/user/1")) {
     assertEquals(2, logger.entries.size)
     val firstLog = logger.entries.first()
     assertEquals("success", firstLog.message)
@@ -58,7 +58,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldRunOnError() = runSendRequestTest(buildScreen("/user/2"), 3) {
+  fun `should run on error`() = runSendRequestTest(buildScreen("/user/2"), 3) {
     assertEquals(3, logger.entries.size)
     val firstLog = logger.entries.first()
     val secondLog = logger.entries[1]
@@ -68,7 +68,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldRunOnFinish() = runSendRequestTest(buildScreen("/user/1")) {
+  fun `should run on finish`() = runSendRequestTest(buildScreen("/user/1")) {
     assertEquals(2, logger.entries.size)
     val lastLog = logger.entries.last()
     assertEquals("finish", lastLog.message)
@@ -76,7 +76,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldFailBeforeSendingRequest() = runSendRequestTest(buildScreen(null), 1) {
+  fun `should fail before sending request`() = runSendRequestTest(buildScreen(null), 1) {
     assertEquals(1, logger.entries.size)
     val firstLog = logger.entries.first()
     assertContains(firstLog.message, "Unexpected value type at \"url\". Expected \"String\", found \"null\".")
@@ -84,7 +84,7 @@ class SendRequestTest {
   }
 
   @Test
-  fun shouldRunOnSuccessIfOnErrorAndOnFinishAreMissing() = runSendRequestTest(
+  fun `should run on success if on error and on finish are missing`() = runSendRequestTest(
     buildScreen("/user/1", false),
     1,
   ) {

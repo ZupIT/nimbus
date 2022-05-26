@@ -52,13 +52,13 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldRenderFirstView() = runNavigationTest(onLoad = { pages ->
+  fun `should render the first view`() = runNavigationTest(onLoad = { pages ->
     assertEquals(1, pages.size)
     verifyScreen1(pages.last().content)
   })
 
   @Test
-  fun shouldNotFindFirstViewWithWrongUrl() = runNavigationTest(
+  fun `should not find the first view with a wrong url`() = runNavigationTest(
     firstScreen = "/none",
     onError = { error ->
       assertEquals(true, error is ResponseError)
@@ -68,7 +68,7 @@ class NavigationTest {
   )
 
   @Test
-  fun shouldPushSecondView() = runNavigationTest(onLoad = { pages ->
+  fun `should push the second view`() = runNavigationTest(onLoad = { pages ->
     if(pages.last().id == "/screen1") {
       pressNextButton(pages.last().content)
       assertEquals(2, pages.size)
@@ -78,7 +78,7 @@ class NavigationTest {
   })
 
   @Test
-  fun shouldPushThirdView() {
+  fun `should push the third view`() {
     var expectedNumberOfPages = 1
     runNavigationTest(onLoad = { pages ->
       if(pages.last().id == "/screen1" || pages.last().id == "/screen2") {
@@ -91,7 +91,7 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldShowFallbackWhenPushingFourthView() {
+  fun `should show the fallback when pushing the fourth view`() {
     var expectedNumberOfPages = 1
     runNavigationTest(onLoad = { pages ->
       if (pages.last().id == "/screen1" || pages.last().id == "/screen2" || pages.last().id == "/screen3") {
@@ -105,7 +105,7 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldProduceErrorAndNotNavigateWhenGoingToScreen4() {
+  fun `should produce an error and not navigate when going to screen 4`() {
     var expectedNumberOfPages = 1
     runNavigationTest(
       onLoad = { pages ->
@@ -124,7 +124,7 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldPushSecondViewAndPop() = runNavigationTest(onLoad = { pages ->
+  fun `should push the second view and pop`() = runNavigationTest(onLoad = { pages ->
     if(pages.last().id == "/screen1") {
       pressNextButton(pages.last().content)
       assertEquals(2, pages.size)
@@ -136,7 +136,7 @@ class NavigationTest {
   })
 
   @Test
-  fun shouldPopToRootFromFallback() {
+  fun `should pop to root from fallback`() {
     var expectedNumberOfPages = 1
     runNavigationTest(onLoad = { pages ->
       if(pages.last().id == "/screen1" || pages.last().id == "/screen2" || pages.last().id == "/screen3") {
