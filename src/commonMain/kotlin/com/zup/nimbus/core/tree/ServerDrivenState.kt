@@ -48,7 +48,7 @@ open class ServerDrivenState(
       value = newValue
     } else {
       if (value !is MutableMap<*, *>) value = HashMap<String, Any>()
-      setMapValue(value as MutableMap<*, *>, path, newValue)
+      setMapValue(value as MutableMap<String, Any?>, path, newValue)
     }
   }
 }
