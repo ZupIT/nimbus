@@ -103,7 +103,7 @@ inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
 inline fun <reified T : Enum<T>> valueOfEnum(data: Any?, path: String = "", defaultValue: T?): T {
   val stringValue: String? = valueOf(data, path)
   return try {
-    if (stringValue == null) (defaultValue ?: throw IllegalArgumentException()) else enumValueOf(stringValue)
+    if (stringValue == null) (defaultValue ?: throw IllegalArgumentException("")) else enumValueOf(stringValue)
   } catch (e: IllegalArgumentException) {
     val at = if (path.isEmpty()) "" else """ at "$path""""
     val expected = enumValues<T>().joinToString(", ")

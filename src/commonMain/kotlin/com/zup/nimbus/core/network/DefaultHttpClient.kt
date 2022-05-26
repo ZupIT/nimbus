@@ -3,7 +3,7 @@ package com.zup.nimbus.core.network
 import com.zup.nimbus.core.utils.then
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.*
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.request.headers
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody

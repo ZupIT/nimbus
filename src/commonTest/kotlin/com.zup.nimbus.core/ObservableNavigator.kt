@@ -11,7 +11,7 @@ class ObservableNavigator(
   private val scope: TestScope,
   private val nimbus: Nimbus,
 ): ServerDrivenNavigator {
-  private var pages = ArrayList<Page>()
+  var pages = ArrayList<Page>()
   private var deferredPush: CompletableDeferred<Page>? = null
 
   suspend fun awaitPushCompletion(): Page {
@@ -24,7 +24,7 @@ class ObservableNavigator(
   }
 
   override fun push(request: ViewRequest) {
-    val view = nimbus.createView(this)
+    val view = nimbus.createView({ this })
     pages.add(Page(request.url, view))
     scope.launch {
       try {

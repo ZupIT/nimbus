@@ -3,10 +3,15 @@ package com.zup.nimbus.core
 import com.zup.nimbus.core.action.coreActions
 import com.zup.nimbus.core.action.onCoreActionRendered
 import com.zup.nimbus.core.log.DefaultLogger
+import com.zup.nimbus.core.network.DefaultHttpClient
+import com.zup.nimbus.core.network.DefaultUrlBuilder
+import com.zup.nimbus.core.network.DefaultViewClient
 import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.network.*
+import com.zup.nimbus.core.tree.DefaultIdManager
+import com.zup.nimbus.core.tree.MalformedComponentError
+import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.ObservableState
-import com.zup.nimbus.core.tree.*
+import com.zup.nimbus.core.tree.RenderNode
 
 class Nimbus(config: ServerDrivenConfig) {
   // From config
@@ -36,12 +41,12 @@ class Nimbus(config: ServerDrivenConfig) {
    *
    * Check the documentation for ServerDrivenView for more details on the parameters.
    *
-   * @param navigator the navigator for the new ServerDrivenView.
+   * @param getNavigator a function that returns the ServerDrivenView's navigator.
    * @param description a description for the new ServerDrivenView.
    * @return the new ServerDrivenView.
    */
-  fun createView(navigator: ServerDrivenNavigator, description: String? = null): ServerDrivenView {
-    return ServerDrivenView(this, navigator, description)
+  fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null): ServerDrivenView {
+    return ServerDrivenView(this, getNavigator, description)
   }
 
   /**

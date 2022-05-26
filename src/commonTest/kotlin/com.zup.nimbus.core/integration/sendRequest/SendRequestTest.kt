@@ -37,7 +37,7 @@ class SendRequestTest {
   ) = scope.runTest {
     var changed = 0
     val screen = nimbus.createNodeFromJson(json)
-    val view = nimbus.createView(EmptyNavigator())
+    val view = nimbus.createView({ EmptyNavigator() })
     logger.clear()
     view.onChange {
       changed++
