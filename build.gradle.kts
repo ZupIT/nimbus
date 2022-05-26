@@ -7,6 +7,9 @@ plugins {
   kotlin("plugin.serialization") version "1.6.21"
   id("io.gitlab.arturbosch.detekt") version "1.20.0"
   id("com.android.library") version "7.2"
+  id("maven-publish")
+  id("io.codearte.nexus-staging") version "0.22.0"
+  id("signing")
 }
 
 detekt {
@@ -16,15 +19,15 @@ detekt {
   source = files("src/commonMain/kotlin")
 }
 
-group = "me.user"
-version = "1.0-SNAPSHOT"
-
 repositories {
   google()
   mavenCentral()
 }
 
 kotlin {
+  android {
+    publishAllLibraryVariants()
+  }
   android()
   iosX64()
   iosArm64()
@@ -120,3 +123,98 @@ android {
     targetCompatibility = JavaVersion.VERSION_1_8
   }
 }
+// TODO Extract the code below to another file
+// ------------------------- Publication configuration --------------------- //
+
+val sonatypeUsername = System.getenv("ORG_GRADLE_PROJECT_mavenCentralUsername") ?: ""
+val sonatypePassword = System.getenv("ORG_GRADLE_PROJECT_mavenCentralPassword") ?: ""
+val versionName = System.getenv("VERSION_NAME") ?: project.property("VERSION_NAME").toString()
+val signinKeyId = System.getenv("ORG_GRADLE_PROJECT_SIGNINGKEYID") ?: ""
+val signinPassword = System.getenv("ORG_GRADLE_PROJECT_SIGNINGPASSWORD") ?: ""
+
+//POM Configuration
+val pomGroup = project.property("POM_GROUP").toString()
+val pomName = project.property("POM_NAME").toString()
+val pomDescription = project.property("POM_DESCRIPTION").toString()
+val pomYear = project.property("POM_INCEPTION_YEAR").toString()
+val pomLicenseDist = project.property("POM_LICENCE_DIST").toString()
+val pomLicenseName = project.property("POM_LICENCE_NAME").toString()
+val pomLicenseUrl = project.property("POM_LICENCE_URL").toString()
+val pomIssuesUrl = project.property("POM_ISSUES_URL").toString()
+val pomIssuesSystem = project.property("POM_ISSUES_SYSTEM").toString()
+val pomDevId = project.property("POM_DEVELOPER_ID").toString()
+val pomDevName = project.property("POM_DEVELOPER_NAME").toString()
+val pomDevUrl = project.property("POM_DEVELOPER_URL").toString()
+val pomUrl = project.property("POM_URL").toString()
+val pomScmConnection = project.property("POM_SCM_CONNECTION").toString()
+val pomScmDevConnection = project.property("POM_SCM_DEV_CONNECTION").toString()
+val pomScmUrl = project.property("POM_SCM_URL").toString()
+
+/*
+Needed to generate the nexus staging metadata, this uses the gpg file selected
+on ~/.gradle/gradle.properties to sign the artifact before send to maven central
+ */
+extra["signing.keyId"] = signinKeyId
+extra["signing.password"] = signinPassword
+
+group = pomGroup
+version = versionName
+
+publishing {
+  repositories {
+    maven {
+      name="oss"
+      val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+      val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+      url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+      credentials {
+        username = sonatypeUsername
+        password = sonatypePassword
+      }
+    }
+  }
+  publications {
+    withType<MavenPublication> {
+      pom {
+        name.set(pomName)
+        description.set(pomDescription)
+        url.set(pomUrl)
+        inceptionYear.set(pomYear)
+        licenses {
+          license {
+            distribution.set(pomLicenseDist)
+            name.set(pomLicenseName)
+            url.set(pomLicenseUrl)
+          }
+        }
+        issueManagement {
+          system.set(pomIssuesSystem)
+          url.set(pomIssuesUrl)
+        }
+        scm {
+          developerConnection.set(pomScmDevConnection)
+          connection.set(pomScmConnection)
+          url.set(pomScmUrl)
+        }
+        developers {
+          developer {
+            id.set(pomDevId)
+            name.set(pomDevName)
+            email.set(pomDevUrl)
+          }
+        }
+      }
+    }
+  }
+}
+
+signing {
+  sign(publishing.publications)
+}
+
+nexusStaging {
+  username = sonatypeUsername
+  password = sonatypePassword
+  packageGroup = "br.com.zup"
+}
+// ------------------------- End of Publication configuration --------------------- //
