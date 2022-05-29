@@ -40,7 +40,9 @@ class ExpressionTest {
     null,
     null,
     null,
-    null
+    null,
+    null,
+    null,
   )
 
   // ##State Bindings
