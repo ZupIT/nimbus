@@ -16,3 +16,8 @@ class InvalidStatePathError(path: String): RenderingError("""The path "$path" is
 
 class StateNotFoundError(stateId: String, componentId: String)
   : RenderingError("""Could not find state "$stateId" from the component with id "$componentId"""")
+
+class NoStateHierarchyError: RenderingError("Expected node to have a state hierarchy.", true)
+
+class UnexpectedRootStructuralComponent: RenderingError("A structural component can't be the root of a UI " +
+  "tree. Please wrap it under a UI component node.")
