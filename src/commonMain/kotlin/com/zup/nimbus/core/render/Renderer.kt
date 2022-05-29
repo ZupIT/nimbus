@@ -274,6 +274,9 @@ class Renderer(
    *
    * If the state is not accessible from "sourceNode" no re-render will happen and the error will be logged.
    *
+   * If the node to update is detached from the tree (global state, for instance). The UI will not be updated from here
+   * since it is expected that an outside listener will take care of it.
+   *
    * @param sourceNode the node where the setState originated from. This is important because each node can see/modify
    * a subset of all states available. Moreover, there could be states with the same name and we must know which one
    * has been declared closest to the node (shadowing).
@@ -282,15 +285,17 @@ class Renderer(
    * "myState.foo.bar".
    * @param newValue the new value to set for the state indicated by "path".
    */
-  fun setState(sourceNode: RenderNode, path: String, newValue: Any) {
+  fun setState(sourceNode: RenderNode, path: String, newValue: Any?) {
     try {
       val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
       val (stateId, statePath) = matchResult.destructured
       val stateHierarchy = sourceNode.stateHierarchy ?: throw InvalidTreeError()
       val state = stateHierarchy.find { it.id == stateId } ?: throw StateNotFoundError(path, sourceNode.id)
       state.set(newValue, statePath)
-      if (state.parent != null) processTree(state.parent)
-      onFinish()
+      if (state.parent != null) {
+        processTree(state.parent)
+        onFinish()
+      }
     } catch (error: RenderingError) {
       logger.error(error.message)
     }

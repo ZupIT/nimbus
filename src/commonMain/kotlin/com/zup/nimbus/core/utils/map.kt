@@ -22,12 +22,19 @@ fun <K, V, T>mapValuesToMutableMap(map: Map<K, V>, iteratee: (entry: Map.Entry<K
  *
  * @param map the map to set.
  * @param path the path to set within the map. This must contain only letters, numbers and underscore separated by dots.
- * This must also not be empty. If the path is invalid or can't be found within the map, the map is not modified.
+ * This must also not be empty. If the path is invalid InvalidDataPathError is thrown.
  * @param newValue the new value to set for "map.$path".
+ * @throws InvalidDataPathError if the path is invalid
  */
-fun setMapValue(map: MutableMap<*, *>, path: String, newValue: Any?) {
-  // todo, remove the code below
-  print(map)
-  print(path)
-  print(newValue)
+fun setMapValue(map: MutableMap<String, Any?>, path: String, newValue: Any?) {
+  val regex = """(\w+)(?:\.(.+))?""".toRegex()
+  val matchResult =
+    regex.find(path) ?: throw InvalidDataPathError(path, "Doesn't comply with the regex ${regex.pattern}")
+  val (current, next) = matchResult.destructured
+  if (next.isEmpty()) {
+    map[current] = newValue
+  } else {
+    if (map[current] !is MutableMap<*, *>) map[current] = HashMap<String, Any>()
+    setMapValue(map[current] as MutableMap<String, Any?>, next, newValue)
+  }
 }
