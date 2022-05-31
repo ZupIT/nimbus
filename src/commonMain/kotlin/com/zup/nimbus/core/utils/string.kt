@@ -41,5 +41,5 @@ fun removeSuffix(str: String, suffix: String): String {
  * @returns the resulting string
  */
 fun capitalizeFirstLetter(str: String): String {
-  return ((str.isEmpty()) then str) ?: "${str[0].toString().uppercase()}${str.slice((1 until (str.length - 1)))}"
+  return ((str.isEmpty()) then str) ?: "${str[0].toString().uppercase()}${str.slice((1 until str.length))}"
 }
