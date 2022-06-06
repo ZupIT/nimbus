@@ -53,7 +53,7 @@ private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>,
 
   val pathMatch = Regex("""^([^\.\[\]]+)\.?(.*)""").find(path) ?: return null
   val (stateId, statePath) = pathMatch.destructured
-  val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find context with id \"$stateId\"")
+  val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find state with id \"$stateId\"")
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
     return try {
       valueOf(state.value, statePath)

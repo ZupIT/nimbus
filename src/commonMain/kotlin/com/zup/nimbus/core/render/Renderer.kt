@@ -63,24 +63,119 @@ class Renderer(
   }
 
   /**
-   * If this node is a structural component, it unfolds it into actual UI components. Otherwise, it resolves every
-   * expression and deserializes every action into functions.
+   * Resolves every expression and deserializes every action into functions.
    *
    * Attention: this operation is not recursive on the node.
    *
    * @param node the node to resolve.
    */
   private fun resolve(node: RenderNode) {
-    val componentBuilder = structuralComponents[node.component]
-    if (componentBuilder != null) {
-      // todo: not sure exactly how this is going to work for loops, mainly because it would need a parent.
-      componentBuilder(node)
-    } else {
-      node.properties = node.rawProperties?.mapValues {
-        resolveProperty(it.value, it.key, node, emptyList())
-      }
+    node.properties = node.rawProperties?.mapValues {
+      resolveProperty(it.value, it.key, node, emptyList())
     }
     node.isRendered = true
+  }
+
+  private fun computeStateHierarchy(node: RenderNode, parentHierarchy: List<ServerDrivenState>) {
+    if (node.state == null && node.implicitStates?.isEmpty() != false) {
+      node.stateHierarchy = parentHierarchy
+    } else {
+      val newHierarchy = ArrayList<ServerDrivenState>()
+      if (node.state != null) newHierarchy.add(node.state)
+      if (node.implicitStates != null) newHierarchy.addAll(node.implicitStates)
+      newHierarchy.addAll(parentHierarchy)
+      node.stateHierarchy = newHierarchy
+    }
+  }
+
+  /* This needs to be recursive because a structural component can yield another structural component, without a
+  wrapping component. If this was not recursive, this new structural component would never get processed. */
+  private fun buildStructuralComponent(
+    node: RenderNode,
+    builder: (node: RenderNode) -> List<RenderNode>,
+    stateHierarchy: List<ServerDrivenState>,
+  ): List<RenderNode> {
+    val children = ArrayList<RenderNode>()
+    computeStateHierarchy(node, stateHierarchy)
+    resolve(node)
+    val result = builder(node)
+    result.forEach {
+      val componentBuilder = structuralComponents[it.component]
+      if (componentBuilder == null) {
+        processTreeAndStateHierarchy(it, node.stateHierarchy!!)
+        children.add(it)
+      } else {
+        children.addAll(buildStructuralComponent(it, componentBuilder, node.stateHierarchy!!))
+      }
+    }
+    return children
+  }
+
+  private fun unfoldStructuralComponents(node: RenderNode) {
+    val children = ArrayList<RenderNode>()
+    node.rawChildren?.forEach { child ->
+      val componentBuilder = structuralComponents[child.component]
+      if (componentBuilder == null) children.add(child)
+      else children.addAll(buildStructuralComponent(child, componentBuilder, node.stateHierarchy!!))
+    }
+    node.children = children
+  }
+
+  /**
+   * Creates the `node.children` array from the `node.rawChildren`. In most cases, `children` will just be a pointer to
+   * `rawChildren`, but when the node contains a structural node that needs to be unfolded, its `children` array will be
+   * a version of its `rawChildren` array where every structural node is replaced by its result.
+   *
+   * This also processes every child of `node` according to `shouldProcessStateHierarchy`. Since structural components
+   * always represent a new structure, they will always be processed with `processTreeAndStateHierarchy` despite the
+   * value of `shouldProcessStateHierarchy`.
+   *
+   * At the moment of writing, there are two structural components: `if` and `foreach`:
+   *
+   * If the `rawChildren` contains something like:
+   * - If
+   *   - Then
+   *     - NodeA
+   *   - Else
+   *     - NodeB
+   *
+   * The children will contain only:
+   * - NodeA or;
+   * - NodeB, depending on the result of `structuralComponents["if"](node)`
+   *
+   * If the `rawChildren` contains something like:
+   * - Foreach
+   *   - Template
+   *
+   * The children will contain something like:
+   * - ComponentResultingFromIteration1
+   * - ComponentResultingFromIteration2
+   * - ComponentResultingFromIteration3
+   * - and more (or less) depending on the result of `structuralComponents["foreach"](node)`
+   *
+   * @param node the node to have its children processed from its rawChildren.
+   * @param shouldProcessStateHierarchy whether to process the children with `processTreeAndStateHierarchy` (true) or
+   * `processTree` (false). Makes no difference for structural children, they will always use
+   * `processTreeAndStateHierarchy`.
+   */
+  private fun createChildrenFromRawChildren(node: RenderNode, shouldProcessStateHierarchy: Boolean) {
+    var hasStructuralNode = false
+
+    node.rawChildren?.forEach {
+      val isStructuralNode = structuralComponents.containsKey(it.component)
+      if (isStructuralNode) {
+        hasStructuralNode = true
+        return@forEach
+      }
+      if (shouldProcessStateHierarchy) {
+        processTreeAndStateHierarchy(it, node.stateHierarchy ?: throw NoStateHierarchyError())
+      } else {
+        processTree(it)
+      }
+    }
+
+    if (hasStructuralNode) unfoldStructuralComponents(node)
+    else node.children = node.rawChildren
   }
 
   /**
@@ -89,16 +184,14 @@ class Renderer(
    * This recreates the state hierarchy and must be called whenever the tree structure changes. If the tree structure
    * didn't change, call "processTree" instead (faster).
    *
-   *
    * @param node the tree to process.
    * @param stateHierarchy the stateHierarchy calculated until now. Initialize this with the states declared outside
    * the tree (e.g. global context). This list must be ordered from the state with the highest priority to the lowest.
    */
   private fun processTreeAndStateHierarchy(node: RenderNode, stateHierarchy: List<ServerDrivenState>) {
-    @Suppress("SpreadOperator")
-    node.stateHierarchy = if(node.state == null) stateHierarchy else listOf(node.state, *stateHierarchy.toTypedArray())
+    computeStateHierarchy(node, stateHierarchy)
     resolve(node)
-    node.children?.forEach { processTreeAndStateHierarchy(it, node.stateHierarchy!!) }
+    createChildrenFromRawChildren(node, true)
   }
 
   /**
@@ -111,7 +204,7 @@ class Renderer(
    */
   private fun processTree(node: RenderNode) {
     resolve(node)
-    node.children?.forEach { processTree(it) }
+    createChildrenFromRawChildren(node, false)
   }
 
   /**
@@ -149,6 +242,9 @@ class Renderer(
    * @param mode dictates how to insert "tree" into the current tree. Defaults to "ReplaceItself".
    */
   fun paint(tree: RenderNode, anchor: String? = null, mode: TreeUpdateMode = TreeUpdateMode.ReplaceItself) {
+    if (structuralComponents.containsKey(tree.component)) {
+      throw UnexpectedRootStructuralComponent()
+    }
     try {
       val currentTree = getCurrentTree()
       val shouldReplaceEntireTree = currentTree == null ||
@@ -178,6 +274,9 @@ class Renderer(
    *
    * If the state is not accessible from "sourceNode" no re-render will happen and the error will be logged.
    *
+   * If the node to update is detached from the tree (global state, for instance). The UI will not be updated from here
+   * since it is expected that an outside listener will take care of it.
+   *
    * @param sourceNode the node where the setState originated from. This is important because each node can see/modify
    * a subset of all states available. Moreover, there could be states with the same name and we must know which one
    * has been declared closest to the node (shadowing).
@@ -186,15 +285,17 @@ class Renderer(
    * "myState.foo.bar".
    * @param newValue the new value to set for the state indicated by "path".
    */
-  fun setState(sourceNode: RenderNode, path: String, newValue: Any) {
+  fun setState(sourceNode: RenderNode, path: String, newValue: Any?) {
     try {
       val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
       val (stateId, statePath) = matchResult.destructured
       val stateHierarchy = sourceNode.stateHierarchy ?: throw InvalidTreeError()
       val state = stateHierarchy.find { it.id == stateId } ?: throw StateNotFoundError(path, sourceNode.id)
       state.set(newValue, statePath)
-      if (state.parent != null) processTree(state.parent)
-      onFinish()
+      if (state.parent != null) {
+        processTree(state.parent)
+        onFinish()
+      }
     } catch (error: RenderingError) {
       logger.error(error.message)
     }

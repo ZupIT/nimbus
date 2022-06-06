@@ -121,8 +121,9 @@ inline fun <reified T : Enum<T>> valueOfEnum(data: Any?, path: String = "", defa
  * @param value the value to copy.
  * @return the copied value.
  */
-fun deepCopy(value: Any?): Any? {
-  if (value is Map<*, *>) return value.mapValues { deepCopy(value) }
-  if (value is List<*>) return value.map { deepCopy(it) }
+@Suppress("UNCHECKED_CAST")
+fun <T>deepCopy(value: T): T {
+  if (value is Map<*, *>) return value.mapValues { deepCopy(it.value) } as T
+  if (value is List<*>) return value.map { deepCopy(it) } as T
   return value
 }

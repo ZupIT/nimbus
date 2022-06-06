@@ -2,6 +2,7 @@ package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.coreActions
 import com.zup.nimbus.core.action.onCoreActionRendered
+import com.zup.nimbus.core.component.coreComponents
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
@@ -25,7 +26,16 @@ class Nimbus(config: ServerDrivenConfig) {
   val httpClient = config.httpClient ?: DefaultHttpClient()
   val idManager = config.idManager ?: DefaultIdManager()
   val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, idManager, logger, platform)
-  internal val structuralComponents = emptyMap<String, (node: RenderNode) -> Unit>() // todo
+
+  /**
+   * Core components. These don't correspond to real UI components and never reach the UI layer. These components are
+   * used to manipulate the structure of the UI tree and exists only in the core lib.
+   *
+   * The structural components are replaced by their result before being rendered by the UI layer.
+   *
+   * Examples: if (companions: then, else); switch (companions: case, default); foreach.
+   */
+  internal val structuralComponents = coreComponents
 
   // Other
   val globalState = ObservableState("global", null)
@@ -34,7 +44,7 @@ class Nimbus(config: ServerDrivenConfig) {
    * Functions to run once an action goes through the rendering process for the first time.
    * This is currently used only for performing pre-fetches in navigation actions.
    */
-  val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
+  internal val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
 
   /**
    * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.
