@@ -186,7 +186,7 @@ class Renderer(
    * "myState.foo.bar".
    * @param newValue the new value to set for the state indicated by "path".
    */
-  fun setState(sourceNode: RenderNode, path: String, newValue: Any) {
+  fun setState(sourceNode: RenderNode, path: String, newValue: Any?) {
     try {
       val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
       val (stateId, statePath) = matchResult.destructured
