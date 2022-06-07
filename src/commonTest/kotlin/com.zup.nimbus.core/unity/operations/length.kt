@@ -9,26 +9,26 @@ class LengthOperationTest {
   @Test
   fun `should return the correct length of an array`() {
     var array = arrayOf(1,2,3,4,5)
-    var result = length(array)
+    var result = length(arrayOf(array))
     assertEquals(5, result)
 
     array = emptyArray()
-    result = length(array)
+    result = length(arrayOf(array))
     assertEquals(0, result)
   }
 
   @Test
   fun `should return the correct length of a list`() {
     var list = listOf(1,2,3,4,5)
-    var result = length(list)
+    var result = length(arrayOf(list))
     assertEquals(5, result)
 
     list = emptyList()
-    result = length(list)
+    result = length(arrayOf(list))
     assertEquals(0, result)
 
     list = mutableListOf(1,2,3,4,5)
-    result = length(list)
+    result = length(arrayOf(list))
     assertEquals(5, result)
   }
 
@@ -41,11 +41,11 @@ class LengthOperationTest {
       "four" to 4,
       "five" to 5
     )
-    var result = length(map)
+    var result = length(arrayOf(map))
     assertEquals(5, result)
 
     map = emptyMap<String, Int>()
-    result = length(map)
+    result = length(arrayOf(map))
     assertEquals(0, result)
 
     map = mutableMapOf(
@@ -55,32 +55,32 @@ class LengthOperationTest {
       "four" to 4,
       "five" to 5
     )
-    result = length(map)
+    result = length(arrayOf(map))
     assertEquals(5, result)
   }
 
   @Test
   fun `should return the correct length of a string`() {
     var string = "Test"
-    var result = length(string)
+    var result = length(arrayOf(string))
     assertEquals(4, result)
 
     string = "This is a test"
-    result = length(string)
+    result = length(arrayOf(string))
     assertEquals(14, result)
 
     string = ""
-    result = length(string)
+    result = length(arrayOf(string))
     assertEquals(0, result)
   }
 
   @Test
   fun `should return the length of the object passed when called the toString method`() {
-    assertEquals(4, length(1234))
-    assertEquals(1, length(0))
-    assertEquals(7, length(13.1213))
-    assertEquals(4, length(true))
-    assertEquals(5, length(false))
-    assertTrue { length(object { val hello = "world" }) > 0 }
+    assertEquals(4, length(arrayOf(1234)))
+    assertEquals(1, length(arrayOf(0)))
+    assertEquals(7, length(arrayOf(13.1213)))
+    assertEquals(4, length(arrayOf(true)))
+    assertEquals(5, length(arrayOf(false)))
+    assertTrue { length(arrayOf(object { val hello = "world" })) as Int > 0 }
   }
 }

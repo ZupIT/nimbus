@@ -1,10 +1,12 @@
 package com.zup.nimbus.core.operations
 
-fun <T> isEmpty(value: T?): Boolean {
+import com.zup.nimbus.core.OperationHandler
+
+private fun isEmptyOperation(value: Any?): Boolean {
   if (value == null) {
     return true
   }
-  if (value is Array<*>) {
+  else if (value is Array<*>) {
     return value.isEmpty()
   }
   if (value is List<*>) {
@@ -18,3 +20,5 @@ fun <T> isEmpty(value: T?): Boolean {
   }
   return false
 }
+
+val isEmpty: OperationHandler = { isEmptyOperation(it[0]) }

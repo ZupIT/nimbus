@@ -8,11 +8,11 @@ import kotlin.test.assertTrue
 class IsNullOperationTest {
   @Test
   fun `should return true when the parameter is null`() {
-    assertTrue { isNull(null) }
+    assertTrue { isNull(arrayOf(null)) as Boolean }
   }
 
   @Test
   fun `should return false when the parameter is not null`() {
-    assertFalse { isNull("") }
+    assertFalse { isNull(arrayOf("")) as Boolean }
   }
 }

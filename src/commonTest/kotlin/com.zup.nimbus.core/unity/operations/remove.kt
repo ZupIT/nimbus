@@ -23,12 +23,12 @@ class RemoveOperationTest {
     assertEquals(4, list.size)
     assertEquals(items[2], list[2])
 
-    list = remove(list, items[2])
+    list = remove(arrayOf(list, items[2])) as MutableList<Any>
 
     assertEquals(3, list.size)
     assertEquals(items[3], list[2])
 
-    list = remove(list, items[2])
+    list = remove(arrayOf(list, items[2])) as MutableList<Any>
 
     assertEquals(3, list.size)
     assertEquals(items[3], list[2])

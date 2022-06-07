@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun lte(a: Double, b: Double): Boolean {
-  return a <= b
-}
+import com.zup.nimbus.core.OperationHandler
+
+val lte: OperationHandler = { (it[0] as Double) <= (it[1] as Double) }

@@ -10,7 +10,7 @@ class NotOperationTest {
   fun `should return true when a negative condition is passed`() {
     val a = 1
     val b = 2
-    assertTrue { not(a > b) }
-    assertFalse { not(a < b) }
+    assertTrue { not(arrayOf(a > b)) as Boolean }
+    assertFalse { not(arrayOf(a < b)) as Boolean }
   }
 }

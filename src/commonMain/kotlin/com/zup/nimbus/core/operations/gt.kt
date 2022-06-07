@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun gt(a: Double, b: Double): Boolean {
-  return a > b
-}
+import com.zup.nimbus.core.OperationHandler
+
+val gt: OperationHandler = { (it[0] as Double) > (it[1] as Double) }

@@ -10,13 +10,13 @@ class ConditionOperationTest {
 
   @Test
   fun `should return the trueValue when the condition is true`() {
-    val result = condition(x < 1, "true value", "false value")
+    val result = condition(arrayOf(x < 1, "true value", "false value"))
     assertEquals("true value", result)
   }
 
   @Test
   fun `should return the falseValue when the condition is false`() {
-    val result = condition(x > 1, "true value", "false value")
+    val result = condition(arrayOf(x > 1, "true value", "false value"))
     assertEquals("false value", result)
   }
 }

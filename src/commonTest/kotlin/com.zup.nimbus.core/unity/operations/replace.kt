@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class ReplaceOperationTest {
   @Test
   fun `should return the range of characters between two indexes`() {
-    val result = replace("This is a Test text.", "This is a ", "Replaced ")
+    val result = replace(arrayOf("This is a Test text.", "This is a ", "Replaced "))
     assertEquals("Replaced Test text.", result)
   }
 }

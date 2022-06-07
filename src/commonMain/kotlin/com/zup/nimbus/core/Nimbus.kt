@@ -6,6 +6,7 @@ import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
 import com.zup.nimbus.core.network.DefaultViewClient
+import com.zup.nimbus.core.operations.defaultOperations
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.DefaultIdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
@@ -19,7 +20,7 @@ class Nimbus(config: ServerDrivenConfig) {
   val platform = config.platform
   val actions = (coreActions + (config.actions ?: emptyMap())).toMutableMap()
   val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
-  val operations = config.operations?.toMutableMap() ?: HashMap()
+  val operations = (defaultOperations + (config.operations?.toMutableMap() ?: emptyMap())).toMutableMap()
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
   val httpClient = config.httpClient ?: DefaultHttpClient()
@@ -81,7 +82,7 @@ class Nimbus(config: ServerDrivenConfig) {
     actionObservers.addAll(observers)
   }
 
-  fun addOperations(newOperations: Map<String, OperationHandler>) {
+  fun addOperations(newOperations: MutableMap<String, OperationHandler>) {
     addAll(operations, newOperations, "Operation")
   }
 }

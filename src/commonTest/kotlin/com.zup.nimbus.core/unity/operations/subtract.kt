@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class SubtractOperationTest {
   @Test
   fun `should subtract correctly`() {
-    val result = subtract(16.0, 2.0, 2.0)
+    val result = subtract(arrayOf(16.0, 2.0, 2.0))
     assertEquals(12.0, result)
   }
 }

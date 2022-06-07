@@ -8,8 +8,8 @@ import kotlin.test.assertTrue
 class LtOperationTest {
   @Test
   fun `should compare two numbers and tell that a is lesser than b`() {
-    assertTrue { lt(4.0, 5.0) }
-    assertTrue { lt(5.4566, 5.4567) }
-    assertFalse { lt(5.4566, 5.0) }
+    assertTrue { lt(arrayOf(4.0, 5.0)) as Boolean }
+    assertTrue { lt(arrayOf(5.4566, 5.4567)) as Boolean }
+    assertFalse { lt(arrayOf(5.4566, 5.0)) as Boolean }
   }
 }

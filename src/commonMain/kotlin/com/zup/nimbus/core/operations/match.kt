@@ -1,5 +1,9 @@
 package com.zup.nimbus.core.operations
 
-fun match(text: String, matcher: Regex): Boolean {
-  return text.matches(matcher)
+import com.zup.nimbus.core.OperationHandler
+
+private fun matchOperation(text: String, matcher: String): Boolean {
+  return text.matches(matcher.toRegex())
 }
+
+val match: OperationHandler = { matchOperation(it[0] as String, it[1] as String) }

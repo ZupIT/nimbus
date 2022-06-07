@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class DivideOperationTest {
   @Test
   fun `should divide correctly`() {
-    val result = divide(16.0, 2.0, 2.0)
+    val result = divide(arrayOf(16.0, 2.0, 2.0))
     assertEquals(4.0, result)
   }
 }

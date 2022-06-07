@@ -7,8 +7,8 @@ import kotlin.test.assertTrue
 class MatchOperationTest {
   @Test
   fun `should return true when the text fully matches the regex expression`() {
-    val regex = """^.*\{.*}?.*$""".toRegex()
-    val result = match("This is a {Test} inside a string text", regex)
+    val regex = """^.*\{.*}?.*$"""
+    val result = match(arrayOf("This is a {Test} inside a string text", regex)) as Boolean
     assertTrue { result }
   }
 }

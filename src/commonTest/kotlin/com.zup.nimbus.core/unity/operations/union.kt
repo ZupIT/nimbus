@@ -7,10 +7,10 @@ import kotlin.test.assertEquals
 class UnionOperationTest {
   @Test
   fun `should merge multiple lists into one in the order of the arguments`() {
-    val a = mutableListOf<Any?>(1, 2, 3)
-    val b = mutableListOf<Any?>("a", "b", "c")
-    val c = mutableListOf<Any?>(1, true, "c")
-    val result = union(a, b, c)
+    val a = arrayOf(1, 2, 3)
+    val b = arrayOf("a", "b", "c")
+    val c = arrayOf(1, true, "c")
+    val result = union(arrayOf(a, b, c)) as MutableList<Any>
 
     assertEquals(9, result.size)
     assertEquals(1, result[0])

@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun isNull(value: Any?): Boolean {
-  return value == null
-}
+import com.zup.nimbus.core.OperationHandler
+
+val isNull: OperationHandler = { it[0] == null }

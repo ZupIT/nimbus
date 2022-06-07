@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun eq(a: Any, b: Any): Boolean {
-  return a == b
-}
+import com.zup.nimbus.core.OperationHandler
+
+val eq: OperationHandler = { it[0] == it[1] }

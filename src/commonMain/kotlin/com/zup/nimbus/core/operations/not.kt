@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun not(value: Boolean): Boolean {
-  return !value
-}
+import com.zup.nimbus.core.OperationHandler
+
+val not: OperationHandler = { !(it[0] as Boolean) }

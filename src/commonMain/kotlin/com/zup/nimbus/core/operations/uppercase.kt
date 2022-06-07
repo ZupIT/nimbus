@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.operations
 
-fun uppercase(text: String): String {
-  return text.uppercase()
-}
+import com.zup.nimbus.core.OperationHandler
+
+val uppercase: OperationHandler = { (it[0] as String).uppercase() }

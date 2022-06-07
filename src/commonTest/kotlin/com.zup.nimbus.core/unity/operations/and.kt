@@ -11,19 +11,19 @@ class AndOperationTest {
 
   @Test
   fun `should return true when all args are true`() {
-    val result = and(x > y, (y + 2) > x, (y + 2) < (x * 3))
+    val result = and(arrayOf(x > y, (y + 2) > x, (y + 2) < (x * 3))) as Boolean
     assertTrue { result }
   }
 
   @Test
   fun `should return false when one argument is not true`() {
-    val result = and(x > y, (y + 2) < x, (y + 2) < (x * 3))
+    val result = and(arrayOf(x > y, (y + 2) < x, (y + 2) < (x * 3))) as Boolean
     assertFalse { result }
   }
 
   @Test
   fun `should return false when all arguments are false`() {
-    val result = and(x < y, (y + 2) < x, (y + 2) > (x * 3))
+    val result = and(arrayOf(x < y, (y + 2) < x, (y + 2) > (x * 3))) as Boolean
     assertFalse { result }
   }
 }

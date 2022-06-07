@@ -23,12 +23,12 @@ class RemoveIndexOperationTest {
     assertEquals(4, list.size)
     assertEquals(items[2], list[2])
 
-    list = removeIndex(list, 2)
+    list = removeIndex(arrayOf(list, 2)) as MutableList<Any>
 
     assertEquals(3, list.size)
     assertEquals(items[3], list[2])
 
-    list = removeIndex(list, 2)
+    list = removeIndex(arrayOf(list, 2)) as MutableList<Any>
 
     assertEquals(2, list.size)
     assertEquals(items[1], list[1])

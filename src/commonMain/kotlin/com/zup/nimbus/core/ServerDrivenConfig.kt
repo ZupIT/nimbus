@@ -8,7 +8,7 @@ import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.tree.IdManager
 
 typealias ActionHandler = (event: ActionEvent) -> Unit
-typealias OperationHandler = (arguments: List<Any>) -> Any
+typealias OperationHandler = (arguments: Array<Any?>) -> Any?
 
 data class ServerDrivenConfig(
   /**

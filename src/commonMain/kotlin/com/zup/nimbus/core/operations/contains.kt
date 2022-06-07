@@ -1,9 +1,18 @@
 package com.zup.nimbus.core.operations
 
-fun contains(list: List<Any>, item: Any): Boolean {
-  return list.contains(item)
-}
+import com.zup.nimbus.core.OperationHandler
 
-fun contains(text: String, term: String): Boolean {
-  return text.contains(term)
+val contains: OperationHandler =  {
+  if (it[0] is List<*>) {
+    (it[0] as List<*>).contains(it[1])
+  }
+  else if (it[0] is Array<*>) {
+    (it[0] as Array<*>).contains(it[1])
+  }
+  else if (it[0] is String) {
+    (it[0] as String).contains((it[1]) as String)
+  }
+  else {
+    false
+  }
 }

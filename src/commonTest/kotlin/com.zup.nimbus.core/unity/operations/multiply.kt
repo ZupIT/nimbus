@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class MultiplyOperationTest {
   @Test
   fun `should multiply correctly`() {
-    val result = multiply(16.0, 2.0, 2.0)
+    val result = multiply(arrayOf(16.0, 2.0, 2.0))
     assertEquals(64.0, result)
   }
 }

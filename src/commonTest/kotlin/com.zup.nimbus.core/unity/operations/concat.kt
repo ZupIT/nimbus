@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class ConcatOperationTest {
   @Test
   fun `should concat all the string into a single one`() {
-    val result = concat("one", "-two-", "three")
+    val result = concat(arrayOf("one", "-two-", "three"))
     assertEquals("one-two-three", result)
   }
 }

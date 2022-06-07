@@ -7,8 +7,8 @@ import kotlin.test.assertEquals
 class InsertOperationTest {
   @Test
   fun `should insert at last position when no index is provided`() {
-    var list = mutableListOf("one", "two", "three")
-    list = insert(list, "four")
+    var list = mutableListOf<Any>("one", "two", "three")
+    list = insert(arrayOf(list.toTypedArray(), "four")) as MutableList<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[3], "four")
@@ -16,8 +16,8 @@ class InsertOperationTest {
 
   @Test
   fun `should insert at a indexed position`() {
-    var list = mutableListOf("one", "two", "three")
-    list = insert(list, "four", 1)
+    var list = mutableListOf<Any>("one", "two", "three")
+    list = insert(arrayOf(list.toTypedArray(), "four", 1)) as MutableList<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[0], "one")

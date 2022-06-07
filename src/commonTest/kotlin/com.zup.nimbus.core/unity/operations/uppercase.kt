@@ -7,6 +7,6 @@ import kotlin.test.assertEquals
 class UppercaseOperationTest {
   @Test
   fun `should change all the lower letters to capitalized ones`() {
-    assertEquals("THIS IS A TEST", uppercase("This is a Test"))
+    assertEquals("THIS IS A TEST", uppercase(arrayOf("This is a Test")))
   }
 }

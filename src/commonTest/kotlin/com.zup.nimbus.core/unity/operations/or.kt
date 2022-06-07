@@ -10,9 +10,9 @@ class OrOperationTest {
   fun `should return true when at least one condition is true`() {
     val a = 1
     val b = 2
-    assertTrue { or(a > b, a == b, a < b) }
-    assertTrue { or(a < b) }
-    assertFalse { or(a == b) }
-    assertFalse { or(a > b, a == b) }
+    assertTrue { or(arrayOf(a > b, a == b, a < b)) as Boolean }
+    assertTrue { or(arrayOf(a < b)) as Boolean }
+    assertFalse { or(arrayOf(a == b)) as Boolean }
+    assertFalse { or(arrayOf(a > b, a == b)) as Boolean }
   }
 }
