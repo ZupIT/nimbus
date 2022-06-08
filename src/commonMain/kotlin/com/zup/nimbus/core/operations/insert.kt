@@ -2,7 +2,7 @@ package com.zup.nimbus.core.operations
 
 import com.zup.nimbus.core.OperationHandler
 
-private fun insertOperation(array: Array<Any>, item: Any, index: Int? = null): MutableList<Any> {
+private fun insertOperation(array: Array<Any>, item: Any, index: Int?): MutableList<Any> {
   val list = mutableListOf(*array)
   if (index != null) {
     list.add(index, item)
@@ -15,7 +15,7 @@ private fun insertOperation(array: Array<Any>, item: Any, index: Int? = null): M
 
 val insert: OperationHandler = {
   val index = if (it.size >= 3) {
-    (it.get(2) as Double).toInt()
+    (it.get(2) as Number).toInt()
   } else {
     null
   }

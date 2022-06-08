@@ -12,7 +12,7 @@ const val FIRST_PAGE = """{
   "_:component": "layout:container",
   "state": {
     "id": "count",
-    "value": 1.0
+    "value": 1
   },
   "children": [
     {

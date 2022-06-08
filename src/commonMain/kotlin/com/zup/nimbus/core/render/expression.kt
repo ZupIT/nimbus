@@ -55,7 +55,7 @@ private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>,
   val (stateId, statePath) = pathMatch.destructured
 
   if (stateId == "null") return null
-  
+
   val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find state with id \"$stateId\"")
 
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
@@ -79,7 +79,8 @@ private fun getLiteralValue(literal: String): Any? {
   }
 
   if (literal.matches("""^\d+((.)|(.\d+)?)$""".toRegex())) {
-    return literal.toDouble()
+    if (literal.contains(".")) return literal.toDouble()
+    return literal.toInt()
   }
 
   if (literal.startsWith("'") && literal.endsWith("'")) {
@@ -146,8 +147,7 @@ fun resolveExpressions(
   if (fullMatch != null) {
     val (expression) = fullMatch.destructured
     return try {
-      val expressionValue = evaluateExpression(expression, stateHierarchy, operationHandlers, logger)
-      return ((expressionValue == null) then value) ?: expressionValue
+      return evaluateExpression(expression, stateHierarchy, operationHandlers, logger)
     } catch (error: Throwable) {
       error.message?.let {
         logger.warn(it)

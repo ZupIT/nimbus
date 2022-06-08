@@ -6,8 +6,20 @@ import kotlin.test.assertEquals
 
 class MultiplyOperationTest {
   @Test
-  fun `should multiply correctly`() {
-    val result = multiply(arrayOf(16.0, 2.0, 2.0))
-    assertEquals(64.0, result)
+  fun `should multiply correctly integers`() {
+    val result = multiply(arrayOf(16, 2, 2))
+    assertEquals(64, result)
+  }
+
+  @Test
+  fun `should multiply correctly doubles`() {
+    val result = multiply(arrayOf(16.3, 2.4, 2.9))
+    assertEquals(113.448, result)
+  }
+
+  @Test
+  fun `should multiply correctly mixed`() {
+    val result = multiply(arrayOf(16, 2.5, 2))
+    assertEquals(80.0, result)
   }
 }

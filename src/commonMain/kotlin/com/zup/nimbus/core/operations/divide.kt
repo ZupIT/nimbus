@@ -1,12 +1,14 @@
 package com.zup.nimbus.core.operations
 
 import com.zup.nimbus.core.OperationHandler
+import com.zup.nimbus.core.utils.div
+import com.zup.nimbus.core.utils.times
 
-private fun divideOperation(array: Array<Any?>): Double {
+private fun divideOperation(array: Array<Any?>): Number {
   var numbers = array
   if (array.size == 1 && array[0] is Array<*>) numbers = array[0] as Array<Any?>
-  var acc = (numbers[0] as Double) * (numbers[0] as Double)
-  numbers.forEach { acc = (acc / it as Double)  }
+  var acc: Number = (numbers[0] as Number) * (numbers[0] as Number)
+  numbers.forEach { acc /= (it as Number)  }
   return acc
 }
 

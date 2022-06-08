@@ -6,8 +6,20 @@ import kotlin.test.assertEquals
 
 class SubtractOperationTest {
   @Test
-  fun `should subtract correctly`() {
-    val result = subtract(arrayOf(16.0, 2.0, 2.0))
-    assertEquals(12.0, result)
+  fun `should subtract correctly integers`() {
+    val result = subtract(arrayOf(16, 2, 2))
+    assertEquals(12, result)
+  }
+
+  @Test
+  fun `should subtract correctly doubles`() {
+    val result = subtract(arrayOf(16.3, 2.4, 2.9))
+    assertEquals(11.0, result)
+  }
+
+  @Test
+  fun `should subtract correctly mixed`() {
+    val result = subtract(arrayOf(16, 2.5, 2))
+    assertEquals(11.5, result)
   }
 }

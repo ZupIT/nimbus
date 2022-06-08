@@ -8,8 +8,8 @@ import kotlin.test.assertTrue
 class GtOperationTest {
   @Test
   fun `should compare two numbers and tell if a is greater than b`() {
-    assertTrue { gt(arrayOf(5.0, 4.0)) as Boolean }
+    assertTrue { gt(arrayOf(5, 4)) as Boolean }
     assertTrue { gt(arrayOf(5.4567, 5.4566)) as Boolean }
-    assertFalse { gt(arrayOf(5.0, 5.4566)) as Boolean }
+    assertFalse { gt(arrayOf(5, 5.4566)) as Boolean }
   }
 }

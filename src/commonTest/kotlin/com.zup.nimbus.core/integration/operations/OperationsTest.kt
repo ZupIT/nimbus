@@ -29,17 +29,17 @@ class OperationsTest {
 
     view.renderer.paint(screen)
 
-    var count = screen.state?.value as Double
-    assertEquals(1.0, count)
+    var count = screen.state?.value as Number
+    assertEquals(1, count)
 
     NodeUtils.pressButton(screen, "addToCount")
 
-    count = screen.state?.value as Double
-    assertEquals(2.0, count)
+    count = screen.state?.value as Number
+    assertEquals(2, count)
 
     NodeUtils.pressButton(screen, "addToCount")
 
-    count = screen.state?.value as Double
-    assertEquals(3.0, count)
+    count = screen.state?.value as Number
+    assertEquals(3, count)
   }
 }
