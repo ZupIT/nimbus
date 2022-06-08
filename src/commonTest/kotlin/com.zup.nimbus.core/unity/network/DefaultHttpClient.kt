@@ -19,7 +19,7 @@ class DefaultHttpClientTest {
 
   @Test
   fun `should be able to do an http call`() = runTest {
-    val response = client.sendRequest(ServerDrivenRequest("/test"))
+    val response = client.sendRequest(ServerDrivenRequest("/test", null, null, null))
     assertEquals("Hello World", response.body)
   }
 
@@ -29,7 +29,7 @@ class DefaultHttpClientTest {
       "Authentication" to "Bearer test0123456789test",
       "Custom-Header" to "Custom Value",
     )
-    val response = client.sendRequest(ServerDrivenRequest("/test", ServerDrivenHttpMethod.Get, headers))
+    val response = client.sendRequest(ServerDrivenRequest("/test", ServerDrivenHttpMethod.Get, headers, null))
     assertEquals("Hello World", response.body)
     assertContains(response.headers, "Authentication")
     assertContains(response.headers, "Custom-Header")
@@ -64,7 +64,7 @@ class DefaultHttpClientTest {
       )
     )
 
-    val response = nimbus.httpClient.sendRequest(ServerDrivenRequest("/"))
+    val response = nimbus.httpClient.sendRequest(ServerDrivenRequest("/", null, null, null))
     assertEquals(response.status, TestCustomHttpClient.expectedStatusCode)
     assertEquals(response.body, TestCustomHttpClient.expectedBody)
     assertEquals(response.headers, TestCustomHttpClient.expectedHeaders)
