@@ -5,16 +5,16 @@ import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.ServerDrivenState
 import com.zup.nimbus.core.utils.then
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.utils.untypedValueOf
 
-private val expressionRegex = """(\\*)@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}""".toRegex()
-private val fullMatchExpressionRegex = """^@\{(([^'\}]|('([^'\\]|\\.)*'))*)\}$""".toRegex()
+private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)}""".toRegex()
+private val fullMatchExpressionRegex = """^@\{(([^'}]|('([^'\\]|\\.)*'))*)}$""".toRegex()
 private val dpaTransitions: Map<String, List<Transition>> = mapOf(
   "initial" to listOf(
     Transition(""",|$""".toRegex(), null, null, "final"), // end of parameter
     Transition("(", "(", null, "insideParameterList"), // start of a parameter list
     Transition("""'([^']|(\\.))*'""".toRegex(), null, null, "initial"), // strings
-    Transition("""[^\)]""".toRegex(), null, null, "initial"), // general symbols
+    Transition("""[^)]""".toRegex(), null, null, "initial"), // general symbols
   ),
   "insideParameterList" to listOf(
     Transition("(", "(", null, "insideParameterList"), // start of another parameter list
@@ -53,10 +53,14 @@ private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>,
 
   val pathMatch = Regex("""^([^\.\[\]]+)\.?(.*)""").find(path) ?: return null
   val (stateId, statePath) = pathMatch.destructured
+
+  if (stateId == "null") return null
+
   val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find state with id \"$stateId\"")
+
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
     return try {
-      valueOf(state.value, statePath)
+      return untypedValueOf(state.value, statePath)
     } catch (error: Throwable) {
       error.message?.let {
         logger.warn(it)
@@ -74,7 +78,10 @@ private fun getLiteralValue(literal: String): Any? {
     "null" -> return null
   }
 
-  if (literal.matches("""^\d+(\.\d+)?$""".toRegex())) return literal.toFloat()
+  if (literal.matches("""^\d+((.)|(.\d+)?)$""".toRegex())) {
+    if (literal.contains(".")) return literal.toDouble()
+    return literal.toInt()
+  }
 
   if (literal.startsWith("'") && literal.endsWith("'")) {
     return literal
@@ -88,7 +95,7 @@ private fun getLiteralValue(literal: String): Any? {
 private fun getOperationValue(
   operation: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: Map<String, OperationHandler>,
+  operationHandlers: MutableMap<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val match = """^(\w+)\((.*)\)$""".toRegex().find(operation)
@@ -100,11 +107,13 @@ private fun getOperationValue(
   }
 
   val params = parseParameters(paramString)
-  val resolvedParams = params.map { param -> evaluateExpression(param, stateHierarchy, operationHandlers, logger) }
+  val resolvedParams = params.map { param ->
+    evaluateExpression(param, stateHierarchy, operationHandlers, logger)
+  }.toTypedArray()
 
-  val fn = operationHandlers[operationName]
-  if (fn != null) {
-    return fn(resolvedParams as List<Any>)
+  val operationHandler = operationHandlers[operationName]
+  if (operationHandler != null) {
+    return operationHandler(resolvedParams)
   }
   return null
 }
@@ -112,7 +121,7 @@ private fun getOperationValue(
 private fun evaluateExpression(
   expression: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: Map<String, OperationHandler>,
+  operationHandlers: MutableMap<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val literalValue = getLiteralValue(expression)
@@ -131,15 +140,14 @@ fun containsExpression(value: String): Boolean {
 fun resolveExpressions(
   value: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: Map<String, OperationHandler>,
+  operationHandlers: MutableMap<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val fullMatch = fullMatchExpressionRegex.find(value)
   if (fullMatch != null) {
     val (expression) = fullMatch.destructured
     return try {
-      val expressionValue = evaluateExpression(expression, stateHierarchy, operationHandlers, logger)
-      ((expressionValue == null) then value) ?: expressionValue
+      return evaluateExpression(expression, stateHierarchy, operationHandlers, logger)
     } catch (error: Throwable) {
       error.message?.let {
         logger.warn(it)

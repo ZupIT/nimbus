@@ -77,7 +77,7 @@ class DPA (
 
     fun matchTransition(transition: Transition): Boolean {
       if (transition.pop != null &&
-        stack.last() != transition.pop &&
+        (stack.isNotEmpty() && stack.last() != transition.pop) &&
         (transition.pop == EMPTY && stack.isNotEmpty())) {
         return false
       }
@@ -101,7 +101,7 @@ class DPA (
 
       remainingInput = remainingInput.substring(matchedValue.length)
       currentState = transition.next
-      if (transition.pop != null) stack.removeLast()
+      if (transition.pop != null && stack.isNotEmpty()) stack.removeLast()
       if (transition.push != null) stack.add(transition.push)
     }
 

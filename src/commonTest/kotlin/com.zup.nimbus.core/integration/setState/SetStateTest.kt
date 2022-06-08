@@ -162,13 +162,10 @@ class SetStateTest {
 
     // WHEN we click the button to set the state value to null
     NodeUtils.pressButton(currentUI, "setNull")
-    // fixme: uncomment this test once the bug that doesn't resolve null to null is fixed. Now it keeps the expression
-    //   instead of replacing it with null.
     // THEN nothing should've been logged
-    /*assertTrue(logger.entries.isEmpty())
+    assertTrue(logger.entries.isEmpty())
     // AND text should be null
     assertEquals(null, currentUI?.children?.get(0)?.properties?.get("text"))
-     */
 
     // WHEN we click the button to set the state value to String
     NodeUtils.pressButton(currentUI, "setString")

@@ -1,13 +1,15 @@
 package com.zup.nimbus.core.unity.render
 
-import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.log.DefaultLogger
+import com.zup.nimbus.core.operations.defaultOperations
 import com.zup.nimbus.core.render.containsExpression
 import com.zup.nimbus.core.render.resolveExpressions
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenState
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ExpressionTest {
   // #Tests for function "containsExpression"
@@ -30,8 +32,8 @@ class ExpressionTest {
   }
 
   // #Tests for function "resolve"
-  private val defaultOperations = emptyMap<String, OperationHandler>()
   private val defaultLogger = DefaultLogger()
+  private val emptyStateHierarchy = emptyList<ServerDrivenState>()
   private val defaultRenderNode = RenderNode(
     "myNode",
     "container",
@@ -195,7 +197,7 @@ class ExpressionTest {
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
     val result = resolveExpressions("@{sds.phones[1]}", stateHierarchy, defaultOperations, defaultLogger)
-    assertEquals("@{sds.phones[1]}", result)
+    assertEquals(null, result)
   }
 
   @Test
@@ -274,7 +276,7 @@ class ExpressionTest {
 
     val stateHierarchy = listOf(ServerDrivenState("sds", person, defaultRenderNode))
     val result = resolveExpressions("@{sds.description}", stateHierarchy, defaultOperations, defaultLogger)
-    assertEquals("@{sds.description}", result)
+    assertEquals(null, result)
   }
 
   @Test
@@ -313,7 +315,7 @@ class ExpressionTest {
     assertEquals(null, result)
 
     result = resolveExpressions("@{10}", stateHierarchy, defaultOperations, defaultLogger)
-    assertEquals(10f, result)
+    assertEquals(10, result)
 
     result = resolveExpressions("@{'true'}", stateHierarchy, defaultOperations, defaultLogger)
     assertEquals("true", result)
@@ -347,8 +349,8 @@ class ExpressionTest {
 
   @Test
   fun `should treat malformed number as a context id`() {
-    val stateHierarchy = listOf(ServerDrivenState("5o1", "test", defaultRenderNode))
-    val result = resolveExpressions("@{5o1}", stateHierarchy, defaultOperations, defaultLogger)
+    val stateHierarchy = listOf(ServerDrivenState("5ao1", "test", defaultRenderNode))
+    val result = resolveExpressions("@{5ao1}", stateHierarchy, defaultOperations, defaultLogger)
     assertEquals("test", result)
   }
 
@@ -357,5 +359,730 @@ class ExpressionTest {
     val stateHierarchy = listOf(ServerDrivenState("58.72.98", "test", defaultRenderNode))
     val result = resolveExpressions("@{58.72.98}", stateHierarchy, defaultOperations, defaultLogger)
     assertEquals(null, result)
+  }
+
+  // Operations
+
+  @Test
+  fun `should evaluate correctly the and operation`() {
+    var result = resolveExpressions(
+      "@{and(eq(1,1), gt(2,1), lt(2,3))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{and(eq(1,1), gt(2,4), lt(2,3))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the capitalize operation`() {
+    var stateHierarchy = listOf(ServerDrivenState("sds", "test expression", defaultRenderNode))
+    var result = resolveExpressions(
+      "@{capitalize(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("Test expression", result as String)
+
+    stateHierarchy = listOf(ServerDrivenState("sds", "test expression With other letters", defaultRenderNode))
+    result = resolveExpressions(
+      "@{capitalize(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("Test expression With other letters", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the concat operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "-two-", "three"), defaultRenderNode))
+    val result = resolveExpressions(
+      "@{concat(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("one-two-three", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the condition operation`() {
+    val stateHierarchy = listOf(
+      ServerDrivenState(
+        "sds",
+        mapOf(
+          "number" to 1,
+          "valid" to "this is a valid value",
+          "invalid" to 13.14
+        ),
+        defaultRenderNode
+      )
+    )
+    var result = resolveExpressions(
+      "@{condition(eq(sds.number, 1), sds.valid, sds.invalid)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("this is a valid value", result as String)
+
+    result = resolveExpressions(
+      "@{condition(eq(sds.number, 2), sds.valid, sds.invalid)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(13.14, result as Double)
+
+    result = resolveExpressions(
+      "@{condition(true, 'valid value', 'fail')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("valid value", result as String)
+
+    result = resolveExpressions(
+      "@{condition(false, 'valid value', 'fail')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("fail", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the contains operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "-two-", "three"), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{contains(sds, '-two-')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{contains(sds, 'four')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the divide operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf(16, 2, 2), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{divide(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(4, result as Number)
+
+    result = resolveExpressions(
+      "@{divide(16, 2, 2)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(4, result as Number)
+  }
+
+  @Test
+  fun `should evaluate correctly the eq operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", 12, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{eq(sds, 12)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{eq('exp', 'exp')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{eq('exp', 'xp')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the gt operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", 16, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{gt(sds, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gt(sds, 18)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gt(18, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the gte operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", 16, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{gte(sds, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gte(sds, 18)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gte(18, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gte(sds, 16)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{gte(16, 16)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the insert operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "-two-", "three"), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{insert(sds, 'four')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(4, (result as MutableList<Any?>).size)
+    assertEquals("four", result[3])
+
+    result = resolveExpressions(
+      "@{insert(sds, 'four', 1)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(4, (result as MutableList<Any?>).size)
+    assertEquals("one", result[0])
+    assertEquals("four", result[1])
+    assertEquals("-two-", result[2])
+    assertEquals("three", result[3])
+  }
+
+  @Test
+  fun `should evaluate correctly the isEmpty operation`() {
+    var stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "-two-", "three"), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{isEmpty(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    stateHierarchy = listOf(ServerDrivenState("sds", arrayOf<String>(), defaultRenderNode))
+    result = resolveExpressions(
+      "@{isEmpty(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    stateHierarchy = listOf(ServerDrivenState("sds", emptyMap<String, String>(), defaultRenderNode))
+    result = resolveExpressions(
+      "@{isEmpty(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    stateHierarchy = listOf(ServerDrivenState("sds", mapOf("hello" to "world"), defaultRenderNode))
+    result = resolveExpressions(
+      "@{isEmpty(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{isEmpty('hello world')}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{isEmpty('')}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the isNull operation`() {
+    var stateHierarchy = listOf(ServerDrivenState("sds", null, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{isNull(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    stateHierarchy = listOf(ServerDrivenState("sds", "", defaultRenderNode))
+    result = resolveExpressions(
+      "@{isNull(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{isNull(null)}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the length operation`() {
+    var stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "-two-", "three"), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{length(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(3, result as Int)
+
+    stateHierarchy = listOf(ServerDrivenState("sds", "Hello World", defaultRenderNode))
+    result = resolveExpressions(
+      "@{length(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(11, result as Int)
+
+    result = resolveExpressions(
+      "@{length('Hello World')}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(11, result as Int)
+
+    result = resolveExpressions(
+      "@{length(13.14)}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(5, result as Int)
+  }
+
+  @Test
+  fun `should evaluate correctly the lowercase operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", "This is a TEST", defaultRenderNode))
+    var result = resolveExpressions(
+      "@{lowercase(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("this is a test", result as String)
+
+    result = resolveExpressions(
+      "@{lowercase('This is a TEST')}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("this is a test", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the lt operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", 16, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{lt(sds, 18)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lt(sds, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lt(14, 18)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the lte operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", 16, defaultRenderNode))
+    var result = resolveExpressions(
+      "@{lte(sds, 18)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lte(sds, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lte(12, 14)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lte(sds, 16)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{lte(16, 16)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the match operation`() {
+    val stateHierarchy = listOf(
+      ServerDrivenState(
+        "sds",
+        mapOf(
+          "text" to "This is a {Test} inside a string text",
+          "matcher" to """^.*\{.*}?.*$"""
+        ),
+        defaultRenderNode
+      )
+    )
+    val result = resolveExpressions(
+      "@{match(sds.text, sds.matcher)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the multiply operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf(16, 2, 2), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{multiply(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(64, result as Number)
+
+    result = resolveExpressions(
+      "@{multiply(16, 2, 2)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(64, result as Number)
+  }
+
+  @Test
+  fun `should evaluate correctly the not operation`() {
+    var result = resolveExpressions(
+      "@{not(eq(1,2))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{not(eq(1,1))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the or operation`() {
+    var result = resolveExpressions(
+      "@{or(eq(1,2), gt(2,1))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+
+    result = resolveExpressions(
+      "@{or(eq(1,2), gt(1,2))}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertFalse { result as Boolean }
+
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf(false, false, true), defaultRenderNode))
+    result = resolveExpressions(
+      "@{or(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertTrue { result as Boolean }
+  }
+
+  @Test
+  fun `should evaluate correctly the remove operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "two", "three"), defaultRenderNode))
+    val result = resolveExpressions(
+      "@{remove(sds, 'two')}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(2, (result as MutableList<Any?>).size)
+    assertEquals("one", result[0])
+    assertEquals("three", result[1])
+  }
+
+  @Test
+  fun `should evaluate correctly the removeIndex operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf("one", "two", "three"), defaultRenderNode))
+    val result = resolveExpressions(
+      "@{removeIndex(sds, 1)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(2, (result as MutableList<Any?>).size)
+    assertEquals("one", result[0])
+    assertEquals("three", result[1])
+  }
+
+  @Test
+  fun `should evaluate correctly the replace operation`() {
+    val stateHierarchy = listOf(
+      ServerDrivenState(
+        "sds",
+        mapOf(
+          "text" to "This is a Test text.",
+          "term" to "This is a",
+          "new" to "Replaced"
+        ),
+        defaultRenderNode
+      )
+    )
+    val result = resolveExpressions(
+      "@{replace(sds.text, sds.term, sds.new)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("Replaced Test text.", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the substr operation`() {
+    val stateHierarchy = listOf(
+      ServerDrivenState(
+        "sds",
+        mapOf(
+          "text" to "This is a Test text.",
+          "start" to 10,
+          "end" to 14
+        ),
+        defaultRenderNode
+      )
+    )
+    val result = resolveExpressions(
+      "@{substr(sds.text, sds.start, sds.end)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("Test", result as String)
+  }
+
+  @Test
+  fun `should evaluate correctly the subtract operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf(16, 2, 2), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{subtract(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(12, result as Number)
+
+    result = resolveExpressions(
+      "@{subtract(16, 2, 2)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(12, result as Number)
+  }
+
+  @Test
+  fun `should evaluate correctly the sum operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", arrayOf(16, 2, 2), defaultRenderNode))
+    var result = resolveExpressions(
+      "@{sum(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(20, result as Number)
+
+    result = resolveExpressions(
+      "@{sum(16, 2, 2)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(20, result as Number)
+  }
+
+  @Test
+  fun `should evaluate correctly the union operation`() {
+    val stateHierarchy = listOf(
+      ServerDrivenState(
+        "sds",
+        mapOf(
+          "first" to arrayOf("one", "two", "three"),
+          "second" to arrayOf("four", "five", "six"),
+        ),
+        defaultRenderNode
+      )
+    )
+    val result = resolveExpressions(
+      "@{union(sds.first, sds.second)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals(6, (result as MutableList<Any?>).size)
+    assertEquals("one", result[0])
+    assertEquals("two", result[1])
+    assertEquals("three", result[2])
+    assertEquals("four", result[3])
+    assertEquals("five", result[4])
+    assertEquals("six", result[5])
+  }
+
+  @Test
+  fun `should evaluate correctly the uppercase operation`() {
+    val stateHierarchy = listOf(ServerDrivenState("sds", "This is a TEST", defaultRenderNode))
+    var result = resolveExpressions(
+      "@{uppercase(sds)}",
+      stateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("THIS IS A TEST", result as String)
+
+    result = resolveExpressions(
+      "@{uppercase('This is a TEST')}",
+      emptyStateHierarchy,
+      defaultOperations,
+      defaultLogger
+    )
+    assertEquals("THIS IS A TEST", result as String)
   }
 }
