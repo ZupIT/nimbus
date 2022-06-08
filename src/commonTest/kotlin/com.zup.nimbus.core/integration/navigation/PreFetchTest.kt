@@ -30,7 +30,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldBehaveCorrectlyInFirstPrefetchScreen()  = scope.runTest {
+  fun `should behave correctly in the first prefetch screen`()  = scope.runTest {
     // WHEN /prefetch1 is rendered
     navigator.push(ViewRequest("/prefetch1"))
     navigator.awaitPushCompletion()
@@ -53,7 +53,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldBehaveCorrectlyWhenNavigatingToSecondPrefetchScreen()  = scope.runTest(100) {
+  fun `should behave correctly when navigating to the second prefetch screen`() = scope.runTest(100) {
     // WHEN /prefetch1 is rendered
     navigator.push(ViewRequest("/prefetch1"))
     val prefetch1 = navigator.awaitPushCompletion()
@@ -80,7 +80,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldBehaveCorrectlyInWhenNavigatingToBadUrl() = scope.runTest {
+  fun `should behave correctly when navigating to bad url`() = scope.runTest {
     // WHEN /prefetch1 is rendered
     navigator.push(ViewRequest("/prefetch1"))
     val prefetch1 = navigator.awaitPushCompletion()
@@ -97,7 +97,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldAwaitExistingRequest() = scope.runTest {
+  fun `should await an existing request`() = scope.runTest {
     // WHEN a request to /prefetch2 takes 1 second to complete
     httpClient.delayMsPerUrl["${BASE_URL}/prefetch2"] = 1000
     // WHEN /prefetch1 is rendered
@@ -115,7 +115,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldNotPreFetch() = scope.runTest {
+  fun `should not prefetch`() = scope.runTest {
     // WHEN /screen1 is rendered
     navigator.push(ViewRequest("/screen1"))
     navigator.awaitPushCompletion()
@@ -126,7 +126,7 @@ class PreFetchTest {
   }
 
   @Test
-  fun shouldNotPreFetchIfTheNodeHasAlreadyBeenRendered() = scope.runTest {
+  fun `should not prefetch if the node has already been rendered`() = scope.runTest {
     // WHEN /prefetch1 is rendered
     navigator.push(ViewRequest("/prefetch1"))
     navigator.awaitPushCompletion()

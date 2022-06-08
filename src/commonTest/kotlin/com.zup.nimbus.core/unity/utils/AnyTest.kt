@@ -44,25 +44,25 @@ class AnyTest {
 
   // Tests without path
   @Test
-  fun shouldGetStringValue() {
+  fun `should get a string value`() {
     val result: String = valueOf("test")
     assertEquals("test", result)
   }
 
   @Test
-  fun shouldGetStringValueOrNull() {
+  fun `should get a string value or null`() {
     val result: String? = valueOf(null)
     assertEquals(null, result)
   }
 
   @Test
-  fun shouldCorrectlyInferNullCoalescence() {
+  fun `should correctly infer null coalescence`() {
     val result: String = valueOf(null) ?: "test"
     assertEquals("test", result)
   }
 
   @Test
-  fun shouldThrowWhenGettingNullAsString() {
+  fun `should throw when getting a null as string`() {
     var error: Throwable? = null
     try {
       valueOf<String>(null)
@@ -75,7 +75,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldThrowWhenGettingIntAsString() {
+  fun `should throw when getting an int as string`() {
     var error: Throwable? = null
     try {
       valueOf<String>(5)
@@ -88,32 +88,32 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetIntValue() {
+  fun `should get an int value`() {
     val result: Int = valueOf(10)
     assertEquals(10, result)
   }
 
   @Test
-  fun shouldGetDoubleValue() {
+  fun `should get a double value`() {
     val result: Double = valueOf(10.22)
     assertEquals(10.22, result)
   }
 
   @Test
-  fun shouldGetBooleanValue() {
+  fun `should get a boolean value`() {
     val result: Boolean = valueOf(false)
     assertEquals(false, result)
   }
 
   @Test
-  fun shouldGeListValue() {
+  fun `should get a list value`() {
     val result: List<Any> = valueOf(listOf("1", 2, false, 4.2))
     assertEquals(listOf("1", 2, false, 4.2), result)
   }
 
   // Tests with path
   @Test
-  fun shouldGetValueAtPath() {
+  fun `should get a value at path`() {
     val id: String = valueOf(testData, "id")
     val age: Int = valueOf(testData, "age")
     val power: Double = valueOf(testData, "power")
@@ -129,7 +129,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetValueAtDeepPath() {
+  fun `should get a value at deep path`() {
     val firstName: String = valueOf(testData, "name.real.first")
     val lastName: String = valueOf(testData, "name.real.last")
     val title: String = valueOf(testData, "name.real.title")
@@ -141,7 +141,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetNullIfPathDoesntExist() {
+  fun `should get null if path doesn't exist`() {
     val firstName: String? = valueOf(testData, "name.first")
     val lastName: String? = valueOf(testData, "name.real.other.last")
     assertEquals(null, firstName)
@@ -149,7 +149,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetArrayValueAtIndex() {
+  fun `should get an array value at index`() {
     val array = listOf("1", 2, null)
     val first: String = valueOf(array, "[0]")
     val second: Int = valueOf(array, "[1]")
@@ -160,14 +160,14 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetNullWhenIndexIsOutOfBounds() {
+  fun `should get null when index is out of bounds`() {
     val array = listOf("1", 2, null)
     val outOfBounds: Int? = valueOf(array, "[10]")
     assertEquals(null, outOfBounds)
   }
 
   @Test
-  fun shouldThrowWhenIndexIsOutOfBounds() {
+  fun `should throw when index is out of bounds`() {
     var error: Throwable? = null
     val array = listOf("1", 2, null)
     try {
@@ -181,13 +181,13 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetNullWhenIndexOfMapIsAccessed() {
+  fun `should get null when index of map is accessed`() {
     val result: String? = valueOf(testData, "name[0]")
     assertEquals(null, result)
   }
 
   @Test
-  fun shouldThrowWhenIndexOfMapIsAccessed() {
+  fun `should throw when index of map is accessed`() {
     var error: Throwable? = null
     try {
       valueOf<String>(testData, "name[0]")
@@ -200,7 +200,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldThrowIfPathDoesntExist() {
+  fun `should throw if path doesn't exist`() {
     var error: Throwable? = null
     try {
       valueOf<String>(testData, "name.real.other.last")
@@ -214,7 +214,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetPathWithSpecialCharacters() {
+  fun `should get path with special characters`() {
     val data = mapOf(
       "_:component" to "test",
       "onPress" to listOf(
@@ -228,7 +228,7 @@ class AnyTest {
   }
 
   @Test
-  fun shouldGetValuesFromArrayAtPath() {
+  fun `should get values from array at path`() {
     val tienName: String = valueOf(testData, "relationships[0].name.real.first")
     val tienRelationshipType: String = valueOf(testData, "relationships[0].types[0].type")
     val tienRelationshipDuration: Int = valueOf(testData, "relationships[0].types[0].duration")
