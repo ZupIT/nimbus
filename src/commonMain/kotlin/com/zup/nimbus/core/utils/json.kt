@@ -12,6 +12,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 
+/* fixme: when we started this project we believed our maps and lists inside a node would need to be mutable, but we're
+currently very far into the implementation and we didn't need anything to be mutable. I already changed the types
+to immutable maps/lists in the RenderNode. But here, where we deserialize everything, we keep creating mutable data
+structures, which is unnecessary. */
+
 /**
  * Transforms a JsonObject into a Kotlin Mutable Map recursively, i.e. this method will transform every JsonElement
  * inside the map into its Kotlin equivalent.

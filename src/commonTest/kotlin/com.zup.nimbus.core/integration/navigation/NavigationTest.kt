@@ -39,14 +39,14 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldRenderFirstView() = scope.runTest {
+  fun `should render the first view`() = scope.runTest {
     val page1 = pushViews(1)
     assertEquals(1, navigator.pages.size)
     verifyScreen1(page1.content)
   }
 
   @Test
-  fun shouldNotFindFirstViewWithWrongUrl() = scope.runTest {
+  fun `should not find the first view with a wrong url`() = scope.runTest {
     var error: Throwable? = null
     try {
       navigator.push(ViewRequest("/none"))
@@ -59,28 +59,28 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldPushSecondView() = scope.runTest {
+  fun `should push the second view`() = scope.runTest {
     val page2 = pushViews(2)
     assertEquals(2, navigator.pages.size)
     verifyScreen2(page2.content)
   }
 
   @Test
-  fun shouldPushThirdView() = scope.runTest {
+  fun `should push the third view`() = scope.runTest {
     val page3 = pushViews(3)
     assertEquals(3, navigator.pages.size)
     verifyScreen3(page3.content)
   }
 
   @Test
-  fun shouldShowFallbackWhenPushingFourthView() = scope.runTest {
+  fun `should show the fallback when pushing the fourth view`() = scope.runTest {
     val fallbackPage = pushViews(4)
     assertEquals(4, navigator.pages.size)
     verifyFallbackScreen(fallbackPage.content)
   }
 
   @Test
-  fun shouldProduceErrorAndNotNavigateWhenGoingToScreen4() = scope.runTest {
+  fun `should produce an error and not navigate when going to Screen4`() = scope.runTest {
     val page3 = pushViews(3)
     var error: Throwable? = null
     try {
@@ -94,7 +94,7 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldPushSecondViewAndPop() = scope.runTest {
+  fun `should push the second view and pop`() = scope.runTest {
     val page2 = pushViews(2)
     NodeUtils.pressButton(page2.content, "previous")
     assertEquals(1, navigator.pages.size)
@@ -102,7 +102,7 @@ class NavigationTest {
   }
 
   @Test
-  fun shouldPopToRootFromFallback() = scope.runTest {
+  fun `should pop to root from fallback`() = scope.runTest {
     val fallbackPage = pushViews(4)
     // fallback to /screen3
     NodeUtils.pressButton(fallbackPage.content, "previous")

@@ -25,3 +25,5 @@ gradleEnterprise {
 }
 
 rootProject.name = "nimbus-core"
+
+enableFeaturePreview("VERSION_CATALOGS")

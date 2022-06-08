@@ -55,8 +55,9 @@ private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>,
   val (stateId, statePath) = pathMatch.destructured
 
   if (stateId == "null") return null
+  
+  val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find state with id \"$stateId\"")
 
-  val state = stateHierarchy.find { it.id == stateId } ?: throw Error("Couldn't find context with id \"$stateId\"")
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
     return try {
       return untypedValueOf(state.value, statePath)

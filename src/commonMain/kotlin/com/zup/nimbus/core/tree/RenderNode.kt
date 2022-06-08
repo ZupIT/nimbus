@@ -15,12 +15,20 @@ class RenderNode(
    * and actions deserialized.
    */
   override var properties: Map<String, Any?>?,
+  /**
+   * Set of children of this node before they're processed by structural components.
+   */
+  var rawChildren: List<RenderNode>?,
+  /**
+   * Set of children of this component after they're processed by structural components. Since most of the time there
+   * won't be any structural components, this will normally just be a pointer to `rawChildren`.
+   */
   override var children: List<RenderNode>?,
   /**
    * Stores the original properties of this component, before any processing. This can contain expressions in their
    * string form and actions in their Object form (Action).
    */
-  var rawProperties: MutableMap<String, Any?>?,
+  var rawProperties: Map<String, Any?>?,
   /**
    * All states accessible by this component in descending order of priority, i.e. the first element will be the state
    * of highest priority and the last element will be the state of lowest priority.
@@ -28,6 +36,7 @@ class RenderNode(
    * stateHierarchy will be null if this node has not yet been processed by the renderer.
    */
   var stateHierarchy: List<ServerDrivenState>?,
+  implicitStates: Map<String, Any?>?,
   stateId: String?,
   stateValue: Any?,
 ): ServerDrivenNode {
@@ -81,11 +90,13 @@ class RenderNode(
           stateId = valueOf(map, "state.id"),
           stateValue = valueOf(map, "state.value"),
           rawProperties = valueOf(map, "properties"),
-          children = valueOf<List<Map<String, *>>?>(map, "children")?.mapIndexed { index, value ->
+          rawChildren = valueOf<List<Map<String, *>>?>(map, "children")?.mapIndexed { index, value ->
             fromMap(value, idManager, "$jsonPath.children[:$index]")
           },
+          children = null,
           stateHierarchy = null,
           properties = null,
+          implicitStates = null,
         )
       } catch (e: UnexpectedDataTypeError) {
         throw MalformedComponentError(originalId, jsonPath, e.message)
@@ -93,7 +104,8 @@ class RenderNode(
     }
 
     fun empty(): RenderNode {
-      return RenderNode("", "", null, null, null, null, null, null)
+      return RenderNode("", "", null, null, null, null,
+        null, null, null, null)
     }
 
     /**
@@ -108,6 +120,8 @@ class RenderNode(
    * The state declared by this component. Null if it doesn't declare a state.
    */
   val state: ServerDrivenState? = if (stateId == null) null else ServerDrivenState(stateId, stateValue, this)
+
+  val implicitStates: List<ServerDrivenState>? = implicitStates?.map { ServerDrivenState(it.key, it.value, this) }
 
   /**
    * True if this node has been rendered at least once.
@@ -128,14 +142,14 @@ class RenderNode(
 
     fun findAndReplaceChild(parentNode: RenderNode, newNode: RenderNode, idOfNodeToReplace: String): RenderNode? {
       try {
-        val children = requireNotNull(parentNode.children)
+        val children = requireNotNull(parentNode.rawChildren)
         if (children.isEmpty()) @Suppress("TooGenericExceptionThrown") throw Error() // todo: verify
 
         val indexToReplace = children.indexOfFirst { child -> child.id == idOfNodeToReplace }
         if (indexToReplace >= 0) {
           val newChildren = children.toMutableList()
           newChildren[indexToReplace] = newNode
-          parentNode.children = newChildren
+          parentNode.rawChildren = newChildren
           return parentNode
         }
 
@@ -167,12 +181,12 @@ class RenderNode(
    */
   private fun insert(newNode: RenderNode, idOfParentNode: String, mode: TreeUpdateMode): RenderNode? {
     val target = if (this.id == idOfParentNode) this else findById(idOfParentNode) ?: return null
-    val children = target.children ?: listOf()
+    val children = target.rawChildren ?: listOf()
 
     when(mode) {
-      TreeUpdateMode.Append -> target.children = children + listOf(newNode)
-      TreeUpdateMode.Prepend -> target.children = listOf(newNode) + children
-      TreeUpdateMode.Replace -> target.children = listOf(newNode)
+      TreeUpdateMode.Append -> target.rawChildren = children + listOf(newNode)
+      TreeUpdateMode.Prepend -> target.rawChildren = listOf(newNode) + children
+      TreeUpdateMode.Replace -> target.rawChildren = listOf(newNode)
       else -> return null
     }
 
@@ -209,7 +223,7 @@ class RenderNode(
    */
   fun findById(id: String): RenderNode? {
     try {
-      val children = requireNotNull(this.children)
+      val children = requireNotNull(this.rawChildren)
       if (id.isBlank() || id.isEmpty()) return null
 
       var i = 0
