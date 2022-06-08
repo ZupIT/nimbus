@@ -2,8 +2,8 @@ package com.zup.nimbus.core.operations
 
 import com.zup.nimbus.core.OperationHandler
 
-private const val minimumArraySize = 3
-private const val indexPosition = 2
+private const val MIN_ARRAY_SIZE = 3
+private const val INDEX_POSITION = 2
 
 private fun insertOperation(array: Array<Any>, item: Any, index: Int?): MutableList<Any> {
   val list = array.toMutableList()
@@ -12,6 +12,6 @@ private fun insertOperation(array: Array<Any>, item: Any, index: Int?): MutableL
 }
 
 val insert: OperationHandler = {
-  val index = if (it.size >= minimumArraySize) (it[indexPosition] as Number).toInt() else null
+  val index = if (it.size >= MIN_ARRAY_SIZE) (it[INDEX_POSITION] as Number).toInt() else null
   insertOperation(it[0] as Array<Any>, it[1] as Any, index)
 }
