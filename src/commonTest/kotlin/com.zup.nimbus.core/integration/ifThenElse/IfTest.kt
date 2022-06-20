@@ -49,7 +49,7 @@ class IfTest {
   }
 
   @Test
-  fun `should render the content of Then when condition is true and Else`() {
+  fun `should render the content of Then when condition is true and Else exists`() {
     // WHEN a screen with if (condition = true), then and else is rendered
     val nimbus = Nimbus(ServerDrivenConfig("", "test"))
     val node = nimbus.createNodeFromJson(createIfThenElseScreen(true, includeElse = true))
