@@ -12,6 +12,7 @@ val coreActions = mapOf<String, ActionHandler>(
   "sendRequest" to { sendRequest(it) },
   "setState" to { setState(it) },
   "condition" to { condition(it) },
+  "setContent" to { setContent(it) },
 )
 
 val onCoreActionRendered = mapOf<String, ActionHandler>(

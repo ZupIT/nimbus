@@ -12,7 +12,17 @@ object NodeUtils {
   fun pressButton(screen: ServerDrivenNode?, buttonId: String) {
     if (screen == null) return
     if (screen !is RenderNode) throw Error ("Expected a RenderNode")
-    val button = screen.findById(buttonId)
+    val button = screen.findById(buttonId) ?: throw Error("Could not find button with id $buttonId")
     triggerEvent(button, "onPress")
+  }
+
+  // transforms a tree of nodes into a list of nodes (Depth First Search)
+  fun flatten(tree: ServerDrivenNode?): List<ServerDrivenNode> {
+    val result = ArrayList<ServerDrivenNode>()
+    if (tree != null) {
+      result.add(tree)
+      tree.children?.forEach { result.addAll(flatten(it)) }
+    }
+    return result
   }
 }
