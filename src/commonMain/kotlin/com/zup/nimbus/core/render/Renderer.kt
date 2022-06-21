@@ -219,8 +219,8 @@ class Renderer(
 
   /**
    * Updates a branch of the current tree with new content. This update can be either a full replacement of the branch
-   * or an update to its children. This processes only the new branch, leaving the rest of the tree intact. It doesn't
-   * trigger a re-render.
+   * or an update to its children. This processes only the node "anchor" refers to, leaving the rest of the tree intact.
+   * It doesn't trigger a re-render.
    *
    * @param newBranch the new branch to add to the tree.
    * @param anchor the id of the node to replace if the mode is "ReplaceItself" or the id of the node to receive the
@@ -230,7 +230,7 @@ class Renderer(
   private fun updateBranch(newBranch: RenderNode, anchor: String, mode: TreeUpdateMode) {
     val currentTree = getCurrentTree() ?: throw EmptyViewError()
     val parent = currentTree.update(newBranch, anchor, mode) ?: throw AnchorNotFoundError(anchor)
-    processTreeAndStateHierarchy(newBranch, parent.stateHierarchy ?: throw InvalidTreeError())
+    processTreeAndStateHierarchy(parent, parent.stateHierarchy ?: throw InvalidTreeError())
   }
 
   /**
@@ -240,7 +240,9 @@ class Renderer(
    * @param anchor the id of the node to replace if the mode is "ReplaceItself" or the id of the node to receive the
    * new child otherwise. Defaults to the id of the root node.
    * @param mode dictates how to insert "tree" into the current tree. Defaults to "ReplaceItself".
+   * @throws UnexpectedRootStructuralComponent when th root node is a structural component.
    */
+  @Throws(UnexpectedRootStructuralComponent::class)
   fun paint(tree: RenderNode, anchor: String? = null, mode: TreeUpdateMode = TreeUpdateMode.ReplaceItself) {
     if (structuralComponents.containsKey(tree.component)) {
       throw UnexpectedRootStructuralComponent()
