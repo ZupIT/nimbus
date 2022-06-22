@@ -92,7 +92,7 @@ class Nimbus(config: ServerDrivenConfig) {
     actionObservers.addAll(observers)
   }
 
-  fun addOperations(newOperations: MutableMap<String, OperationHandler>) {
+  fun addOperations(newOperations: Map<String, OperationHandler>) {
     addAll(operations, newOperations, "Operation")
   }
 }
