@@ -4,11 +4,11 @@ package com.zup.nimbus.core.render
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.ServerDrivenState
-import com.zup.nimbus.core.utils.then
 import com.zup.nimbus.core.utils.untypedValueOf
 
-private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)}""".toRegex()
-private val fullMatchExpressionRegex = """^@\{(([^'}]|('([^'\\]|\\.)*'))*)}$""".toRegex()
+//Do not remove the Redundant character escape '\}' in RegExp, this causes error when using android regex implementation
+private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)\}""".toRegex()
+private val fullMatchExpressionRegex = """^@\{(([^'}]|('([^'\\]|\\.)*'))*)\}$""".toRegex()
 private val dpaTransitions: Map<String, List<Transition>> = mapOf(
   "initial" to listOf(
     Transition(""",|$""".toRegex(), null, null, "final"), // end of parameter
