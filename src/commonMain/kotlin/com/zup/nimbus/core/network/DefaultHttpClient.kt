@@ -20,7 +20,7 @@ class DefaultHttpClient(engine: HttpClientEngine? = null): com.zup.nimbus.core.n
     val response = doRequest(request)
     return ServerDrivenResponse(
       response.status.value,
-      response.bodyAsText(),
+      runCatching { response.bodyAsText() }.getOrDefault(""),
       buildResponseHeaders(response.headers),
       response.body()
     )
