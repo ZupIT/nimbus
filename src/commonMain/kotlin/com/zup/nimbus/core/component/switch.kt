@@ -18,7 +18,7 @@ interface Default {
 }
 */
 
-fun switchComponent(node: RenderNode): List<RenderNode> {
+internal fun switchComponent(node: RenderNode): List<RenderNode> {
   // todo
   print(node)
   return emptyList()

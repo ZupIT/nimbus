@@ -33,13 +33,3 @@ fun addPrefix(str: String, prefix: String): String {
 fun removeSuffix(str: String, suffix: String): String {
   return str.replace(Regex("${suffix}$"), "")
 }
-
-/**
- * Transforms the first letter of the string into an uppercase letter.
- *
- * @param str the string to capitalize
- * @returns the resulting string
- */
-fun capitalizeFirstLetter(str: String): String {
-  return ((str.isEmpty()) then str) ?: "${str[0].toString().uppercase()}${str.slice((1 until str.length))}"
-}

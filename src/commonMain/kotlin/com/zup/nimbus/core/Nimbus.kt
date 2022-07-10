@@ -1,13 +1,13 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.action.coreActions
-import com.zup.nimbus.core.action.onCoreActionRendered
-import com.zup.nimbus.core.component.coreComponents
+import com.zup.nimbus.core.action.getCoreActions
+import com.zup.nimbus.core.action.getRenderHandlersForCoreActions
+import com.zup.nimbus.core.component.getCoreComponents
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
 import com.zup.nimbus.core.network.DefaultViewClient
-import com.zup.nimbus.core.operations.defaultOperations
+import com.zup.nimbus.core.operations.getDefaultOperations
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.DefaultIdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
@@ -18,10 +18,10 @@ import com.zup.nimbus.core.tree.RenderNode
 class Nimbus(config: ServerDrivenConfig) {
   // From config
   val baseUrl = config.baseUrl
-  val platform = config.platform
-  val actions = (coreActions + (config.actions ?: emptyMap())).toMutableMap()
+  private val platform = config.platform
+  val actions = (getCoreActions() + (config.actions ?: emptyMap())).toMutableMap()
   val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
-  val operations = (defaultOperations + (config.operations?.toMutableMap() ?: emptyMap())).toMutableMap()
+  val operations = (getDefaultOperations() + (config.operations?.toMutableMap() ?: emptyMap())).toMutableMap()
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
   val httpClient = config.httpClient ?: DefaultHttpClient()
@@ -36,7 +36,7 @@ class Nimbus(config: ServerDrivenConfig) {
    *
    * Examples: if (companions: then, else); switch (companions: case, default); foreach.
    */
-  internal val structuralComponents = coreComponents
+  internal val structuralComponents = getCoreComponents()
 
   // Other
   val globalState = ObservableState("global", null)
@@ -45,7 +45,7 @@ class Nimbus(config: ServerDrivenConfig) {
    * Functions to run once an action goes through the rendering process for the first time.
    * This is currently used only for performing pre-fetches in navigation actions.
    */
-  internal val onActionRendered: Map<String, ActionHandler> = onCoreActionRendered
+  internal val onActionRendered: Map<String, ActionHandler> = getRenderHandlersForCoreActions()
 
   /**
    * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.

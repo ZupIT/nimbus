@@ -16,7 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
-fun sendRequest(event: ActionEvent) {
+internal fun sendRequest(event: ActionEvent) {
   val nimbus = event.view.nimbusInstance
   val properties = event.action.properties
   try {

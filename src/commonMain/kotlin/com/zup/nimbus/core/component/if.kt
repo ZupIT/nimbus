@@ -3,7 +3,7 @@ package com.zup.nimbus.core.component
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.utils.valueOf
 
-fun ifComponent(node: RenderNode): List<RenderNode> {
+internal fun ifComponent(node: RenderNode): List<RenderNode> {
   val condition: Boolean = valueOf(node.properties, "condition")
   var thenNode: RenderNode? = null
   var elseNode: RenderNode? = null

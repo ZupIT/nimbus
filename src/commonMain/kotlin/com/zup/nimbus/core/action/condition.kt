@@ -4,7 +4,7 @@ import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
 
-fun condition(event: ActionEvent) {
+internal fun condition(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   try {

@@ -30,7 +30,7 @@ private fun deepCopyChildren(children: List<RenderNode>?, iterationKey: String):
   }
 }
 
-fun forEachComponent(node: RenderNode): List<RenderNode> {
+internal fun forEachComponent(node: RenderNode): List<RenderNode> {
   val items: List<Any?> = valueOf(node.properties, "items") ?: emptyList()
   val iteratorName: String = valueOf(node.properties, "iteratorName") ?: "item"
   val indexName: String = valueOf(node.properties, "indexName") ?: "index"

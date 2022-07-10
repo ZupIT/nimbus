@@ -43,11 +43,11 @@ private fun pushOrPresent(event: ActionEvent, isPush: Boolean) {
   }
 }
 
-fun push(event: ActionEvent) = pushOrPresent(event, true)
+internal fun push(event: ActionEvent) = pushOrPresent(event, true)
 
-fun pop(event: ActionEvent) = event.view.getNavigator().pop()
+internal fun pop(event: ActionEvent) = event.view.getNavigator().pop()
 
-fun popTo(event: ActionEvent) {
+internal fun popTo(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   try {
     event.view.getNavigator().popTo(valueOf(event.action.properties, "url"))
@@ -56,11 +56,11 @@ fun popTo(event: ActionEvent) {
   }
 }
 
-fun present(event: ActionEvent) = pushOrPresent(event, false)
+internal fun present(event: ActionEvent) = pushOrPresent(event, false)
 
-fun dismiss(event: ActionEvent) = event.view.getNavigator().dismiss()
+internal fun dismiss(event: ActionEvent) = event.view.getNavigator().dismiss()
 
-fun onPushOrPresentRendered(event: ActionEvent) {
+internal fun onPushOrPresentRendered(event: ActionEvent) {
   try {
     val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
     if (!prefetch) return

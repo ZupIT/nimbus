@@ -1,22 +1,13 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.length
+import com.zup.nimbus.core.operations.getOtherOperations
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+private val length = getOtherOperations()["length"]!!
+
 class LengthOperationTest {
-  @Test
-  fun `should return the correct length of an array`() {
-    var array = arrayOf(1,2,3,4,5)
-    var result = length(arrayOf(array))
-    assertEquals(5, result)
-
-    array = emptyArray()
-    result = length(arrayOf(array))
-    assertEquals(0, result)
-  }
-
   @Test
   fun `should return the correct length of a list`() {
     var list = listOf(1,2,3,4,5)
@@ -72,15 +63,5 @@ class LengthOperationTest {
     string = ""
     result = length(arrayOf(string))
     assertEquals(0, result)
-  }
-
-  @Test
-  fun `should return the length of the object passed when called the toString method`() {
-    assertEquals(4, length(arrayOf(1234)))
-    assertEquals(1, length(arrayOf(0)))
-    assertEquals(7, length(arrayOf(13.1213)))
-    assertEquals(4, length(arrayOf(true)))
-    assertEquals(5, length(arrayOf(false)))
-    assertTrue { length(arrayOf(object { val hello = "world" })) as Int > 0 }
   }
 }

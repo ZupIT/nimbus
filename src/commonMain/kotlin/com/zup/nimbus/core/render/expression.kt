@@ -24,7 +24,7 @@ private val dpaTransitions: Map<String, List<Transition>> = mapOf(
     Transition(".".toRegex(), null, null, "insideParameterList"), // general symbols
   ),
   "isParameterListOver" to listOf(
-    Transition(null, EMPTY, "initial"), // end of parameter list, go back to initial state
+    Transition(null, DPA.Symbols.EMPTY, "initial"), // end of parameter list, go back to initial state
     // still inside a parameter list, go back to state "insideParameterList"
     Transition(null, null, "insideParameterList"),
   ),
@@ -95,7 +95,7 @@ private fun getLiteralValue(literal: String): Any? {
 private fun getOperationValue(
   operation: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: MutableMap<String, OperationHandler>,
+  operationHandlers: Map<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val match = """^(\w+)\((.*)\)$""".toRegex().find(operation)
@@ -121,7 +121,7 @@ private fun getOperationValue(
 private fun evaluateExpression(
   expression: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: MutableMap<String, OperationHandler>,
+  operationHandlers: Map<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val literalValue = getLiteralValue(expression)
@@ -140,7 +140,7 @@ fun containsExpression(value: String): Boolean {
 fun resolveExpressions(
   value: String,
   stateHierarchy: List<ServerDrivenState>,
-  operationHandlers: MutableMap<String, OperationHandler>,
+  operationHandlers: Map<String, OperationHandler>,
   logger: Logger,
 ): Any? {
   val fullMatch = fullMatchExpressionRegex.find(value)

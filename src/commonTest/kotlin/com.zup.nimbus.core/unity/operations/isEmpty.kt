@@ -1,9 +1,11 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.isEmpty
+import com.zup.nimbus.core.operations.getOtherOperations
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+private val isEmpty = getOtherOperations()["isEmpty"]!!
 
 class IsEmptyOperationTest {
   @Test
@@ -13,7 +15,7 @@ class IsEmptyOperationTest {
 
   @Test
   fun `should verify if an Array is empty`() {
-    assertTrue { isEmpty(arrayOf(arrayOf<Any>())) as Boolean }
+    assertTrue { isEmpty(arrayOf(listOf<Any>())) as Boolean }
   }
 
   @Test
