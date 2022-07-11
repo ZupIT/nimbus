@@ -6,7 +6,7 @@ on:
 
 jobs:
   validation:
-    runs-on: ubuntu-latest
+    runs-on: macos-12
 
     steps:
       - name: Checkout repo
@@ -18,11 +18,11 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
 
-      - name: Run linter and tests
+      - name: Run linter and tests for all targeted platforms (Android and iOS)
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: detekt test --scan
+          arguments: check --scan
 
       - name: "Add build scan URL as PR comment"
         uses: actions/github-script@v5
