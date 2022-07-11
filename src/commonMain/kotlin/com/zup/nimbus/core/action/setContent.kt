@@ -9,7 +9,7 @@ import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
 
-fun setContent(event: ActionEvent) {
+internal fun setContent(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   try {

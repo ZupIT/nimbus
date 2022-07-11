@@ -1,8 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.remove
+import com.zup.nimbus.core.operations.getArrayOperations
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+private val remove = getArrayOperations()["remove"]!!
 
 class RemoveOperationTest {
   @Test

@@ -1,8 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.multiply
+import com.zup.nimbus.core.operations.getNumberOperations
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+private val multiply = getNumberOperations()["multiply"]!!
 
 class MultiplyOperationTest {
   @Test

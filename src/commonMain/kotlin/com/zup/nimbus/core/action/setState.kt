@@ -4,7 +4,7 @@ import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOf
 
-fun setState(event: ActionEvent) {
+internal fun setState(event: ActionEvent) {
   val properties = event.action.properties
   try {
     val path: String = valueOf(properties, "path")

@@ -1,14 +1,16 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.insert
+import com.zup.nimbus.core.operations.getArrayOperations
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+private val insert = getArrayOperations()["insert"]!!
 
 class InsertOperationTest {
   @Test
   fun `should insert at last position when no index is provided`() {
-    var list = mutableListOf<Any>("one", "two", "three")
-    list = insert(arrayOf(list.toTypedArray(), "four")) as MutableList<Any>
+    var list = listOf<Any>("one", "two", "three")
+    list = insert(arrayOf(list, "four")) as List<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[3], "four")
@@ -16,8 +18,8 @@ class InsertOperationTest {
 
   @Test
   fun `should insert at a indexed position`() {
-    var list = mutableListOf<Any>("one", "two", "three")
-    list = insert(arrayOf(list.toTypedArray(), "four", 1)) as MutableList<Any>
+    var list = listOf<Any>("one", "two", "three")
+    list = insert(arrayOf(list, "four", 1)) as List<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[0], "one")

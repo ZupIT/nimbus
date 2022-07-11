@@ -1,9 +1,11 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.and
+import com.zup.nimbus.core.operations.getLogicOperations
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+private val and = getLogicOperations()["and"]!!
 
 class AndOperationTest {
   private val x = 2

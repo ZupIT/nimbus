@@ -1,9 +1,11 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.isNull
+import com.zup.nimbus.core.operations.getOtherOperations
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+private val isNull = getOtherOperations()["isNull"]!!
 
 class IsNullOperationTest {
   @Test

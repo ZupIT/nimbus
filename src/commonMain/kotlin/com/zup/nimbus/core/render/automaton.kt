@@ -34,11 +34,6 @@ class Transition {
 }
 
 /**
- * The empty symbol for transitions
- */
-const val EMPTY = "∅"
-
-/**
  * Creates a Deterministic Pushdown Automaton (DPA) according to states and transitions passed as
  * parameters.
  *
@@ -69,6 +64,9 @@ class DPA (
   private val final: String,
   private val transitions: Map<String, List<Transition>>,
 ) {
+  object Symbols {
+    const val EMPTY = "∅"
+  }
   fun match(input: String): String? {
     val stack: MutableList<String> = mutableListOf()
     var currentState = initial
@@ -78,7 +76,7 @@ class DPA (
     fun matchTransition(transition: Transition): Boolean {
       if (transition.pop != null &&
         (stack.isNotEmpty() && stack.last() != transition.pop) &&
-        (transition.pop == EMPTY && stack.isNotEmpty())) {
+        (transition.pop == Symbols.EMPTY && stack.isNotEmpty())) {
         return false
       }
 

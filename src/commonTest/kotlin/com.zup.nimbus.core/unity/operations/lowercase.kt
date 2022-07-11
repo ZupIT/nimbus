@@ -1,8 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.lowercase
+import com.zup.nimbus.core.operations.getStringOperations
 import kotlin.test.Test
 import kotlin.test.assertEquals
+
+private val lowercase = getStringOperations()["lowercase"]!!
 
 class LowercaseOperationTest {
   @Test

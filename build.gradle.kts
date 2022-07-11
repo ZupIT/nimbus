@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.Framework.BitcodeEmbeddingMode.BIT
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 plugins {
-  kotlin("multiplatform") version "1.6.21"
-  kotlin("native.cocoapods") version "1.6.21"
-  kotlin("plugin.serialization") version "1.6.21"
+  kotlin("multiplatform") version "1.7.10"
+  kotlin("native.cocoapods") version "1.7.10"
+  kotlin("plugin.serialization") version "1.7.10"
   id("io.gitlab.arturbosch.detekt") version "1.20.0"
-  id("com.android.library") version "7.2"
+  id("com.android.library") version "7.2.0"
   id("maven-publish")
   id("io.codearte.nexus-staging") version "0.22.0"
   id("signing")
@@ -51,9 +51,9 @@ kotlin {
   }
 
   sourceSets {
-    val serializationVersion = "1.3.2"
-    val coroutinesVersion = "1.6.1"
-    val ktorVersion = "2.0.0"
+    val serializationVersion = "1.3.3"
+    val coroutinesVersion = "1.6.3"
+    val ktorVersion = "2.0.3"
     val commonMain by getting {
       dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
