@@ -52,8 +52,10 @@ class NavigationTest {
       navigator.push(ViewRequest("/none"))
       navigator.awaitPushCompletion()
     } catch(e: CancellationException) {
-      error = e.cause?.cause
+      // this is super-weird, but on Android the error will be at e.cause.cause while on iOS it will be in e.cause
+      error = e.cause?.cause ?: e.cause
     }
+    print(error?.message)
     assertTrue(error is ResponseError)
     assertEquals(HttpStatusCode.NotFound.value, error.status)
   }
@@ -87,7 +89,8 @@ class NavigationTest {
       NodeUtils.pressButton(page3.content, "next-error")
       navigator.awaitPushCompletion()
     } catch(e: CancellationException) {
-      error = e.cause?.cause
+      // this is super-weird, but on Android the error will be at e.cause.cause while on iOS it will be in e.cause
+      error = e.cause?.cause ?: e.cause
     }
     assertTrue(error is ResponseError)
     assertEquals(404, error.status)
