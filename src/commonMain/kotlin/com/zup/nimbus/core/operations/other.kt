@@ -2,6 +2,7 @@ package com.zup.nimbus.core.operations
 
 import com.zup.nimbus.core.OperationHandler
 
+@Suppress("ComplexMethod")
 internal fun getOtherOperations(): Map<String, OperationHandler> {
   return mapOf(
     "contains" to {
