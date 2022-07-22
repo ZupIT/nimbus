@@ -23,3 +23,4 @@ data class ActionEvent(
    */
   val view: ServerDrivenView,
 )
+
