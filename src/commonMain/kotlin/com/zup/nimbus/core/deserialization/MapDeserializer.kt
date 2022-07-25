@@ -76,7 +76,7 @@ class MapDeserializer {
     val value = current?.get(key)
     if (nullable && value == null) return null
     @Suppress("UNCHECKED_CAST")
-    if (value is Function0<*>) return value as (Any?) -> Unit
+    if (value is Function1<*, *>) return value as (Any?) -> Unit
     addTypeError("an array of Actions", key, value)
     return { _ -> }
   }
