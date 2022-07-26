@@ -208,9 +208,9 @@ publishing {
   }
 }
 
-/*signing {
+signing {
   sign(publishing.publications)
-}*/
+}
 
 nexusStaging {
   username = sonatypeUsername
