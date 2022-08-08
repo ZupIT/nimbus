@@ -9,15 +9,9 @@ open class ServerDrivenState(
    */
   val id: String,
   /**
-   * The value of the state.
-   *
-   * Note 1: this is internal instead of private for performance reasons. We need to be able to easily read this from
-   * the Renderer. This is not public because we don't want a third-party to be able to change this directly. For third-
-   * parties we only offer a copy of this instead.
-   *
-   * Note 2: if this is an ObservableState you probably want to run every change listener when the value changes. For
-   * this reason, prefer using the method "set" instead of setting this directly.
-   */
+   * The value of the state. Do not use this value as settable.
+   * @see set, to set the new value of this state use the `set` function.
+  */
   internal var value: Any?,
   /**
    * The node that declared this state. This must be null if the state has no parent.
@@ -25,13 +19,13 @@ open class ServerDrivenState(
   val parent: RenderNode?,
 ) {
   /**
-   * Gets the current value. This is a copy because this object can't be mutated by third-parties outside the set
-   * function.
+   * Gets the current value of this state. Do not use this value as settable.
    *
-   * @return a copy of the current value of this state.
+   * @see set, to set the new value of this state use the `set` function.
+   * @return the current value of this state.
    */
-  fun getValueCopy(): Any? {
-   return deepCopy(value)
+  fun get(): Any? {
+   return value
   }
 
   /**

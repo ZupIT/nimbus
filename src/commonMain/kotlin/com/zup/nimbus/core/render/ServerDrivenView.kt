@@ -2,6 +2,8 @@ package com.zup.nimbus.core.render
 
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.tree.ObservableStateListener
+import com.zup.nimbus.core.tree.RemovableObservableStateListener
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
@@ -39,7 +41,7 @@ class ServerDrivenView(
   /**
    * Stores the function to make this view stop listening to the Global State.
    */
-  private var removeGlobalStateListener: (() -> Unit)? = null
+  private var removeGlobalStateListener: RemovableObservableStateListener? = null
 
   /**
    * The Renderer for this view. Use it to change the UI tree or a view state.

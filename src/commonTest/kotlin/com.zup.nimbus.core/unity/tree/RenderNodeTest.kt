@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 
 class RenderNodeTest {
   @Test
-  fun shouldThrowWhenJsonIsInvalid() {
+  fun `should throw when json is invalid`() {
     var error: Throwable? = null
     try {
       RenderNode.fromJsonString("""{ "aa": 45, 85,""", DefaultIdManager())
