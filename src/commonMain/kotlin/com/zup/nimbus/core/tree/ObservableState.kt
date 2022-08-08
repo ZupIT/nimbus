@@ -18,8 +18,14 @@ class ObservableState(id: String, value: Any?): ServerDrivenState(id, value, nul
   }
 
   override fun set(newValue: Any?, path: String) {
-    super.set(newValue, path)
-    listeners.forEach { it(super.value) }
+    // if the new value is a map or list, it must be mutable.
+    var mutableValue = newValue
+    if (newValue is Map<*, *> && newValue !is MutableMap<*, *>) mutableValue = newValue.toMutableMap()
+    else if (newValue is List<*> && newValue !is MutableList<*>) mutableValue = newValue.toMutableList()
+    // super
+    super.set(mutableValue, path)
+    // notify
+    listeners.forEach { it(value) }
   }
 
   fun set(newValue: Any?) {
