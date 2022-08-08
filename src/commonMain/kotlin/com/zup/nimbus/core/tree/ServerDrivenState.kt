@@ -24,7 +24,7 @@ open class ServerDrivenState(
    * @see set, to set the new value of this state use the `set` function.
    * @return the current value of this state.
    */
-  open fun get(): Any? {
+  fun get(): Any? {
    return value
   }
 
