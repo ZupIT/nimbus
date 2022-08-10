@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.performance
 
 import com.zup.nimbus.core.EmptyNavigator
-import com.zup.nimbus.core.FastRegex
+import com.zup.nimbus.core.regex.FastRegex
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils

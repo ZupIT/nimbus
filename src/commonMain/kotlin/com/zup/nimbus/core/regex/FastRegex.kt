@@ -1,4 +1,4 @@
-package com.zup.nimbus.core
+package com.zup.nimbus.core.regex
 
 expect class FastRegex(pattern: String) {
   /**
@@ -13,9 +13,9 @@ expect class FastRegex(pattern: String) {
    * Returns the groups of the first match of a regular expression in the input.
    *
    * @param input the string to match the regex against.
-   * @return the first matched string.
+   * @return the groups of first match.
    */
-  fun findWithGroups(input: String): List<String>?
+  fun findWithGroups(input: String): MatchGroups?
 
   /**
    * Returns all matched strings of a regular expression in the input.
@@ -29,10 +29,9 @@ expect class FastRegex(pattern: String) {
    * Returns the groups of all matches of a regular expression in the input.
    *
    * @param input the string to match the regex against.
-   * @return a matrix where each line is a match and each column is a matched group. e.g. `result[0][1]` is the second
-   * group of the first match.
+   * @return a list of matches with their groups.
    */
-  fun findAllWithGroups(input: String): List<List<String>>
+  fun findAllWithGroups(input: String): List<MatchGroups>
 
   /**
    * Indicates whether the regular expression matches the entire input.
@@ -41,4 +40,22 @@ expect class FastRegex(pattern: String) {
    * @return true if the entire input matches the regex; false otherwise.
    */
   fun matches(input: String): Boolean
+
+  /**
+   * Indicates whether the regular expression can find at least one match in the specified input.
+   *
+   * @param input the string to match the regex against.
+   * @return true if the entire input matches the regex; false otherwise.
+   */
+  fun containsMatchIn(input: String): Boolean
+
+  /**
+   * Replaces all occurrences of this regular expression in the specified input string with specified replacement
+   * expression.
+   *
+   * @param input the string to match the regex against.
+   * @param replacement the string to replace the occurrences of the regex in the input.
+   * @return the new string with the replaced values.
+   */
+  fun replace(input: String, replacement: String): String
 }
