@@ -5,8 +5,8 @@ import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ServerDrivenRequest
 import com.zup.nimbus.core.render.ActionEvent
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
-import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
+import com.zup.nimbus.core.utils.valueOfKey
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,13 +21,13 @@ internal fun sendRequest(event: ActionEvent) {
   val properties = event.action.properties
   try {
     // deserialize parameters
-    val url: String = valueOf(properties, "url")
+    val url: String = valueOfKey(properties, "url")
     val method: ServerDrivenHttpMethod = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get)
-    val data: Any? = valueOf(properties, "data")
-    val headers: Map<String, String>? = valueOf(properties, "headers")
-    val onSuccess: ((successResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onSuccess")
-    val onError: ((errorResponse: Map<String, Any?>) -> Unit)? = valueOf(properties, "onError")
-    val onFinish: ((_: Any?) -> Unit)? = valueOf(properties, "onFinish")
+    val data: Any? = valueOfKey(properties, "data")
+    val headers: Map<String, String>? = valueOfKey(properties, "headers")
+    val onSuccess: ((successResponse: Map<String, Any?>) -> Unit)? = valueOfKey(properties, "onSuccess")
+    val onError: ((errorResponse: Map<String, Any?>) -> Unit)? = valueOfKey(properties, "onError")
+    val onFinish: ((_: Any?) -> Unit)? = valueOfKey(properties, "onFinish")
 
     // create request and coroutine scope
     val request = ServerDrivenRequest(

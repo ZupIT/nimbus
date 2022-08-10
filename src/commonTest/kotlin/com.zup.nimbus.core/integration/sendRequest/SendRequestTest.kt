@@ -4,7 +4,7 @@ import com.zup.nimbus.core.*
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.utils.valueOfKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -26,7 +26,7 @@ class SendRequestTest {
 
   private fun pressButtonToSendRequest(content: ServerDrivenNode) {
     val button = content.children?.get(0)!!
-    val pressButton = valueOf<(value: Any?) -> Unit>(button.properties, "onPress")
+    val pressButton = valueOfKey<(value: Any?) -> Unit>(button.properties, "onPress")
     pressButton(null)
   }
 

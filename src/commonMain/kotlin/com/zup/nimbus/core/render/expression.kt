@@ -4,7 +4,7 @@ package com.zup.nimbus.core.render
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.tree.ServerDrivenState
-import com.zup.nimbus.core.utils.untypedValueOf
+import com.zup.nimbus.core.utils.untypedValueOfPath
 
 //Do not remove the Redundant character escape '\}' in RegExp, this causes error when using android regex implementation
 private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)\}""".toRegex()
@@ -60,7 +60,7 @@ private fun getStateValue(path: String, stateHierarchy: List<ServerDrivenState>,
 
   if (statePath.isNotEmpty() && statePath.isNotBlank()) {
     return try {
-      return untypedValueOf(state.value, statePath)
+      return untypedValueOfPath(state.value, statePath)
     } catch (error: Throwable) {
       error.message?.let {
         logger.warn(it)

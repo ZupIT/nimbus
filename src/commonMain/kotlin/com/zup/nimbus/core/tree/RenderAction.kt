@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.tree
 
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.utils.valueOfKey
 
 data class RenderAction(
   override val action: String,
@@ -38,9 +38,9 @@ data class RenderAction(
       try {
         return actions.map {
           RenderAction(
-            action = valueOf(it, "_:action"),
-            rawProperties = valueOf(it, "properties"),
-            rawMetadata = valueOf(it, "metadata"),
+            action = valueOfKey(it, "_:action"),
+            rawProperties = valueOfKey(it, "properties"),
+            rawMetadata = valueOfKey(it, "metadata"),
             properties = null,
             metadata = null,
           )

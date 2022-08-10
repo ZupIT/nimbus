@@ -25,4 +25,16 @@ object NodeUtils {
     }
     return result
   }
+
+  /**
+   * runs findById on children, not on rawChildren
+   */
+  fun findById(node: ServerDrivenNode, id: String): ServerDrivenNode? {
+    if (node.id == id) return node
+    node.children?.forEach {
+      val result = findById(it, id)
+      if (result != null) return result
+    }
+    return null
+  }
 }

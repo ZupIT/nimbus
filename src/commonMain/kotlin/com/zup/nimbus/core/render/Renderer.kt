@@ -5,8 +5,12 @@ import com.zup.nimbus.core.tree.RenderAction
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenState
 import com.zup.nimbus.core.tree.TreeUpdateMode
+import kotlinx.datetime.Clock
 
 private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
+
+var timeSpentOnRefresh = 0L
+var timeSpentOnResolve = 0L
 
 class Renderer(
   private val view: ServerDrivenView,
@@ -38,6 +42,7 @@ class Renderer(
     if (value is List<*>) {
       if (RenderAction.isActionList(value)) {
         try {
+          //return value
           return deserializeActions(
             actionList = RenderAction.createActionList(value),
             event = key,
@@ -158,7 +163,7 @@ class Renderer(
    * `processTree` (false). Makes no difference for structural children, they will always use
    * `processTreeAndStateHierarchy`.
    */
-  private fun createChildrenFromRawChildren(node: RenderNode, shouldProcessStateHierarchy: Boolean) {
+  private fun createChildrenFromRawChildren(node: RenderNode, shouldProcessStateHierarchy: Boolean, measure: Boolean = false) {
     var hasStructuralNode = false
 
     node.rawChildren?.forEach {
@@ -170,7 +175,9 @@ class Renderer(
       if (shouldProcessStateHierarchy) {
         processTreeAndStateHierarchy(it, node.stateHierarchy ?: throw NoStateHierarchyError())
       } else {
+        val started = Clock.System.now().toEpochMilliseconds()
         processTree(it)
+        if (measure) timeSpentOnRefresh += Clock.System.now().toEpochMilliseconds() - started
       }
     }
 
@@ -202,9 +209,11 @@ class Renderer(
    *
    * @param node the tree to process.
    */
-  private fun processTree(node: RenderNode) {
+  private fun processTree(node: RenderNode, measure: Boolean = false) {
+    val started = Clock.System.now().toEpochMilliseconds()
     resolve(node)
-    createChildrenFromRawChildren(node, false)
+    timeSpentOnResolve += Clock.System.now().toEpochMilliseconds() - started
+    createChildrenFromRawChildren(node, false, measure)
   }
 
   /**
@@ -267,7 +276,7 @@ class Renderer(
    */
   fun refresh() {
     val current = getCurrentTree() ?: return logger.error("Can't refresh blank ServerDrivenView.")
-    processTree(current)
+    processTree(current, true)
     onFinish()
   }
 
