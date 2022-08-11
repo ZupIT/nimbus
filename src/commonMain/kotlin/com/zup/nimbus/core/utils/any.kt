@@ -1,8 +1,9 @@
 package com.zup.nimbus.core.utils
 
+import com.zup.nimbus.core.regex.toFastRegex
 import kotlin.reflect.KClass
 
-private val dataPathRegex = """(?:^[^\.\[\]]+)|(?:\.[^\.\[\]]+)|\[\d+\]""".toRegex()
+private val dataPathRegex = """(?:^[^\.\[\]]+)|(?:\.[^\.\[\]]+)|\[\d+\]""".toFastRegex()
 
 class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
@@ -25,7 +26,8 @@ class UnexpectedDataTypeError(
 
 fun extractValueOfArray(data: Any, accessor: String, path: String): Any? {
   try {
-    val index = ("""\d+""".toRegex().find(accessor)!!.value).toInt()
+    // remove brackets and convert to int
+    val index = accessor.drop(1).dropLast(1).toInt()
     return if (data is List<*> && index < data.size) data[index] else null
   } catch (e: Throwable) {
     throw if (e is NumberFormatException || e is NullPointerException) {
@@ -141,7 +143,7 @@ fun untypedValueOfPath(data: Any?, path: String = ""): Any? {
   var current: Any? = data
   val accessors = dataPathRegex.findAll(path).iterator()
   while (current != null && accessors.hasNext()) {
-    val accessor = accessors.next().value
+    val accessor = accessors.next()
     val isArray = accessor.startsWith("[")
     current = if (isArray) extractValueOfArray(current, accessor, path) else extractValueOfMap(current, accessor)
   }

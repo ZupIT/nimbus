@@ -1,6 +1,8 @@
 package com.zup.nimbus.core.unity
 
 import com.zup.nimbus.core.regex.FastRegex
+import com.zup.nimbus.core.regex.replace
+import com.zup.nimbus.core.regex.toFastRegex
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,7 +10,7 @@ import kotlin.test.assertTrue
 
 class FastRegexTest {
   @Test
-  fun shouldFind() {
+  fun `should find`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     val string = "abc[0].def.ghi[0][1][2].jkl"
     val matched = regex.find(string)
@@ -16,7 +18,7 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldFindWithGroups() {
+  fun `should find with groups`() {
     val regex = FastRegex("""^"(\w+)": "([^"]*)"${'$'}""")
     val string = """"text": "Hello World""""
     val groups = regex.findWithGroups(string)
@@ -27,7 +29,7 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldDestructureGroup() {
+  fun `should destructure group`() {
     val regex = FastRegex("""(\d)-(\d)-(\d)-(\d)-(\d)-(\d)-(\d)-(\d)-(\d)""")
     val string = "1-2-3-4-5-6-7-8-9"
     val (first, second, third, fourth, fifth, sixth, seventh, eighth, ninth) = regex.findWithGroups(string)!!.destructured
@@ -43,7 +45,7 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldFindAll() {
+  fun `should find all`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     val string = "abc[0].def.ghi[0][1][2].jkl"
     val matched = regex.findAll(string)
@@ -59,7 +61,7 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldFindAllWithGroups() {
+  fun `should find all with groups`() {
     val regex = FastRegex("""@\{([\w\.\[\]]+)\}""")
     val string = "@{name.first} is @{age} years old/ His document number is @{documents[0].number}"
     val matched = regex.findAllWithGroups(string)
@@ -80,14 +82,14 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldReplace() {
+  fun `should replace`() {
     val regex = FastRegex(""",|\.""")
     val replaced = regex.replace("Abc, def. Ghijk, lmn, opqr: st. Uvw, x, yz.", "-+")
     assertEquals("Abc-+ def-+ Ghijk-+ lmn-+ opqr: st-+ Uvw-+ x-+ yz-+", replaced)
   }
 
   @Test
-  fun shouldReplaceWithIndexedExpressions() {
+  fun `should replace with indexed expressions`() {
     val regex = FastRegex(""""([^"]+)":\s*"([^"]+)"""")
     val input = """{ "name": "John", "lastName":"Stone", "age":   "30" }"""
     val replaceExpression = "Property $1 is $2"
@@ -96,7 +98,34 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldMatch() {
+  fun `should replace with transform function`() {
+    val regex = FastRegex(""""([^"]+)":\s*"([^"]+)"""")
+    val input = """{ "name": "John", "lastName":"Stone", "age":   "30" }"""
+    val replaced = regex.replace(input) {
+      val (property, value) = it.destructured
+      "Property $property is $value"
+    }
+    assertEquals("{ Property name is John, Property lastName is Stone, Property age is 30 }", replaced)
+  }
+
+  @Test
+  fun `should replace with transform function when matches are at the beginning and end of the input`() {
+    val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)\}""".toFastRegex()
+    val input = "@{greetings}. Today is @{day}. Hello @{user.name}"
+    val result = input.replace(expressionRegex) {
+      val (_, actualExpression) = it.destructured
+      when (actualExpression) {
+        "greetings" -> "Good morning"
+        "day" -> "monday"
+        "user.name" -> "John"
+        else -> ""
+      }
+    }
+    assertEquals("Good morning. Today is monday. Hello John", result)
+  }
+
+  @Test
+  fun `should match`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     assertTrue(regex.matches("abc"))
     assertTrue(regex.matches(".test"))
@@ -104,19 +133,19 @@ class FastRegexTest {
   }
 
   @Test
-  fun shouldNotMatch() {
+  fun `should not match`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     assertFalse(regex.matches("abc[0]"))
   }
 
   @Test
-  fun shouldContainMatch() {
+  fun `should contain match`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     assertTrue(regex.containsMatchIn("abc[0]"))
   }
 
   @Test
-  fun shouldNotContainMatch() {
+  fun `should not contain match`() {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     assertFalse(regex.containsMatchIn("..."))
   }

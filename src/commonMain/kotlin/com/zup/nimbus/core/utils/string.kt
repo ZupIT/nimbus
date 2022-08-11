@@ -1,7 +1,5 @@
 package com.zup.nimbus.core.utils
 
-import com.zup.nimbus.core.regex.FastRegex
-
 /**
  * Removes a prefix from the string.
  *
@@ -35,9 +33,3 @@ fun addPrefix(str: String, prefix: String): String {
 fun removeSuffix(str: String, suffix: String): String {
   return if (str.endsWith(suffix)) str.dropLast(suffix.length) else str
 }
-
-/**
- * Creates a FastRegex from this string.
- */
-fun String.toFastRegex() = FastRegex(this)
-

@@ -1,6 +1,8 @@
 package com.zup.nimbus.core.regex
 
 expect class FastRegex(pattern: String) {
+  val pattern: String
+
   /**
    * Returns the first matched string of a regular expression in the input.
    *
@@ -58,4 +60,15 @@ expect class FastRegex(pattern: String) {
    * @return the new string with the replaced values.
    */
   fun replace(input: String, replacement: String): String
+
+  /**
+   * Replaces all occurrences of this regular expression in the specified input string with the string returned by the
+   * transform function.
+   *
+   * @param input the string to match the regex against.
+   * @param transform a function to transform the matched string into a new string. Receives the MatchGroups of the
+   * current occurrence and must return the replacement String.
+   * @return the new string with the replaced values.
+   */
+  fun replace(input: String, transform: (MatchGroups) -> String): String
 }

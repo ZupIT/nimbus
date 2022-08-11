@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.regex
 
-actual class FastRegex actual constructor(pattern: String) {
+actual class FastRegex actual constructor(actual val pattern: String) {
   private val regex = pattern.toRegex()
 
   actual fun find(input: String): String? {
@@ -32,5 +32,11 @@ actual class FastRegex actual constructor(pattern: String) {
 
   actual fun replace(input: String, replacement: String): String {
     return regex.replace(input, replacement)
+  }
+
+  actual fun replace(input: String, transform: (MatchGroups) -> String): String {
+    return regex.replace(input) {
+      transform(MatchGroups(it.groupValues))
+    }
   }
 }

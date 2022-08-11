@@ -1,9 +1,12 @@
 @file:Suppress("ComplexCondition") // todo: verify
 package com.zup.nimbus.core.render
 
+import com.zup.nimbus.core.regex.FastRegex
+import com.zup.nimbus.core.regex.toFastRegex
+
 class Transition {
   val readString: String?
-  val readRegex: Regex?
+  val readRegex: FastRegex?
   val push: String?
   val pop: String?
   val next: String
@@ -24,7 +27,7 @@ class Transition {
     this.next = next
   }
 
-  constructor(read: Regex?, push: String?, pop: String?, next: String) {
+  constructor(read: FastRegex?, push: String?, pop: String?, next: String) {
     readString = null
     readRegex = read
     this.push = push
@@ -86,8 +89,7 @@ class DPA (
         return remainingInput.startsWith(transition.readString)
       }
 
-      val match = """^(${transition.readRegex?.pattern})""".toRegex().find(remainingInput) ?: return false
-      val (value) = match.destructured
+      val value = """^(${transition.readRegex?.pattern})""".toFastRegex().find(remainingInput) ?: return false
       matchedValue = value
       return true
     }

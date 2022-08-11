@@ -3,7 +3,7 @@ package com.zup.nimbus.core.regex
 class MatchGroups(
   val values: List<String>
 ) {
-  val destructured = Destructured(this)
+  val destructured: Destructured get() = Destructured(this)
 
   @Suppress("MagicNumber")
   inner class Destructured(val group: MatchGroups) {
