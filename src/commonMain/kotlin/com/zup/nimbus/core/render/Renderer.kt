@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.render
 
+import com.zup.nimbus.core.regex.toFastRegex
 import com.zup.nimbus.core.tree.MalformedActionListError
 import com.zup.nimbus.core.tree.RenderAction
 import com.zup.nimbus.core.tree.RenderNode
@@ -9,7 +10,7 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
+private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toFastRegex()
 
 class Renderer(
   private val view: ServerDrivenView,
@@ -293,7 +294,7 @@ class Renderer(
   @OptIn(ExperimentalTime::class)
   fun setState(sourceNode: RenderNode, path: String, newValue: Any?) {
     try {
-      val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
+      val matchResult = statePathRegex.findWithGroups(path) ?: throw InvalidStatePathError(path)
       val (stateId, statePath) = matchResult.destructured
       val stateHierarchy = sourceNode.stateHierarchy ?: throw InvalidTreeError()
       val state = stateHierarchy.find { it.id == stateId } ?: throw StateNotFoundError(path, sourceNode.id)

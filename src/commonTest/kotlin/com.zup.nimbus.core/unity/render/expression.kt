@@ -829,7 +829,7 @@ class ExpressionTest {
         "sds",
         mapOf(
           "text" to "This is a {Test} inside a string text",
-          "matcher" to """^.*\{.*}?.*$"""
+          "matcher" to """^.*\{.*\}?.*$"""
         ),
         defaultRenderNode
       )

@@ -9,7 +9,7 @@ private val remove = getArrayOperations()["remove"]!!
 class RemoveOperationTest {
   @Test
   fun `should remove an element from a list`() {
-    val items = arrayOf(
+    val items = listOf(
       object { val world = "hello"  },
       object { val hello = "hello"  },
       object { val hello = "world"  },
@@ -25,12 +25,12 @@ class RemoveOperationTest {
     assertEquals(4, list.size)
     assertEquals(items[2], list[2])
 
-    list = remove(arrayOf(list, items[2])) as MutableList<Any>
+    list = remove(listOf(list, items[2])) as MutableList<Any>
 
     assertEquals(3, list.size)
     assertEquals(items[3], list[2])
 
-    list = remove(arrayOf(list, items[2])) as MutableList<Any>
+    list = remove(listOf(list, items[2])) as MutableList<Any>
 
     assertEquals(3, list.size)
     assertEquals(items[3], list[2])

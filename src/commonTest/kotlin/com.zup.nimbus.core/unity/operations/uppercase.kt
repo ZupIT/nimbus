@@ -9,6 +9,6 @@ private val uppercase = getStringOperations()["uppercase"]!!
 class UppercaseOperationTest {
   @Test
   fun `should change all the lower letters to capitalized ones`() {
-    assertEquals("THIS IS A TEST", uppercase(arrayOf("This is a Test")))
+    assertEquals("THIS IS A TEST", uppercase(listOf("This is a Test")))
   }
 }

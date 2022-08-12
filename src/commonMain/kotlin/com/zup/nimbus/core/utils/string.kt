@@ -8,7 +8,7 @@ package com.zup.nimbus.core.utils
  * @returns the string without the prefix
  */
 fun removePrefix(str: String, prefix: String): String {
-  return str.replace(Regex("^${prefix}"), "")
+  return if (str.startsWith(prefix)) str.drop(prefix.length) else str
 }
 
 /**
@@ -31,5 +31,5 @@ fun addPrefix(str: String, prefix: String): String {
  * @returns the string without the suffix
  */
 fun removeSuffix(str: String, suffix: String): String {
-  return str.replace(Regex("${suffix}$"), "")
+  return if (str.endsWith(suffix)) str.dropLast(suffix.length) else str
 }

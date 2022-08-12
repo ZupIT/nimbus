@@ -9,7 +9,7 @@ private val replace = getStringOperations()["replace"]!!
 class ReplaceOperationTest {
   @Test
   fun `should return the range of characters between two indexes`() {
-    val result = replace(arrayOf("This is a Test text.", "This is a ", "Replaced "))
+    val result = replace(listOf("This is a Test text.", "This is a ", "Replaced "))
     assertEquals("Replaced Test text.", result)
   }
 }

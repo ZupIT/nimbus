@@ -2,7 +2,8 @@ package com.zup.nimbus.core.tree
 
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.utils.valueOfKey
+import com.zup.nimbus.core.utils.valueOfPath
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -82,15 +83,15 @@ class RenderNode(
      */
     @Throws(MalformedComponentError::class)
     fun fromMap(map: Map<String, *>, idManager: IdManager, jsonPath: String = "$"): RenderNode {
-      val originalId: String? = valueOf(map, "id")
+      val originalId: String? = valueOfKey(map, "id")
       try {
         return RenderNode(
           id = originalId ?: idManager.next(),
-          component = valueOf(map, "_:component"),
-          stateId = valueOf(map, "state.id"),
-          stateValue = valueOf(map, "state.value"),
-          rawProperties = valueOf(map, "properties"),
-          rawChildren = valueOf<List<Map<String, *>>?>(map, "children")?.mapIndexed { index, value ->
+          component = valueOfKey(map, "_:component"),
+          stateId = valueOfPath(map, "state.id"),
+          stateValue = valueOfPath(map, "state.value"),
+          rawProperties = valueOfKey(map, "properties"),
+          rawChildren = valueOfKey<List<Map<String, *>>?>(map, "children")?.mapIndexed { index, value ->
             fromMap(value, idManager, "$jsonPath.children[:$index]")
           },
           children = null,
