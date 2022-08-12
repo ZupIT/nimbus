@@ -37,7 +37,7 @@ fun extractValueOfArray(data: Any, accessor: String, path: String): Any? {
 }
 
 fun extractValueOfMap(data: Any, accessor: String): Any? {
-  val key = if (accessor.startsWith(".")) accessor.drop(1) else accessor
+  val key = removePrefix(accessor, ".")
   return if (data is Map<*, *>) data[key] else null
 }
 
@@ -131,9 +131,6 @@ inline fun <reified T>valueOfKey(data: Any?, key: String = ""): T {
  * The path can be composed of keys (.key) and indexes (`[index]`). Example: `"foo.bar[0][1].text"`. In this example,
  * `data` must be a map with the key "foo", which must be a map with the key "bar", which must be a list where the
  * first position is another list where the second position is a map.
- *
- * FIXME: this function doesn't perform well on iOS, probably because of the regex. See the following issue:
- *   https://youtrack.jetbrains.com/issue/KT-53538/Kotlin-native-extremely-poor-performance-with-specific-Regex
  *
  * @param data the data source to get the return value from.
  * @param path the path to the item we want in `data`.

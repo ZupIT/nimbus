@@ -64,7 +64,6 @@ kotlin {
       }
     }
     val commonTest by getting {
-      // dependsOn(commonMain)
       dependencies {
         implementation(kotlin("test"))
         implementation(kotlin("test-common"))
@@ -84,7 +83,6 @@ kotlin {
       dependsOn(commonTest)
       dependencies {
         implementation(kotlin("test-junit"))
-        // implementation("junit:junit:4.13.2")
       }
     }
     val iosX64Main by getting
