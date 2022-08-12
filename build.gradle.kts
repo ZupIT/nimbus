@@ -125,7 +125,7 @@ android {
 }
 // TODO Extract the code below to another file
 // ------------------------- Publication configuration --------------------- //
-
+val releaseVersion = !version.toString().endsWith("-SNAPSHOT")
 val sonatypeUsername = System.getenv("ORG_GRADLE_PROJECT_mavenCentralUsername") ?: ""
 val sonatypePassword = System.getenv("ORG_GRADLE_PROJECT_mavenCentralPassword") ?: ""
 val versionName = System.getenv("VERSION_NAME") ?: project.property("VERSION_NAME").toString()
@@ -166,7 +166,7 @@ publishing {
       name="oss"
       val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
       val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-      url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+      url = if (releaseVersion) releasesRepoUrl else snapshotsRepoUrl
       credentials {
         username = sonatypeUsername
         password = sonatypePassword
@@ -209,6 +209,12 @@ publishing {
 }
 
 signing {
+  setRequired {
+    // signing is required if this is a release version and the artifacts are to be published
+    // do not use hasTask() as this require realization of the tasks that maybe are not necessary
+    releaseVersion && gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
+  }
+  @Suppress("UnstableApiUsage")
   sign(publishing.publications)
 }
 

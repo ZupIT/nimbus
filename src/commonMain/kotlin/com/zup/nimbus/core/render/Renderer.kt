@@ -5,6 +5,9 @@ import com.zup.nimbus.core.tree.RenderAction
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.ServerDrivenState
 import com.zup.nimbus.core.tree.TreeUpdateMode
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 private val statePathRegex = """^(\w+)((?:\.\w+)*)${'$'}""".toRegex()
 
@@ -287,6 +290,7 @@ class Renderer(
    * "myState.foo.bar".
    * @param newValue the new value to set for the state indicated by "path".
    */
+  @OptIn(ExperimentalTime::class)
   fun setState(sourceNode: RenderNode, path: String, newValue: Any?) {
     try {
       val matchResult = statePathRegex.find(path) ?: throw InvalidStatePathError(path)
