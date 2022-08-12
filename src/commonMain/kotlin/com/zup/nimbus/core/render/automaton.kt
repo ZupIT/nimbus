@@ -76,6 +76,7 @@ class DPA (
   it again. When we implement this new strategy, we must remove this memoization to avoid wasting memory. */
   private val memoized = mutableMapOf<String, String>()
 
+  @Suppress("ComplexMethod")
   fun match(input: String): String? {
     if (memoized.containsKey(input)) return memoized[input]
 
