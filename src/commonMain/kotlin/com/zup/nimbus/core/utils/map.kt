@@ -1,5 +1,9 @@
 package com.zup.nimbus.core.utils
 
+import com.zup.nimbus.core.regex.toFastRegex
+
+private val mapAccessPathRegex = """(\w+)(?:\.(.+))?""".toFastRegex()
+
 /**
  * Equivalent to the mapValues operation of a Map, but instead of creating a Map as a result, it creates a MutableMap.
  *
@@ -27,14 +31,14 @@ fun <K, V, T>mapValuesToMutableMap(map: Map<K, V>, iteratee: (entry: Map.Entry<K
  * @throws InvalidDataPathError if the path is invalid
  */
 fun setMapValue(map: MutableMap<String, Any?>, path: String, newValue: Any?) {
-  val regex = """(\w+)(?:\.(.+))?""".toRegex()
-  val matchResult =
-    regex.find(path) ?: throw InvalidDataPathError(path, "Doesn't comply with the regex ${regex.pattern}")
+  val matchResult = mapAccessPathRegex.findWithGroups(path)
+    ?: throw InvalidDataPathError(path, "Doesn't comply with the regex ${mapAccessPathRegex.pattern}")
   val (current, next) = matchResult.destructured
   if (next.isEmpty()) {
     map[current] = newValue
   } else {
     if (map[current] !is MutableMap<*, *>) map[current] = HashMap<String, Any>()
+    @Suppress("UNCHECKED_CAST")
     setMapValue(map[current] as MutableMap<String, Any?>, next, newValue)
   }
 }

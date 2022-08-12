@@ -9,13 +9,13 @@ private val capitalize = getStringOperations()["capitalize"]!!
 class CapitalizeOperationTest {
   @Test
   fun `should capitalize the first letter of a word`() {
-    val result = capitalize(arrayOf("test"))
+    val result = capitalize(listOf("test"))
     assertEquals("Test", result)
   }
 
   @Test
   fun `should capitalize the first letter of the first word of a string`() {
-    val result = capitalize(arrayOf("test the capitalize function"))
+    val result = capitalize(listOf("test the capitalize function"))
     assertEquals("Test the capitalize function", result)
   }
 }

@@ -1,10 +1,10 @@
 package com.zup.nimbus.core.component
 
 import com.zup.nimbus.core.tree.RenderNode
-import com.zup.nimbus.core.utils.valueOf
+import com.zup.nimbus.core.utils.valueOfKey
 
 internal fun ifComponent(node: RenderNode): List<RenderNode> {
-  val condition: Boolean = valueOf(node.properties, "condition")
+  val condition: Boolean = valueOfKey(node.properties, "condition")
   var thenNode: RenderNode? = null
   var elseNode: RenderNode? = null
   node.rawChildren?.forEach {

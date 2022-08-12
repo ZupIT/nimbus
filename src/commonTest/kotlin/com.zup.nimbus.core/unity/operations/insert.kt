@@ -10,7 +10,7 @@ class InsertOperationTest {
   @Test
   fun `should insert at last position when no index is provided`() {
     var list = listOf<Any>("one", "two", "three")
-    list = insert(arrayOf(list, "four")) as List<Any>
+    list = insert(listOf(list, "four")) as List<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[3], "four")
@@ -19,7 +19,7 @@ class InsertOperationTest {
   @Test
   fun `should insert at a indexed position`() {
     var list = listOf<Any>("one", "two", "three")
-    list = insert(arrayOf(list, "four", 1)) as List<Any>
+    list = insert(listOf(list, "four", 1)) as List<Any>
 
     assertEquals(list.size, 4)
     assertEquals(list[0], "one")

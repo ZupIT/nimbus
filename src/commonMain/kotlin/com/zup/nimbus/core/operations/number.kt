@@ -6,7 +6,7 @@ import com.zup.nimbus.core.utils.minus
 import com.zup.nimbus.core.utils.plus
 import com.zup.nimbus.core.utils.times
 
-private fun toNumberList(values: Array<Any?>): List<Number> {
+private fun toNumberList(values: List<Any?>): List<Number> {
   val result = ArrayList<Number>()
   values.forEach {
     if (it is Number) result.add(it)

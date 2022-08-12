@@ -63,12 +63,12 @@ kotlin {
       }
     }
     val commonTest by getting {
-      dependsOn(commonMain)
       dependencies {
         implementation(kotlin("test"))
         implementation(kotlin("test-common"))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
         implementation("io.ktor:ktor-client-mock:$ktorVersion")
+        implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
       }
     }
     val androidMain by getting {
@@ -82,12 +82,14 @@ kotlin {
       dependsOn(commonTest)
       dependencies {
         implementation(kotlin("test-junit"))
-        implementation("junit:junit:4.13.2")
       }
     }
     val iosX64Main by getting
     val iosArm64Main by getting
     val iosSimulatorArm64Main by getting
+    val iosX64Test by getting
+    val iosArm64Test by getting
+    val iosSimulatorArm64Test by getting
     val iosMain by creating {
       dependsOn(commonMain)
       iosX64Main.dependsOn(this)
@@ -99,6 +101,9 @@ kotlin {
     }
     val iosTest by creating {
       dependsOn(commonTest)
+      iosX64Test.dependsOn(this)
+      iosArm64Test.dependsOn(this)
+      iosSimulatorArm64Test.dependsOn(this)
     }
   }
 }
@@ -110,6 +115,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     }
   }
 }
+
+tasks.register<Copy>("copyiOSTestResources") {
+  from("src/commonTest/resources")
+  into("build/bin/iosX64/debugTest/resources")
+}
+
+tasks.findByName("iosX64Test")!!.dependsOn("copyiOSTestResources")
 
 android {
   compileSdk = 31

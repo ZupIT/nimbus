@@ -1,8 +1,9 @@
 package com.zup.nimbus.core.utils
 
+import com.zup.nimbus.core.regex.toFastRegex
 import kotlin.reflect.KClass
 
-private val dataPathRegex = """(?:^[^\.\[\]]+)|(?:\.[^\.\[\]]+)|\[\d+\]""".toRegex()
+private val dataPathRegex = """(?:^[^\.\[\]]+)|(?:\.[^\.\[\]]+)|\[\d+\]""".toFastRegex()
 
 class InvalidDataPathError(path: String, cause: String): Error() {
   override val message = "Error while obtaining data from a path. The following path is invalid: $path.\nCause: $cause}"
@@ -25,7 +26,8 @@ class UnexpectedDataTypeError(
 
 fun extractValueOfArray(data: Any, accessor: String, path: String): Any? {
   try {
-    val index = ("""\d+""".toRegex().find(accessor)!!.value).toInt()
+    // remove brackets and convert to int
+    val index = accessor.drop(1).dropLast(1).toInt()
     return if (data is List<*> && index < data.size) data[index] else null
   } catch (e: Throwable) {
     throw if (e is NumberFormatException || e is NullPointerException) {
@@ -35,7 +37,7 @@ fun extractValueOfArray(data: Any, accessor: String, path: String): Any? {
 }
 
 fun extractValueOfMap(data: Any, accessor: String): Any? {
-  val key = accessor.replace(".", "")
+  val key = removePrefix(accessor, ".")
   return if (data is Map<*, *>) data[key] else null
 }
 
@@ -69,14 +71,44 @@ fun extractValueOfMap(data: Any, accessor: String): Any? {
  * the same as the expected type (T).
  */
 @Throws(InvalidDataPathError::class, UnexpectedDataTypeError::class)
-inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
-  val current = untypedValueOf(data, path)
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T>valueOfPath(data: Any?, path: String = ""): T {
+  val result = untypedValueOfPath(data, path)
   try {
-    @Suppress("UNCHECKED_CAST")
-    return current as T
+    return result as T
   } catch (e: Throwable) {
     if (e is ClassCastException || e is NullPointerException) {
-      throw UnexpectedDataTypeError(path, T::class, current)
+      throw UnexpectedDataTypeError(path, T::class, result)
+    }
+    throw e
+  }
+}
+
+/**
+ * Similar to valueOfPath, but doesn't consider multiple levels of a map, i.e. doesn't split the String passed as
+ * parameter by the character "." or tries to access deep properties.
+ *
+ * This function is much faster than `valueOfPath`, if you're sure you don't need to access multiple levels of a map,
+ * use this instead.
+ *
+ * If `data` is not a map and T is nullable, null is returned.
+ *
+ * @param data the data source to get the return value from.
+ * @param key the key to the item we want in `data`.
+ * @return the value casted to the expected type.
+ * @throws UnexpectedDataTypeError if the type of the encountered result (or null if no result is encountered) is not
+ * the same as the expected type (T).
+ */
+@Throws(UnexpectedDataTypeError::class)
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T>valueOfKey(data: Any?, key: String = ""): T {
+  var result: Any? = null
+  try {
+    result = if (data !is Map<*, *>) null as T else data[key] as T
+    return result
+  } catch (e: Throwable) {
+    if (e is ClassCastException || e is NullPointerException) {
+      throw UnexpectedDataTypeError(key, T::class, result)
     }
     throw e
   }
@@ -104,11 +136,11 @@ inline fun <reified T>valueOf(data: Any?, path: String = ""): T {
  * @param path the path to the item we want in `data`.
  * @return the value casted to the expected type.
  */
-fun untypedValueOf(data: Any?, path: String = ""): Any? {
+fun untypedValueOfPath(data: Any?, path: String = ""): Any? {
   var current: Any? = data
   val accessors = dataPathRegex.findAll(path).iterator()
   while (current != null && accessors.hasNext()) {
-    val accessor = accessors.next().value
+    val accessor = accessors.next()
     val isArray = accessor.startsWith("[")
     current = if (isArray) extractValueOfArray(current, accessor, path) else extractValueOfMap(current, accessor)
   }
@@ -117,26 +149,26 @@ fun untypedValueOf(data: Any?, path: String = ""): Any? {
 }
 
 /**
- * Same as valueOf, but returns an Enum instead.
+ * Same as valueOfPath, but returns an Enum instead.
  *
  * @param data the data structure to fetch the enum from.
- * @param path the path at `data` to look for the enum string.
+ * @param key the path at `data` to look for the enum string.
  * @return the enum value.
  * @throws InvalidDataPathError if an error is encountered while evaluating the path string.
  * @throws UnexpectedDataTypeError if null was found, but no default value was provided; if the value encountered is
  * not a String; or if the value encountered is a String but doesn't correspond to any value in the enum.
  */
 @Throws(InvalidDataPathError::class, UnexpectedDataTypeError::class)
-inline fun <reified T : Enum<T>> valueOfEnum(data: Any?, path: String = "", defaultValue: T?): T {
-  val stringValue: String? = valueOf(data, path)
+inline fun <reified T : Enum<T>> valueOfEnum(data: Any?, key: String = "", defaultValue: T?): T {
+  val stringValue: String? = valueOfKey(data, key)
   return try {
     if (stringValue == null) (defaultValue ?: throw IllegalArgumentException("")) else enumValueOf(stringValue)
   } catch (e: IllegalArgumentException) {
-    val at = if (path.isEmpty()) "" else """ at "$path""""
+    val at = if (key.isEmpty()) "" else """ at "$key""""
     val expected = enumValues<T>().joinToString(", ")
     val found = stringValue ?: "null"
     val message = """Unexpected enum string$at. Expected one of: "$expected", found "$found"."""
-    throw UnexpectedDataTypeError(path, Enum::class, stringValue, message)
+    throw UnexpectedDataTypeError(key, Enum::class, stringValue, message)
   }
 }
 

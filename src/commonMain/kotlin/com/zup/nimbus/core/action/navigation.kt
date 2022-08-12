@@ -8,11 +8,11 @@ import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
-import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
+import com.zup.nimbus.core.utils.valueOfKey
 
 private fun getFallback(actionProperties: Map<String, *>?, idManager: IdManager, logger: Logger): RenderNode? {
-  val fallback: Map<String, Any?> = valueOf(actionProperties, "fallback") ?: return null
+  val fallback: Map<String, Any?> = valueOfKey(actionProperties, "fallback") ?: return null
   return try {
     RenderNode.fromMap(fallback, idManager)
   } catch (e: MalformedComponentError) {
@@ -25,9 +25,9 @@ private fun requestFromEvent(event: ActionEvent): ViewRequest {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   return ViewRequest(
-    url = valueOf(properties, "url"),
+    url = valueOfKey(properties, "url"),
     method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
-    headers = valueOf(properties, "headers"),
+    headers = valueOfKey(properties, "headers"),
     fallback = getFallback(properties, event.view.nimbusInstance.idManager, logger),
   )
 }
@@ -50,7 +50,7 @@ internal fun pop(event: ActionEvent) = event.view.getNavigator().pop()
 internal fun popTo(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   try {
-    event.view.getNavigator().popTo(valueOf(event.action.properties, "url"))
+    event.view.getNavigator().popTo(valueOfKey(event.action.properties, "url"))
   } catch (e: UnexpectedDataTypeError) {
     logger.error("Error while navigating.\n${e.message}")
   }
@@ -62,7 +62,7 @@ internal fun dismiss(event: ActionEvent) = event.view.getNavigator().dismiss()
 
 internal fun onPushOrPresentRendered(event: ActionEvent) {
   try {
-    val prefetch: Boolean = valueOf(event.action.properties, "prefetch") ?: false
+    val prefetch: Boolean = valueOfKey(event.action.properties, "prefetch") ?: false
     if (!prefetch) return
     val request = requestFromEvent(event)
     event.view.nimbusInstance.viewClient.preFetch(request)

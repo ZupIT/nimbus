@@ -6,15 +6,15 @@ import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.RenderNode
 import com.zup.nimbus.core.tree.TreeUpdateMode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
-import com.zup.nimbus.core.utils.valueOf
 import com.zup.nimbus.core.utils.valueOfEnum
+import com.zup.nimbus.core.utils.valueOfKey
 
 internal fun setContent(event: ActionEvent) {
   val logger = event.view.nimbusInstance.logger
   val properties = event.action.properties
   try {
-    val id: String = valueOf(properties, "id")
-    val value: Map<String, Any?> = valueOf(properties, "value")
+    val id: String = valueOfKey(properties, "id")
+    val value: Map<String, Any?> = valueOfKey(properties, "value")
     val mode: TreeUpdateMode = valueOfEnum(properties, "mode", TreeUpdateMode.Append)
     val valueAsTree = RenderNode.fromMap(value, event.view.nimbusInstance.idManager)
     event.view.renderer.paint(valueAsTree, id, mode)

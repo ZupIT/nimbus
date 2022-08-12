@@ -10,8 +10,8 @@ private val lt = getNumberOperations()["lt"]!!
 class LtOperationTest {
   @Test
   fun `should compare two numbers and tell that a is lesser than b`() {
-    assertTrue { lt(arrayOf(4, 5)) as Boolean }
-    assertTrue { lt(arrayOf(5.4566, 5.4567)) as Boolean }
-    assertFalse { lt(arrayOf(5.4566, 5)) as Boolean }
+    assertTrue { lt(listOf(4, 5)) as Boolean }
+    assertTrue { lt(listOf(5.4566, 5.4567)) as Boolean }
+    assertFalse { lt(listOf(5.4566, 5)) as Boolean }
   }
 }

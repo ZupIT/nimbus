@@ -10,8 +10,8 @@ private val gt = getNumberOperations()["gt"]!!
 class GtOperationTest {
   @Test
   fun `should compare two numbers and tell if a is greater than b`() {
-    assertTrue { gt(arrayOf(5, 4)) as Boolean }
-    assertTrue { gt(arrayOf(5.4567, 5.4566)) as Boolean }
-    assertFalse { gt(arrayOf(5, 5.4566)) as Boolean }
+    assertTrue { gt(listOf(5, 4)) as Boolean }
+    assertTrue { gt(listOf(5.4567, 5.4566)) as Boolean }
+    assertFalse { gt(listOf(5, 5.4566)) as Boolean }
   }
 }

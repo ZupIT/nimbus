@@ -1,9 +1,12 @@
 package com.zup.nimbus.core.operations
 
 import com.zup.nimbus.core.OperationHandler
+import com.zup.nimbus.core.regex.replace
+import com.zup.nimbus.core.regex.matches
+import com.zup.nimbus.core.regex.toFastRegex
 
-private fun toStringList(values: Array<Any?>): List<String> {
-  return values.toList().filterIsInstance<String>()
+private fun toStringList(values: List<Any?>): List<String> {
+  return values.filterIsInstance<String>()
 }
 
 internal fun getStringOperations(): Map<String, OperationHandler> {
@@ -19,11 +22,11 @@ internal fun getStringOperations(): Map<String, OperationHandler> {
     },
     "match" to {
       val (value, regex) = toStringList(it)
-      value.matches(regex.toRegex())
+      value.matches(regex.toFastRegex())
     },
     "replace" to {
       val (value, regex, replace) = toStringList(it)
-      value.replace(regex.toRegex(), replace)
+      value.replace(regex.toFastRegex(), replace)
     },
     "substr" to {
       val value = it[0] as String
