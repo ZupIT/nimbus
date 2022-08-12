@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 
 private const val MAX_AVERAGE_UPDATE_TIME_MS = 30
 private const val FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS = 40
-private const val SHOULD_PRINT_TIMES = true
+private const val SHOULD_PRINT_TIMES = false
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {
