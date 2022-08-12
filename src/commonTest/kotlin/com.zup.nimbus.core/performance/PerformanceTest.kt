@@ -19,7 +19,8 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 private const val MAX_AVERAGE_UPDATE_TIME_MS = 30
-private const val SHOULD_PRINT_TIMES = true
+private const val FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS = 40
+private const val SHOULD_PRINT_TIMES = false
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {
@@ -51,11 +52,10 @@ class PerformanceTest {
     return "${intValue}.$decimalValue"
   }
 
-  @Test
-  fun shouldAddToCartInReasonableTime() = scope.runTest {
-    val screenJson = JsonLoader.loadJson("products")
+  private suspend fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
+    val json = JsonLoader.loadJson(jsonFileName)
     val nimbus = Nimbus(ServerDrivenConfig("", "test", operations = operations))
-    val node = nimbus.createNodeFromJson(screenJson)
+    val node = nimbus.createNodeFromJson(json)
     val page = nimbus.createView({ EmptyNavigator() })
     val observer = page.observe()
     val started = Clock.System.now().toEpochMilliseconds()
@@ -69,6 +69,7 @@ class PerformanceTest {
 
     if (SHOULD_PRINT_TIMES) {
       println("==========================")
+      println("Times for $jsonFileName:")
       println("1st render: ${times[0]}ms")
       println("best update: ${updates.min()}ms")
       println("worst update: ${updates.max()}ms")
@@ -76,6 +77,16 @@ class PerformanceTest {
       println("==========================")
     }
 
-    assertTrue(updates.average() < MAX_AVERAGE_UPDATE_TIME_MS)
+    assertTrue(updates.average() < maxTimeMs)
+  }
+
+  @Test
+  fun `should add to cart in reasonable time - without forEach`() = scope.runTest {
+    runPerformanceTest("products", MAX_AVERAGE_UPDATE_TIME_MS)
+  }
+
+  @Test
+  fun `should add to cart in reasonable time - with forEach`() = scope.runTest {
+    runPerformanceTest("products-forEach", FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS)
   }
 }
