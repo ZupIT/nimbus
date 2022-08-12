@@ -1,7 +1,6 @@
 package com.zup.nimbus.core.performance
 
 import com.zup.nimbus.core.EmptyNavigator
-import com.zup.nimbus.core.regex.FastRegex
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
@@ -16,9 +15,11 @@ import kotlinx.datetime.Clock
 import kotlin.math.pow
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+
+private const val MAX_AVERAGE_UPDATE_TIME_MS = 30
+private const val SHOULD_PRINT_TIMES = true
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {
@@ -65,11 +66,16 @@ class PerformanceTest {
       times.add(addToCart(observer, i, i + 1))
     }
     val updates = times.drop(1)
-    println("==========================")
-    println("1st render: ${times[0]}ms")
-    println("best update: ${updates.min()}ms")
-    println("worst update: ${updates.max()}ms")
-    println("average update: ${toFixed(updates.average())}ms")
-    println("==========================")
+
+    if (SHOULD_PRINT_TIMES) {
+      println("==========================")
+      println("1st render: ${times[0]}ms")
+      println("best update: ${updates.min()}ms")
+      println("worst update: ${updates.max()}ms")
+      println("average update: ${toFixed(updates.average())}ms")
+      println("==========================")
+    }
+
+    assertTrue(updates.average() < MAX_AVERAGE_UPDATE_TIME_MS)
   }
 }

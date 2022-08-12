@@ -9,8 +9,8 @@ import com.zup.nimbus.core.utils.valueOfKey
 //  should look into it before releasing a stable version (1.0.0).
 
 private fun getIterationKey(item: Any?, key: String?, index: Int): String {
-  val keyValue: String? = if (key == null) null else valueOfKey(item, key)
-  return keyValue ?: "$index"
+  val keyValue: Any? = if (key == null) null else valueOfKey(item, key)
+  return if (keyValue == null) "$index" else "$keyValue"
 }
 
 private fun deepCopyChildren(children: List<RenderNode>?, iterationKey: String): List<RenderNode>? {
