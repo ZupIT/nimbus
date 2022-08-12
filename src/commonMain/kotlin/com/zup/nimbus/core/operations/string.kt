@@ -5,8 +5,8 @@ import com.zup.nimbus.core.regex.replace
 import com.zup.nimbus.core.regex.matches
 import com.zup.nimbus.core.regex.toFastRegex
 
-private fun toStringList(values: Array<Any?>): List<String> {
-  return values.toList().filterIsInstance<String>()
+private fun toStringList(values: List<Any?>): List<String> {
+  return values.filterIsInstance<String>()
 }
 
 internal fun getStringOperations(): Map<String, OperationHandler> {

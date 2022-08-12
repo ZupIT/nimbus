@@ -10,11 +10,11 @@ private val isNull = getOtherOperations()["isNull"]!!
 class IsNullOperationTest {
   @Test
   fun `should return true when the parameter is null`() {
-    assertTrue { isNull(arrayOf(null)) as Boolean }
+    assertTrue { isNull(listOf(null)) as Boolean }
   }
 
   @Test
   fun `should return false when the parameter is not null`() {
-    assertFalse { isNull(arrayOf("")) as Boolean }
+    assertFalse { isNull(listOf("")) as Boolean }
   }
 }

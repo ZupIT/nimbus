@@ -11,15 +11,15 @@ class LengthOperationTest {
   @Test
   fun `should return the correct length of a list`() {
     var list = listOf(1,2,3,4,5)
-    var result = length(arrayOf(list))
+    var result = length(listOf(list))
     assertEquals(5, result)
 
     list = emptyList()
-    result = length(arrayOf(list))
+    result = length(listOf(list))
     assertEquals(0, result)
 
     list = mutableListOf(1,2,3,4,5)
-    result = length(arrayOf(list))
+    result = length(listOf(list))
     assertEquals(5, result)
   }
 
@@ -32,11 +32,11 @@ class LengthOperationTest {
       "four" to 4,
       "five" to 5
     )
-    var result = length(arrayOf(map))
+    var result = length(listOf(map))
     assertEquals(5, result)
 
     map = emptyMap<String, Int>()
-    result = length(arrayOf(map))
+    result = length(listOf(map))
     assertEquals(0, result)
 
     map = mutableMapOf(
@@ -46,22 +46,22 @@ class LengthOperationTest {
       "four" to 4,
       "five" to 5
     )
-    result = length(arrayOf(map))
+    result = length(listOf(map))
     assertEquals(5, result)
   }
 
   @Test
   fun `should return the correct length of a string`() {
     var string = "Test"
-    var result = length(arrayOf(string))
+    var result = length(listOf(string))
     assertEquals(4, result)
 
     string = "This is a test"
-    result = length(arrayOf(string))
+    result = length(listOf(string))
     assertEquals(14, result)
 
     string = ""
-    result = length(arrayOf(string))
+    result = length(listOf(string))
     assertEquals(0, result)
   }
 }

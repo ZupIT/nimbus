@@ -19,17 +19,17 @@ private val pathRegex = """^([^\.\[\]]+)\.?(.*)""".toFastRegex()
 
 private val dpaTransitions: Map<String, List<Transition>> = mapOf(
   "initial" to listOf(
-    Transition(""",|$""".toFastRegex(), null, null, "final"), // end of parameter
+    Transition(""",|$""", true, null, null, "final"), // end of parameter
     Transition("(", "(", null, "insideParameterList"), // start of a parameter list
-    Transition("""'([^']|(\\.))*'""".toFastRegex(), null, null, "initial"), // strings
-    Transition("""[^)]""".toFastRegex(), null, null, "initial"), // general symbols
+    Transition("""'([^']|(\\.))*'""", true, null, null, "initial"), // strings
+    Transition("""[^)]""", true, null, null, "initial"), // general symbols
   ),
   "insideParameterList" to listOf(
     Transition("(", "(", null, "insideParameterList"), // start of another parameter list
     // end of a parameter list, check if still inside a parameter list
     Transition(")", null, "(", "isParameterListOver"),
-    Transition("""'([^']|(\\.))*'""".toFastRegex(), null, null, "insideParameterList"), // strings
-    Transition(".".toFastRegex(), null, null, "insideParameterList"), // general symbols
+    Transition("""'([^']|(\\.))*'""", true, null, null, "insideParameterList"), // strings
+    Transition(".", true, null, null, "insideParameterList"), // general symbols
   ),
   "isParameterListOver" to listOf(
     Transition(null, DPA.Symbols.EMPTY, "initial"), // end of parameter list, go back to initial state
@@ -37,10 +37,11 @@ private val dpaTransitions: Map<String, List<Transition>> = mapOf(
     Transition(null, null, "insideParameterList"),
   ),
 )
+
 private val dpa = DPA("initial", "final", dpaTransitions)
 
 private fun parseParameters(parameterString: String): List<String> {
-  val parameters: MutableList<String> = mutableListOf()
+  val parameters = mutableListOf<String>()
   var position = 0
 
   while (position < parameterString.length) {
@@ -92,7 +93,7 @@ private fun getLiteralValue(literal: String): Any? {
   }
 
   if (literal.startsWith("'") && literal.endsWith("'")) {
-    return literal.drop(1).dropLast(1).replace("\\'", "'")
+    return literal.drop(1).dropLast(1).replace("""\'""", "'")
   }
 
   return null
@@ -115,7 +116,7 @@ private fun getOperationValue(
   val params = parseParameters(paramString)
   val resolvedParams = params.map { param ->
     evaluateExpression(param, stateHierarchy, operationHandlers, logger)
-  }.toTypedArray()
+  }
 
   val operationHandler = operationHandlers[operationName]
   if (operationHandler != null) {

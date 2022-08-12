@@ -9,7 +9,7 @@ private val concat = getOtherOperations()["concat"]!!
 class ConcatOperationTest {
   @Test
   fun `should concat all the string into a single one`() {
-    val result = concat(arrayOf("one", "-two-", "three"))
+    val result = concat(listOf("one", "-two-", "three"))
     assertEquals("one-two-three", result)
   }
 
@@ -18,7 +18,7 @@ class ConcatOperationTest {
     val a = listOf(1, 2, 3)
     val b = listOf("a", "b", "c")
     val c = listOf(1, true, "c")
-    val result = concat(arrayOf(a, b, c)) as List<Any>
+    val result = concat(listOf(a, b, c)) as List<Any>
 
     assertEquals(9, result.size)
     assertEquals(1, result[0])

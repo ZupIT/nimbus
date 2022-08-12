@@ -4,6 +4,8 @@ package com.zup.nimbus.core.render
 import com.zup.nimbus.core.regex.FastRegex
 import com.zup.nimbus.core.regex.toFastRegex
 
+private const val MAX_MEMOIZED_KEYS = 1000
+
 class Transition {
   val readString: String?
   val readRegex: FastRegex?
@@ -19,21 +21,20 @@ class Transition {
     this.next = next
   }
 
-  constructor(read: String?, push: String?, pop: String?, next: String) {
-    readString = read
-    readRegex = null
+  constructor(read: String?, isRegex: Boolean, push: String?, pop: String?, next: String) {
+    if (isRegex) {
+      readString = null
+      readRegex = if (read == null) read else """^($read)""".toFastRegex()
+    } else {
+      readString = read
+      readRegex = null
+    }
     this.push = push
     this.pop = pop
     this.next = next
   }
 
-  constructor(read: FastRegex?, push: String?, pop: String?, next: String) {
-    readString = null
-    readRegex = read
-    this.push = push
-    this.pop = pop
-    this.next = next
-  }
+  constructor(read: String?, push: String?, pop: String?, next: String) : this(read, false, push, pop, next)
 }
 
 /**
@@ -70,7 +71,14 @@ class DPA (
   object Symbols {
     const val EMPTY = "∅"
   }
+
+  /* A better idea than to memoize this result is to compile the expression in the first render and never care about
+  it again. When we implement this new strategy, we must remove this memoization to avoid wasting memory. */
+  private val memoized = mutableMapOf<String, String>()
+
   fun match(input: String): String? {
+    if (memoized.containsKey(input)) return memoized[input]
+
     val stack: MutableList<String> = mutableListOf()
     var currentState = initial
     var remainingInput = input
@@ -89,7 +97,7 @@ class DPA (
         return remainingInput.startsWith(transition.readString)
       }
 
-      val value = """^(${transition.readRegex?.pattern})""".toFastRegex().find(remainingInput) ?: return false
+      val value = transition.readRegex?.find(remainingInput) ?: return false
       matchedValue = value
       return true
     }
@@ -105,6 +113,9 @@ class DPA (
       if (transition.push != null) stack.add(transition.push)
     }
 
-    return input.substring(0, input.length - remainingInput.length)
+    val result = input.substring(0, input.length - remainingInput.length)
+    if (memoized.size > MAX_MEMOIZED_KEYS) memoized.remove(memoized.keys.first())
+    memoized[input] = result
+    return result
   }
 }

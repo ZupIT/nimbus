@@ -3,8 +3,8 @@ package com.zup.nimbus.core.operations
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.utils.then
 
-private fun toBooleanList(values: Array<Any?>): List<Boolean> {
-  return values.toList().filterIsInstance<Boolean>()
+private fun toBooleanList(values: List<Any?>): List<Boolean> {
+  return values.filterIsInstance<Boolean>()
 }
 
 internal fun getLogicOperations(): Map<String, OperationHandler> {

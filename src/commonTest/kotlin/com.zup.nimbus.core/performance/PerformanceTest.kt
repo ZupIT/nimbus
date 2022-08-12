@@ -17,11 +17,12 @@ import kotlin.math.pow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {
-  /*private val scope = TestScope()
+  private val scope = TestScope()
 
   private val operations = mapOf<String, OperationHandler>(
     "formatPrice" to { "US$ ${it[0]}" }
@@ -37,8 +38,8 @@ class PerformanceTest {
     val elapsed = Clock.System.now().toEpochMilliseconds() - started
     val newButton = NodeUtils.findById(content, "add-to-cart:$productId")
     val inCartText = NodeUtils.findById(content, "in-cart:$productId")
-    //assertNull(newButton)
-    //assertEquals("In cart ✓", inCartText?.properties?.get("text"))
+    assertNull(newButton)
+    assertEquals("In cart ✓", inCartText?.properties?.get("text"))
     return elapsed
   }
 
@@ -49,13 +50,9 @@ class PerformanceTest {
     return "${intValue}.$decimalValue"
   }
 
-  private fun functionTime(functionName: String, time: Long, total: Long): String {
-    return "$functionName(): ${time}ms (${toFixed(time * 100.0 / total)}%)"
-  }
-
   @Test
   fun shouldAddToCartInReasonableTime() = scope.runTest {
-    val screenJson = JsonLoader.loadJson("ifless-products")
+    val screenJson = JsonLoader.loadJson("products")
     val nimbus = Nimbus(ServerDrivenConfig("", "test", operations = operations))
     val node = nimbus.createNodeFromJson(screenJson)
     val page = nimbus.createView({ EmptyNavigator() })
@@ -74,7 +71,5 @@ class PerformanceTest {
     println("worst update: ${updates.max()}ms")
     println("average update: ${toFixed(updates.average())}ms")
     println("==========================")
-  }*/
-
-
+  }
 }
