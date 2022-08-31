@@ -19,8 +19,8 @@ interface ServerDrivenNode {
    */
   val children: List<ServerDrivenNode>?
   /**
-   * Whether this node needs to be updated or not. For now, this must be fully controlled by the UI Layer, which
-   * can choose to use it or not.
+   * Whether this node needs to be updated or not. If the UI layer decides to use this, it must set it to false once
+   * the node is rendered.
    */
   var dirty: Boolean
 }
