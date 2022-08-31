@@ -37,6 +37,7 @@ class Renderer(
    * @param extraStates use this to declare states that should be implicit.
    * @return the resolved value.
    */
+  @Suppress("NestedBlockDepth")
   private fun resolveProperty(
     value: Any?,
     key: String,
