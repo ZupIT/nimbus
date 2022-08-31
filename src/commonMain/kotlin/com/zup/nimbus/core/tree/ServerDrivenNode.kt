@@ -18,4 +18,9 @@ interface ServerDrivenNode {
    * The children of this node. If this is a leaf-node, children will be null or an empty map.
    */
   val children: List<ServerDrivenNode>?
+  /**
+   * Whether this node needs to be updated or not. For now, this must be fully controlled by the UI Layer, which
+   * can choose to use it or not.
+   */
+  var dirty: Boolean
 }

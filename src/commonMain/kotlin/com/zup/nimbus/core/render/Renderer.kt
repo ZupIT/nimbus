@@ -18,6 +18,13 @@ class Renderer(
 ) {
   private val logger = view.nimbusInstance.logger
   private val structuralComponents = view.nimbusInstance.structuralComponents
+  // fixme: remove this once we have an efficient compilation process that runs before the first render of a node.
+  //  intentional BUG: we're gonna recall the action using its key as the id. If an action has the same name as another
+  //  action in the same node, this will bug out! Example: { onChange: { perform: action } },
+  //  { onBlur: { perform: action } }: both actions are named "perform" and will be considered the same, although they
+  //  shouldn't.
+  //  Attention: this must be fixed before a stable version is released.
+  private val memoizedActions = HashMap<String, HashMap<String, (Any?) -> Unit>>()
 
   /**
    * Resolves the property "value" of "node" recursively.
@@ -39,16 +46,21 @@ class Renderer(
     if (value is List<*>) {
       if (RenderAction.isActionList(value)) {
         try {
-          return deserializeActions(
-            actionList = RenderAction.createActionList(value),
-            event = key,
-            node = node,
-            view = view,
-            extraStates = extraStates,
-            resolve = { propertyValue, propertyKey, implicitStates ->
-              resolveProperty(propertyValue, propertyKey, node, implicitStates)
-            },
-          )
+          val memoized = memoizedActions[node.id] ?: HashMap()
+          memoizedActions[node.id] = memoized
+          if (!memoized.containsKey(key)) {
+            memoized[key] = deserializeActions(
+              actionList = RenderAction.createActionList(value),
+              event = key,
+              node = node,
+              view = view,
+              extraStates = extraStates,
+              resolve = { propertyValue, propertyKey, implicitStates ->
+                resolveProperty(propertyValue, propertyKey, node, implicitStates)
+              }
+            )
+          }
+          return memoized[key]
         } catch (error: MalformedActionListError) {
           throw RenderingError(error.message)
         }
@@ -71,9 +83,12 @@ class Renderer(
    * @param node the node to resolve.
    */
   private fun resolve(node: RenderNode) {
+    val previousHash = node.properties?.hashCode() ?: 0
     node.properties = node.rawProperties?.mapValues {
       resolveProperty(it.value, it.key, node, emptyList())
     }
+    val nextHash = node.properties?.hashCode() ?: 0
+    node.dirty = node.dirty || previousHash != nextHash
     node.isRendered = true
   }
 
@@ -118,6 +133,11 @@ class Renderer(
       val componentBuilder = structuralComponents[child.component]
       if (componentBuilder == null) children.add(child)
       else children.addAll(buildStructuralComponent(child, componentBuilder, node.stateHierarchy!!))
+    }
+    if (!node.dirty) {
+      val previousStructure = node.children?.map { it.id }
+      val nextStructure = children.map { it.id }
+      node.dirty = previousStructure != nextStructure
     }
     node.children = children
   }
