@@ -8,6 +8,7 @@ import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.ViewObserver
 import com.zup.nimbus.core.observe
+import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -42,6 +43,7 @@ class PerformanceTest {
     val inCartText = NodeUtils.findById(content, "in-cart:$productId")
     assertNull(newButton)
     assertEquals("In cart ✓", inCartText?.properties?.get("text"))
+    clean(content)
     return elapsed
   }
 
@@ -50,6 +52,11 @@ class PerformanceTest {
     val base = 10.0
     val decimalValue = ((num - intValue) * base.pow(cases)).toInt()
     return "${intValue}.$decimalValue"
+  }
+
+  private fun clean(node: ServerDrivenNode) {
+    node.dirty = false
+    node.children?.forEach { clean(it) }
   }
 
   private suspend fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
@@ -62,6 +69,7 @@ class PerformanceTest {
     page.renderer.paint(node)
     observer.waitForChanges()
     val times = mutableListOf(Clock.System.now().toEpochMilliseconds() - started)
+    clean(observer.history.last())
     for (i in 1..20) {
       times.add(addToCart(observer, i, i + 1))
     }

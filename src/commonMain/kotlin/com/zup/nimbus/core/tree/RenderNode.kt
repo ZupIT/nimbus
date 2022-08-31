@@ -40,6 +40,7 @@ class RenderNode(
   implicitStates: Map<String, Any?>?,
   stateId: String?,
   stateValue: Any?,
+  override var dirty: Boolean = true,
 ): ServerDrivenNode {
   companion object {
     /**
