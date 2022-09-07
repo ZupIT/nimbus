@@ -5,7 +5,7 @@ import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.tree.MalformedComponentError
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
-
+/*
 @OptIn(ExperimentalCoroutinesApi::class)
 class ObservableNavigator(
   private val scope: TestScope,
@@ -55,3 +55,4 @@ class ObservableNavigator(
     // no need create an integration test for this (similar to pop)
   }
 }
+*/

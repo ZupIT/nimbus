@@ -1,9 +1,8 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import kotlinx.coroutines.CompletableDeferred
-
+/*
 class ViewObserver(view: ServerDrivenView) {
   var history = ArrayList<ServerDrivenNode>()
   private var changeCallback: (() -> Unit)? = null
@@ -33,3 +32,4 @@ class ViewObserver(view: ServerDrivenView) {
 fun ServerDrivenView.observe(): ViewObserver {
   return ViewObserver(this)
 }
+*/

@@ -3,7 +3,8 @@ package com.zup.nimbus.core.action
 import com.zup.nimbus.core.network.FIRST_BAD_STATUS
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ServerDrivenRequest
-import com.zup.nimbus.core.render.ActionEvent
+import com.zup.nimbus.core.ActionTriggeredEvent
+import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
@@ -16,8 +17,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
-internal fun sendRequest(event: ActionEvent) {
-  val nimbus = event.view.nimbusInstance
+internal fun sendRequest(event: ActionTriggeredEvent) {
+  val nimbus = event.origin.view.nimbusInstance
   val properties = event.action.properties
   try {
     // deserialize parameters
@@ -25,9 +26,9 @@ internal fun sendRequest(event: ActionEvent) {
     val method: ServerDrivenHttpMethod = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get)
     val data: Any? = valueOfKey(properties, "data")
     val headers: Map<String, String>? = valueOfKey(properties, "headers")
-    val onSuccess: ((successResponse: Map<String, Any?>) -> Unit)? = valueOfKey(properties, "onSuccess")
-    val onError: ((errorResponse: Map<String, Any?>) -> Unit)? = valueOfKey(properties, "onError")
-    val onFinish: ((_: Any?) -> Unit)? = valueOfKey(properties, "onFinish")
+    val onSuccess: ServerDrivenEvent? = valueOfKey(properties, "onSuccess")
+    val onError: ServerDrivenEvent? = valueOfKey(properties, "onError")
+    val onFinish: ServerDrivenEvent? = valueOfKey(properties, "onFinish")
 
     // create request and coroutine scope
     val request = ServerDrivenRequest(
@@ -54,16 +55,16 @@ internal fun sendRequest(event: ActionEvent) {
         }
         // todo: verify
         if (response.status >= FIRST_BAD_STATUS) @Suppress("TooGenericExceptionThrown") throw Error(statusText)
-        if (onSuccess != null) onSuccess(callbackData)
+        onSuccess?.run(callbackData)
       } catch (e: Throwable) {
         nimbus.logger.error("Unable to send request.\n${e.message ?: ""}")
-        if (onError != null) onError(mapOf(
+        onError?.run(mapOf(
           "status" to 0,
           "statusText" to "Unable to send request",
           "message" to (e.message ?: "Unknown error."),
         ))
       }
-      if (onFinish != null) onFinish(null)
+      onFinish?.run()
     }
   } catch (e: Throwable) {
     nimbus.logger.error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")

@@ -1,5 +1,5 @@
 package com.zup.nimbus.core.performance
-
+/*
 import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
@@ -8,7 +8,7 @@ import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.ViewObserver
 import com.zup.nimbus.core.observe
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -98,3 +98,4 @@ class PerformanceTest {
     runPerformanceTest("products-forEach", FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS)
   }
 }
+*/

@@ -1,10 +1,9 @@
 package com.zup.nimbus.core.integration
 
 import com.zup.nimbus.core.*
-import com.zup.nimbus.core.render.ActionEvent
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.tree.ServerDrivenAction
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,6 +21,7 @@ class AnalyticsRecord(
 /**
  * A simple analytics service that creates an analytics record if the action has `analytics = true` in its metadata.
  */
+/*
 class MyAnalyticsService {
   var entries = ArrayList<AnalyticsRecord>()
 
@@ -29,12 +29,12 @@ class MyAnalyticsService {
     entries = ArrayList()
   }
 
-  fun createRecord(event: ActionEvent) {
+  fun createRecord(event: ActionTriggeredEvent) {
     if (event.action.metadata?.get("analytics") != true) return
     entries.add(AnalyticsRecord(
       platform = "Test",
       action = event.action,
-      node = event.node,
+      node = event.origin,
       event = event.name,
       screen = event.view.description ?: "unknown",
       timestamp = 98844454548L, // in a real implementation, get the current unix time
@@ -167,3 +167,4 @@ class ActionObserverTest {
     assertTrue(hasRendered)
   }
 }
+*/

@@ -1,11 +1,11 @@
 package com.zup.nimbus.core.action
 
-import com.zup.nimbus.core.render.ActionEvent
+import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfKey
 
-internal fun condition(event: ActionEvent) {
-  val logger = event.view.nimbusInstance.logger
+internal fun condition(event: ActionTriggeredEvent) {
+  val logger = event.origin.view.nimbusInstance.logger
   val properties = event.action.properties
   try {
     val condition: Boolean = valueOfKey(properties, "condition")

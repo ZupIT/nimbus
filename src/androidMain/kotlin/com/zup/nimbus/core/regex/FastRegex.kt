@@ -39,4 +39,21 @@ actual class FastRegex actual constructor(actual val pattern: String) {
       transform(MatchGroups(it.groupValues))
     }
   }
+
+  actual fun <T>transform(
+    input: String,
+    transformUnmatching: (String) -> T,
+    transformMatching: (MatchGroups) -> T,
+  ): List<T> {
+    val matches = regex.findAll(input)
+    val parts = mutableListOf<T>()
+    var next = 0
+    matches.forEach {
+      parts.add(transformUnmatching(input.substring(next, it.range.first)))
+      parts.add(transformMatching(MatchGroups(it.groupValues)))
+      next += it.value.length
+    }
+    parts.add(transformUnmatching(input.substring(next)))
+    return parts
+  }
 }

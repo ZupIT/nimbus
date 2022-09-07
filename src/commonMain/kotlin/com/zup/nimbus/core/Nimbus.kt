@@ -1,51 +1,44 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.action.getCoreActions
-import com.zup.nimbus.core.action.getRenderHandlersForCoreActions
-import com.zup.nimbus.core.component.getCoreComponents
+import com.zup.nimbus.core.action.getInitHandlersForCoreActions
+import com.zup.nimbus.core.ast.ExpressionParser
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
 import com.zup.nimbus.core.network.DefaultViewClient
 import com.zup.nimbus.core.operations.getDefaultOperations
-import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.DefaultIdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.MalformedJsonError
-import com.zup.nimbus.core.tree.ObservableState
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.tree.builder.ActionBuilder
+import com.zup.nimbus.core.tree.builder.EventBuilder
+import com.zup.nimbus.core.tree.builder.NodeBuilder
 
 class Nimbus(config: ServerDrivenConfig) {
   // From config
   val baseUrl = config.baseUrl
   private val platform = config.platform
-  val actions = (getCoreActions() + (config.actions ?: emptyMap())).toMutableMap()
-  val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
+  private val actions = (getCoreActions() + (config.actions ?: emptyMap())).toMutableMap()
+  private val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
   val operations = (getDefaultOperations() + (config.operations?.toMutableMap() ?: emptyMap())).toMutableMap()
   val logger = config.logger ?: DefaultLogger()
   val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
   val httpClient = config.httpClient ?: DefaultHttpClient()
-  val idManager = config.idManager ?: DefaultIdManager()
-  val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, idManager, logger, platform)
-
-  /**
-   * Core components. These don't correspond to real UI components and never reach the UI layer. These components are
-   * used to manipulate the structure of the UI tree and exists only in the core lib.
-   *
-   * The structural components are replaced by their result before being rendered by the UI layer.
-   *
-   * Examples: if (companions: then, else); switch (companions: case, default); foreach.
-   */
-  internal val structuralComponents = getCoreComponents()
+  private val idManager = config.idManager ?: DefaultIdManager()
+  val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, logger, platform)
 
   // Other
-  val globalState = ObservableState("global", null)
-
-  /**
-   * Functions to run once an action goes through the rendering process for the first time.
-   * This is currently used only for performing pre-fetches in navigation actions.
-   */
-  internal val onActionRendered: Map<String, ActionHandler> = getRenderHandlersForCoreActions()
+  val globalState = ServerDrivenState("global", null)
+  private val expressionParser = ExpressionParser(logger, operations)
+  private val actionBuilder = ActionBuilder(
+    actionHandlers = actions,
+    actionInitHandlers = getInitHandlersForCoreActions(),
+    actionObservers = actionObservers,
+    expressionParser = expressionParser,
+    logger = logger,
+  )
+  private val nodeBuilder = NodeBuilder(idManager, expressionParser, actionBuilder)
 
   /**
    * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.
@@ -57,21 +50,7 @@ class Nimbus(config: ServerDrivenConfig) {
    * @return the new ServerDrivenView.
    */
   fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null): ServerDrivenView {
-    return ServerDrivenView(this, getNavigator, description)
-  }
-
-  /**
-   * Creates a RenderNode from a JSON string using the idManager provided in the config (or the default idManager if
-   * none has been provided.
-   *
-   * @param json the json string to deserialize into a RenderNode.
-   * @return the resulting RenderNode.
-   * @throws MalformedJsonError if the string is not a valid json.
-   * @throws MalformedComponentError if a component in the JSON is malformed.
-   */
-  @Throws(MalformedJsonError::class, MalformedComponentError::class)
-  fun createNodeFromJson(json: String): RenderNode {
-    return RenderNode.fromJsonString(json, idManager)
+    return ServerDrivenView(this, getNavigator, description, nodeBuilder)
   }
 
   private fun <T>addAll(target: MutableMap<String, T>, source: Map<String, T>, entity: String) {

@@ -38,7 +38,7 @@ private const val SCREEN = """{
     }
   ]
 }"""
-
+/*
 class StateResolutionTest {
   @Test
   fun shouldResolveStates() {
@@ -55,3 +55,4 @@ class StateResolutionTest {
     assertTrue(hasRendered)
   }
 }
+*/

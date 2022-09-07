@@ -1,5 +1,5 @@
 @file:Suppress("ComplexCondition") // todo: verify
-package com.zup.nimbus.core.render
+package com.zup.nimbus.core.ast
 
 import com.zup.nimbus.core.regex.FastRegex
 import com.zup.nimbus.core.regex.toFastRegex
@@ -64,9 +64,9 @@ class Transition {
  *
  */
 class DPA (
-  private val initial: String,
-  private val final: String,
-  private val transitions: Map<String, List<Transition>>,
+    private val initial: String,
+    private val final: String,
+    private val transitions: Map<String, List<Transition>>,
 ) {
   object Symbols {
     const val EMPTY = "∅"

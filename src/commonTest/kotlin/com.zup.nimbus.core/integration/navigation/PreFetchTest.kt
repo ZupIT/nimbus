@@ -3,7 +3,6 @@ package com.zup.nimbus.core.integration.navigation
 import com.zup.nimbus.core.*
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -11,7 +10,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
+/*
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreFetchTest {
   private val scope = TestScope()
@@ -142,3 +141,4 @@ class PreFetchTest {
     assertTrue(httpClient.entries.isEmpty())
   }
 }
+*/

@@ -9,7 +9,7 @@ import com.zup.nimbus.core.integration.sendRequest.BASE_URL
 import com.zup.nimbus.core.network.DefaultHttpClient
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
+/*
 class OperationsTest {
   private val logger = ObservableLogger()
 
@@ -43,3 +43,5 @@ class OperationsTest {
     assertEquals(3, count)
   }
 }
+*/
+

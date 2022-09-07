@@ -1,8 +1,8 @@
 package com.zup.nimbus.core.network
 
+import com.zup.nimbus.core.RawJsonMap
 import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.utils.parseJsonString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -17,20 +17,19 @@ import kotlinx.serialization.json.Json
 class DefaultViewClient(
   private val httpClient: HttpClient,
   private val urlBuilder: UrlBuilder,
-  private val idManager: IdManager,
   private val logger: Logger,
   private val platform: String,
 ) : ViewClient {
   // used to prevent the ViewClient from launching multiple requests to the same URL in sub-sequent pre-fetches
   private val mutex = Mutex()
   // the keys here are in the format $method:$url
-  private var preFetched = HashMap<String, Deferred<RenderNode>>()
+  private var preFetched = HashMap<String, Deferred<RawJsonMap>>()
 
   private fun createPreFetchKey(request: ViewRequest): String {
     return "${request.method}:${request.url}"
   }
 
-  private suspend fun fetchView(request: ViewRequest): RenderNode {
+  private suspend fun fetchView(request: ViewRequest): RawJsonMap {
     val coreHeaders = mapOf(
       // "Content-Type" to "application/json", fixme: ktor doesn't like this header
       "platform" to platform,
@@ -51,7 +50,7 @@ class DefaultViewClient(
         throw RequestError(e.message)
       }
 
-      if (response.status < FIRST_BAD_STATUS) return RenderNode.fromJsonString(response.body, idManager)
+      if (response.status < FIRST_BAD_STATUS) return parseJsonString(response.body)
       throw ResponseError(response.status, response.body)
     } catch (e: Throwable) {
       if (request.fallback == null) throw e
@@ -61,7 +60,7 @@ class DefaultViewClient(
     }
   }
 
-  override suspend fun fetch(request: ViewRequest): RenderNode {
+  override suspend fun fetch(request: ViewRequest): RawJsonMap {
     val key = createPreFetchKey(request)
     val deferred = preFetched[key]
     preFetched = HashMap()
@@ -98,7 +97,7 @@ class DefaultViewClient(
               return@async fetchView(request)
             } catch (e: Throwable) {
               this.cancel("Error while prefetching.\n${e.message}")
-              return@async RenderNode.empty()
+              return@async emptyMap()
             }
           }
         }

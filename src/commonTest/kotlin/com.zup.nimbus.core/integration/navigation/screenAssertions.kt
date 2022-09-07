@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.integration.navigation
 
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import kotlin.test.assertEquals
 
 fun verifyScreen1(tree: ServerDrivenNode?) {

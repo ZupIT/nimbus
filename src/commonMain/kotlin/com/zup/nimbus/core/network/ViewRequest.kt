@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.RawJsonMap
 
 data class ViewRequest(
   /**
@@ -22,5 +22,5 @@ data class ViewRequest(
   /**
    * UI tree to show if an error occurs and the view can't be fetched.
    */
-  val fallback: RenderNode? = null,
+  val fallback: RawJsonMap? = null,
 )

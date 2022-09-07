@@ -1,7 +1,7 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.tree.RenderNode
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.findNodeById
 
 object NodeUtils {
   fun triggerEvent(node: ServerDrivenNode?, event: String, implicitStateValue: Any? = null) {
@@ -11,8 +11,7 @@ object NodeUtils {
 
   fun pressButton(screen: ServerDrivenNode?, buttonId: String) {
     if (screen == null) return
-    if (screen !is RenderNode) throw Error ("Expected a RenderNode")
-    val button = screen.findById(buttonId) ?: throw Error("Could not find button with id $buttonId")
+    val button = screen.findNodeById(buttonId) ?: throw Error("Could not find button with id $buttonId")
     triggerEvent(button, "onPress")
   }
 
@@ -24,17 +23,5 @@ object NodeUtils {
       tree.children?.forEach { result.addAll(flatten(it)) }
     }
     return result
-  }
-
-  /**
-   * runs findById on children, not on rawChildren
-   */
-  fun findById(node: ServerDrivenNode, id: String): ServerDrivenNode? {
-    if (node.id == id) return node
-    node.children?.forEach {
-      val result = findById(it, id)
-      if (result != null) return result
-    }
-    return null
   }
 }

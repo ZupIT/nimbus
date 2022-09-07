@@ -1,13 +1,13 @@
 package com.zup.nimbus.core.action
 
 import com.zup.nimbus.core.log.LogLevel
-import com.zup.nimbus.core.render.ActionEvent
+import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
 
-internal fun log(event: ActionEvent) {
-  val logger = event.view.nimbusInstance.logger
+internal fun log(event: ActionTriggeredEvent) {
+  val logger = event.origin.view.nimbusInstance.logger
   val properties = event.action.properties
   try {
     val message: String = valueOfKey(properties, "message")
