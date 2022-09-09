@@ -1,43 +1,43 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependencyGraph.updateDependentsOf
+import com.zup.nimbus.core.scope.NimbusScope
+import com.zup.nimbus.core.scope.ViewScopeImpl
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.builder.NodeBuilder
 import com.zup.nimbus.core.tree.stateful.RootNode
 import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import com.zup.nimbus.core.utils.parseJsonString
-import com.zup.nimbus.core.utils.transformJsonObjectToMap
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 
 private typealias Listener = ((ServerDrivenNode) -> Unit)?
 
 class ServerDrivenView(
-  /**
-   * The instance of Nimbus that created this ServerDrivenView.
-   */
-  val nimbusInstance: Nimbus,
+  private val states: List<ServerDrivenState>,
   /**
    * A function to get the navigator that spawned this view.
    *
    * Attention: this is a function so we can prevent a cyclical reference between Kotlin Native and Swift. Replacing
    * this with a direct reference will cause memory leaks.
    */
-  val getNavigator: () -> ServerDrivenNavigator,
+  getNavigator: () -> ServerDrivenNavigator,
   /**
    * A description for this view. Suggestion: the URL used to load the content of this view or "json", if a local json
    * string was used to load it.
    */
   val description: String? = null,
-  private val nodeBuilder: NodeBuilder,
+  nimbusScope: NimbusScope,
 ) {
   /**
    * The currently rendered tree.
    */
   private var tree: RootNode? = null
   private var listener: Listener = null
+  private val scope = ViewScopeImpl(
+    parent = nimbusScope,
+    view = this,
+    navigator = getNavigator()
+  )
 
   fun getRendered(): RootNode? {
     return tree
@@ -72,11 +72,11 @@ class ServerDrivenView(
   @Throws(MalformedComponentError::class)
   fun render(jsonNode: RawJsonMap) {
     if (tree == null) {
-      tree = nodeBuilder.buildFromJsonNode(jsonNode, description, listOf(nimbusInstance.globalState), this)
+      tree = NodeBuilder.buildFromJsonNode(jsonNode, description, states, scope)
       listener?.let { it(tree!!) }
     } else {
-      nodeBuilder.updateRootNodeWithNewJsonNode(tree!!, jsonNode, this)
-      updateDependentsOf(setOf(tree!!))
+      NodeBuilder.updateRootNodeWithNewJsonNode(tree!!, jsonNode, scope)
+      updateDependentsOf(tree!!)
     }
   }
 }

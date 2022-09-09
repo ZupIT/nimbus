@@ -1,8 +1,7 @@
-package com.zup.nimbus.core.ast
+package com.zup.nimbus.core.expression
 
-import com.zup.nimbus.core.OperationHandler
-import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.regex.toFastRegex
+import com.zup.nimbus.core.scope.NimbusScope
 import com.zup.nimbus.core.tree.stateful.Stateful
 
 private val operationRegex = """^(\w+)\((.*)\)$""".toFastRegex()
@@ -44,29 +43,25 @@ private fun parseParameters(parameterString: String): List<String> {
   return parameters
 }
 
-class OperationParser(
-  private val logger: Logger,
-  private val operationHandlers: Map<String, OperationHandler>,
-  private val parseExpression: (code: String, origin: Stateful) -> Expression,
-) {
+class OperationParser(private val scope: NimbusScope) {
   fun parse(code: String, origin: Stateful): Expression {
     val match = operationRegex.findWithGroups(code)
 
     if (match == null) {
-      logger.error("invalid operation in expression: $code. Using null as its value.")
+      scope.getLogger().error("invalid operation in expression: $code. Using null as its value.")
       return Literal(null)
     }
 
     val (operationName, paramString) = match.destructured
-    val operationHandler = operationHandlers[operationName]
+    val operationHandler = scope.getUILibraryManager().getOperation(operationName)
     if (operationHandler == null) {
-      logger.error("operation with name \"$operationName\" doesn't exist. Using null as its value.")
+      scope.getLogger().error("operation with name \"$operationName\" doesn't exist. Using null as its value.")
       return Literal(null)
     }
 
     val params = parseParameters(paramString)
     val resolvedParams = params.map { param ->
-      parseExpression(param, origin)
+      scope.getExpressionParser().parseExpression(param, origin)
     }
 
     return Operation(operationHandler, resolvedParams)

@@ -1,28 +1,27 @@
-package com.zup.nimbus.core.operations
+package com.zup.nimbus.core.ui.operations
 
-import com.zup.nimbus.core.OperationHandler
+import com.zup.nimbus.core.ui.UILibrary
 import com.zup.nimbus.core.utils.then
 
 private fun toBooleanList(values: List<Any?>): List<Boolean> {
   return values.filterIsInstance<Boolean>()
 }
 
-internal fun getLogicOperations(): Map<String, OperationHandler> {
-  return mapOf(
-    "and" to {
+internal fun registerLogicOperations(library: UILibrary) {
+  library
+    .addOperation("and") {
       !toBooleanList(it).contains(false)
-    },
-    "or" to {
+    }
+    .addOperation("or") {
       toBooleanList(it).contains(true)
-    },
-    "not" to {
+    }
+    .addOperation("not") {
       !(it[0] as Boolean)
-    },
-    "condition" to {
+    }
+    .addOperation("condition") {
       val premise = it[0] as Boolean
       val trueValue = it[1]
       val falseValue = it[2]
       ((premise) then trueValue) ?: falseValue
     }
-  )
 }

@@ -10,6 +10,7 @@ class NodeContainer(private val nodeList: List<ServerDrivenNode>): Dependent, De
 
   init {
     update()
+    hasChanged = false
     // this should be updated whenever one of its polymorphic node changes
     nodeList.forEach { if (it !is UINode) it.addDependent(this) }
   }
@@ -37,6 +38,9 @@ class NodeContainer(private val nodeList: List<ServerDrivenNode>): Dependent, De
   override fun update() {
     val result = mutableListOf<UINode>()
     nodeList.forEach { result.addAll(extractUIFromNode(it)) }
-    uiNodes = result
+    if (result.map { it.id } != uiNodes.map { it.id }) {
+      uiNodes = result
+      hasChanged = true
+    }
   }
 }

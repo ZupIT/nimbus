@@ -7,7 +7,6 @@ import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 class DynamicAction(
   override val name: String,
   override val handler: ActionHandler,
-  override var event: ServerDrivenEvent,
 ) : ServerDrivenAction {
   override var properties: Map<String, Any?>? = null
   override var metadata: Map<String, Any?>? = null

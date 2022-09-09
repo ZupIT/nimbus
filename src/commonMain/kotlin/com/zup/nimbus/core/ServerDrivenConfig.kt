@@ -1,9 +1,11 @@
 package com.zup.nimbus.core
 
+import com.zup.nimbus.core.ui.UILibrary
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
+import com.zup.nimbus.core.scope.NimbusScope
 import com.zup.nimbus.core.tree.IdManager
 
 data class ServerDrivenConfig(
@@ -15,35 +17,7 @@ data class ServerDrivenConfig(
    * The platform running the Server Driven Lib. Examples: "Android", "iOS".
    */
   val platform: String,
-  /**
-   * A map of ActionHandlers. Use this to provide customized actions to your server driven UIs.
-   *
-   * Each key in this map must be the action name with its namespace. Examples: "material:button", "layout:column".
-   *
-   * The value for each key `k` must the function to run once the action with name `k` is triggered. This function
-   * receives the ActionEvent and must return nothing. The ActionEvent has all the data needed to run the action.
-   *
-   * You can also add an action handler to an instance of `Nimbus` via the method `addActions`
-   */
-  val actions: Map<String, ActionHandler>? = null,
-  /**
-   * A list of action handlers to run when any action is triggered. This runs after the handler in `action` and is
-   * used to implement a behavior that should run for every action, no matter its name.
-   *
-   * This can be useful for implementing Analytics.
-   */
-  val actionObservers: List<ActionHandler>? = null,
-  /**
-   * A map of OperationHandlers. Use this to provide customized operations to your server driven UIs.
-   *
-   * Each key in this map must be the operation name. Examples: "isDocumentValid", "formatPhoneNumber".
-   *
-   * The value for each key `k` must the function to run once the operation with name `k` is called. This function
-   * receives a list with the operation parameters and must return its result.
-   *
-   * You can also add an operation handler to an instance of `Nimbus` via the method `addOperations`
-   */
-  val operations: Map<String, OperationHandler>? = null,
+  val ui: List<UILibrary>? = null,
   /**
    * The logger to call when printing errors, warning and information messages. By default, Nimbus will use its
    * DefaultLogger that just prints the messages to the console.
@@ -53,7 +27,7 @@ data class ServerDrivenConfig(
    * A logic to create full URLs from relative paths. By default, Nimbus checks if the path starts with "/". If it does,
    * the full URL is the baseUrl provided in this config concatenated with the path. Otherwise, it's the path itself.
    */
-  val urlBuilder: UrlBuilder? = null,
+  val urlBuilder: ((baseUrl: String) -> UrlBuilder)? = null,
   /**
    * The lowest level API for making requests in Nimbus. By default, Nimbus will use its DefaultHttpClient, which just
    * calls kotlin's ktor lib with the provided requests.
@@ -70,7 +44,7 @@ data class ServerDrivenConfig(
    * A ViewClient is also responsible for implementing the prefetch logic, indicated by the property "prefetch" of a
    * navigation action. Check the DefaultViewClient documentation to know more about how it deals with prefetching.
    */
-  val viewClient: ViewClient? = null,
+  val viewClient: ((scope: NimbusScope) -> ViewClient)? = null,
   /**
    * An id generator for creating unique ids for nodes in a UI tree when one is not provided by the JSON. By default,
    * the ids are incremental, starting at 0 and prefixed with "nimbus:".

@@ -51,7 +51,7 @@ actual class FastRegex actual constructor(actual val pattern: String) {
     matches.forEach {
       parts.add(transformUnmatching(input.substring(next, it.range.first)))
       parts.add(transformMatching(MatchGroups(it.groupValues)))
-      next += it.value.length
+      next = it.range.last + 1
     }
     parts.add(transformUnmatching(input.substring(next)))
     return parts

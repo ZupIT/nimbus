@@ -1,14 +1,13 @@
 package com.zup.nimbus.core.performance
-/*
+
 import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
-import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.ViewObserver
-import com.zup.nimbus.core.observe
 import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
+import com.zup.nimbus.core.tree.stateful.findNodeById
+import com.zup.nimbus.core.ui.UILibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -21,29 +20,25 @@ import kotlin.test.assertTrue
 
 private const val MAX_AVERAGE_UPDATE_TIME_MS = 60
 private const val FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS = 80
-private const val SHOULD_PRINT_TIMES = false
+private const val SHOULD_PRINT_TIMES = true
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {
   private val scope = TestScope()
 
-  private val operations = mapOf<String, OperationHandler>(
-    "formatPrice" to { "US$ ${it[0]}" }
-  )
+  private val uiLibrary = UILibrary()
+    .addOperation("formatPrice") { "US$ ${it[0]}" }
 
-  private suspend fun addToCart(observer: ViewObserver, productId: Int, totalRenders: Int): Long {
-    val content = observer.history.last()
+  private suspend fun addToCart(content: ServerDrivenNode, productId: Int): Long {
     // do not use NodeUtils.pressButton here, we can't measure the time it takes to find the button.
-    val button = NodeUtils.findById(content, "add-to-cart:$productId") ?: throw Error("Could not find button")
+    val button = content.findNodeById("add-to-cart:$productId") ?: throw Error("Could not find button")
     val started = Clock.System.now().toEpochMilliseconds()
     NodeUtils.triggerEvent(button, "onPress")
-    observer.waitForChanges(totalRenders)
     val elapsed = Clock.System.now().toEpochMilliseconds() - started
-    val newButton = NodeUtils.findById(content, "add-to-cart:$productId")
-    val inCartText = NodeUtils.findById(content, "in-cart:$productId")
+    val newButton = content.findNodeById("add-to-cart:$productId")
+    val inCartText = content.findNodeById("in-cart:$productId")
     assertNull(newButton)
     assertEquals("In cart ✓", inCartText?.properties?.get("text"))
-    clean(content)
     return elapsed
   }
 
@@ -54,24 +49,16 @@ class PerformanceTest {
     return "${intValue}.$decimalValue"
   }
 
-  private fun clean(node: ServerDrivenNode) {
-    node.dirty = false
-    node.children?.forEach { clean(it) }
-  }
-
   private suspend fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
     val json = JsonLoader.loadJson(jsonFileName)
-    val nimbus = Nimbus(ServerDrivenConfig("", "test", operations = operations))
-    val node = nimbus.createNodeFromJson(json)
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", ui = listOf(uiLibrary)))
     val page = nimbus.createView({ EmptyNavigator() })
-    val observer = page.observe()
     val started = Clock.System.now().toEpochMilliseconds()
-    page.renderer.paint(node)
-    observer.waitForChanges()
+    page.render(json)
     val times = mutableListOf(Clock.System.now().toEpochMilliseconds() - started)
-    clean(observer.history.last())
+    val content = page.getRendered()!!
     for (i in 1..20) {
-      times.add(addToCart(observer, i, i + 1))
+      times.add(addToCart(content, i))
     }
     val updates = times.drop(1)
 
@@ -98,4 +85,3 @@ class PerformanceTest {
     runPerformanceTest("products-forEach", FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS)
   }
 }
-*/

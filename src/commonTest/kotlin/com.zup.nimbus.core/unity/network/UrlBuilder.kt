@@ -29,16 +29,12 @@ class UrlBuilderTest {
   fun `should use the custom url builder when nimbus was instantiated with one`() {
     val nimbus = Nimbus(
       ServerDrivenConfig(
-        "/",
-        "test",
-        null,
-        null,
-        null,
-        null,
-        CustomUrlBuilderTest()
+        baseUrl = "/",
+        platform = "test",
+        urlBuilder = { CustomUrlBuilderTest() }
       )
     )
-    val result = nimbus.urlBuilder.build("new-path")
+    val result = nimbus.scope.getUrlBuilder().build("new-path")
     assertEquals("/custom-builder/new-path", result)
   }
 }

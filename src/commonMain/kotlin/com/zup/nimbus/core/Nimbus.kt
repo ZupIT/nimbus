@@ -1,44 +1,31 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.action.getCoreActions
-import com.zup.nimbus.core.action.getInitHandlersForCoreActions
-import com.zup.nimbus.core.ast.ExpressionParser
+import com.zup.nimbus.core.expression.ExpressionParser
+import com.zup.nimbus.core.ui.UILibraryManager
 import com.zup.nimbus.core.log.DefaultLogger
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.DefaultUrlBuilder
 import com.zup.nimbus.core.network.DefaultViewClient
-import com.zup.nimbus.core.operations.getDefaultOperations
+import com.zup.nimbus.core.scope.NimbusScope
+import com.zup.nimbus.core.scope.NimbusScopeImpl
 import com.zup.nimbus.core.tree.DefaultIdManager
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.MalformedJsonError
-import com.zup.nimbus.core.tree.builder.ActionBuilder
-import com.zup.nimbus.core.tree.builder.EventBuilder
-import com.zup.nimbus.core.tree.builder.NodeBuilder
 
 class Nimbus(config: ServerDrivenConfig) {
-  // From config
-  val baseUrl = config.baseUrl
-  private val platform = config.platform
-  private val actions = (getCoreActions() + (config.actions ?: emptyMap())).toMutableMap()
-  private val actionObservers = config.actionObservers?.toMutableList() ?: ArrayList()
-  val operations = (getDefaultOperations() + (config.operations?.toMutableMap() ?: emptyMap())).toMutableMap()
-  val logger = config.logger ?: DefaultLogger()
-  val urlBuilder = config.urlBuilder ?: DefaultUrlBuilder(baseUrl)
-  val httpClient = config.httpClient ?: DefaultHttpClient()
-  private val idManager = config.idManager ?: DefaultIdManager()
-  val viewClient = config.viewClient ?: DefaultViewClient(httpClient, urlBuilder, logger, platform)
-
-  // Other
   val globalState = ServerDrivenState("global", null)
-  private val expressionParser = ExpressionParser(logger, operations)
-  private val actionBuilder = ActionBuilder(
-    actionHandlers = actions,
-    actionInitHandlers = getInitHandlersForCoreActions(),
-    actionObservers = actionObservers,
-    expressionParser = expressionParser,
-    logger = logger,
-  )
-  private val nodeBuilder = NodeBuilder(idManager, expressionParser, actionBuilder)
+  val scope: NimbusScope
+
+  init {
+    val mutableScope = NimbusScopeImpl()
+    mutableScope.platform = config.platform
+    mutableScope.logger = config.logger ?: DefaultLogger()
+    mutableScope.uiLibraryManager = UILibraryManager(config.ui)
+    mutableScope.idManager = config.idManager ?: DefaultIdManager()
+    mutableScope.httpClient = config.httpClient ?: DefaultHttpClient()
+    mutableScope.urlBuilder = config.urlBuilder?.let { it(config.baseUrl) } ?: DefaultUrlBuilder(config.baseUrl)
+    mutableScope.viewClient = config.viewClient?.let { it(mutableScope) } ?: DefaultViewClient(mutableScope)
+    mutableScope.expressionParser = ExpressionParser(mutableScope)
+    scope = mutableScope
+  }
 
   /**
    * Creates a new ServerDrivenView that uses this Nimbus instance as its dependency manager.
@@ -49,29 +36,11 @@ class Nimbus(config: ServerDrivenConfig) {
    * @param description a description for the new ServerDrivenView.
    * @return the new ServerDrivenView.
    */
-  fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null): ServerDrivenView {
-    return ServerDrivenView(this, getNavigator, description, nodeBuilder)
-  }
-
-  private fun <T>addAll(target: MutableMap<String, T>, source: Map<String, T>, entity: String) {
-    source.forEach {
-      if (target.containsKey(it.key)) {
-        logger.warn("$entity of name \"${it.key}\" already exists and is going to be replaced. Maybe you should " +
-          "consider another name.")
-      }
-      target[it.key] = it.value
-    }
-  }
-
-  fun addActions(newActions: Map<String, ActionHandler>) {
-    addAll(actions, newActions, "Action")
-  }
-
-  fun addActionObservers(observers: List<ActionHandler>) {
-    actionObservers.addAll(observers)
-  }
-
-  fun addOperations(newOperations: Map<String, OperationHandler>) {
-    addAll(operations, newOperations, "Operation")
+  fun createView(
+    getNavigator: () -> ServerDrivenNavigator,
+    states: List<ServerDrivenState> = emptyList(),
+    description: String? = null,
+  ): ServerDrivenView {
+    return ServerDrivenView(states + globalState, getNavigator, description, scope)
   }
 }

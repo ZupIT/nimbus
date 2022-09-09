@@ -1,5 +1,5 @@
 @file:Suppress("ComplexCondition") // todo: verify
-package com.zup.nimbus.core.ast
+package com.zup.nimbus.core.expression
 
 import com.zup.nimbus.core.regex.FastRegex
 import com.zup.nimbus.core.regex.toFastRegex

@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.ast
+package com.zup.nimbus.core.expression
 
 import com.zup.nimbus.core.regex.matches
 import com.zup.nimbus.core.regex.toFastRegex

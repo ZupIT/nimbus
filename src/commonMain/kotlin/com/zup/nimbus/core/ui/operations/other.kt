@@ -1,11 +1,11 @@
-package com.zup.nimbus.core.operations
+package com.zup.nimbus.core.ui.operations
 
-import com.zup.nimbus.core.OperationHandler
+import com.zup.nimbus.core.ui.UILibrary
 
 @Suppress("ComplexMethod")
-internal fun getOtherOperations(): Map<String, OperationHandler> {
-  return mapOf(
-    "contains" to {
+internal fun registerOtherOperations(library: UILibrary) {
+  library
+    .addOperation("contains"){
       val (collection, element) = it
       when (collection) {
         is List<*> -> collection.contains(element)
@@ -13,8 +13,8 @@ internal fun getOtherOperations(): Map<String, OperationHandler> {
         is String -> collection.contains(element as String)
         else -> false
       }
-    },
-    "concat" to {
+    }
+    .addOperation("concat"){
       when (it[0]) {
         is List<*> -> {
           val result = ArrayList<Any?>()
@@ -32,24 +32,24 @@ internal fun getOtherOperations(): Map<String, OperationHandler> {
         }
         else -> it.reduce { result, item -> "${result}${item}" }
       }
-    },
-    "length" to {
+    }
+    .addOperation("length"){
       when (val collection = it[0]) {
         is List<*> -> collection.size
         is Map<*, *> -> collection.size
         is String -> collection.length
         else -> 0
       }
-    },
-    "eq" to {
+    }
+    .addOperation("eq"){
       val (left, right) = it
       if (left is Number && right is Number) left.toDouble() == right.toDouble()
       else left == right
-    },
-    "isNull" to {
+    }
+    .addOperation("isNull"){
       it[0] == null
-    },
-    "isEmpty" to {
+    }
+    .addOperation("isEmpty"){
       when (val collection = it[0]) {
         is List<*> -> collection.isEmpty()
         is Map<*, *> -> collection.isEmpty()
@@ -57,5 +57,4 @@ internal fun getOtherOperations(): Map<String, OperationHandler> {
         else -> collection == null
       }
     }
-  )
 }

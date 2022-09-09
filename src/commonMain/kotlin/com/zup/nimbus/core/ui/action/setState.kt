@@ -1,8 +1,7 @@
-package com.zup.nimbus.core.action
+package com.zup.nimbus.core.ui.action
 
 import com.zup.nimbus.core.regex.toFastRegex
 import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.tree.ServerDrivenAction
 import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import com.zup.nimbus.core.tree.stateful.Stateful
@@ -22,22 +21,22 @@ private fun getPathToOrigin(origin: Stateful): String {
 
 internal fun setState(event: ActionTriggeredEvent) {
   val properties = event.action.properties
-  val logger = event.origin.view.nimbusInstance.logger
+  val sourceEvent = event.scope.getEvent()
   try {
     val path: String = valueOfKey(properties, "path")
     val value: Any? = valueOfKey(properties, "value")
     val matchResult = statePathRegex.findWithGroups(path) ?:
-      return logger.error("""The path "$path" is not a valid state path.""")
+      return event.scope.getLogger().error("""The path "$path" is not a valid state path.""")
     val (stateId, statePath) = matchResult.destructured
-    val state = event.origin.find(stateId)
+    val state = sourceEvent.find(stateId)
     if (state == null) {
-      val message = """Could not find state "$stateId" from "${getPathToOrigin(event.origin)}""""
-      logger.error(message)
+      val message = """Could not find state "$stateId" from "${getPathToOrigin(sourceEvent)}""""
+      event.scope.getLogger().error(message)
     } else {
       state.set(value, statePath, false)
       event.dependencies.add(state)
     }
   } catch (e: UnexpectedDataTypeError) {
-    logger.error("Error while setting state.\n${e.message}")
+    event.scope.getLogger().error("Error while setting state.\n${e.message}")
   }
 }

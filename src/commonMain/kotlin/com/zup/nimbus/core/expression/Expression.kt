@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.ast
+package com.zup.nimbus.core.expression
 
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.dependencyGraph.Dependency
@@ -27,6 +27,7 @@ class StateReference(
 
   init {
     update()
+    hasChanged = false
     state.addDependent(this)
   }
 
@@ -35,7 +36,11 @@ class StateReference(
   }
 
   override fun update() {
-    value = valueOfPath(state.value, path)
+    val newValue: Any? = valueOfPath(state.value, path)
+    if (value != newValue) {
+      value = newValue
+      hasChanged = true
+    }
   }
 }
 
@@ -47,14 +52,19 @@ class Operation(
 
   init {
     update()
+    hasChanged = false
     arguments.forEach {
       if (it is Dependency) it.addDependent(this)
     }
   }
 
   override fun update() {
-    val argValues = arguments.map { getValue() }
-    value = handler(argValues)
+    val argValues = arguments.map { it.getValue() }
+    val newValue = handler(argValues)
+    if (value != newValue) {
+      value = newValue
+      hasChanged = true
+    }
   }
 
   override fun getValue(): Any? {
@@ -67,6 +77,7 @@ class StringTemplate(private val composition: List<Expression>): Expression, Dep
 
   init {
     update()
+    hasChanged = false
     composition.forEach {
       if (it is Dependency) it.addDependent(this)
     }
@@ -77,6 +88,10 @@ class StringTemplate(private val composition: List<Expression>): Expression, Dep
   }
 
   override fun update() {
-    value = composition.joinToString { "${it.getValue()}" }
+    val newValue = composition.joinToString("") { "${it.getValue() ?: ""}" }
+    if (value != newValue) {
+      value = newValue
+      hasChanged = true
+    }
   }
 }

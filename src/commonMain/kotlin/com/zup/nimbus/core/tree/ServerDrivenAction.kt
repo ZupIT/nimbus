@@ -25,5 +25,4 @@ interface ServerDrivenAction: Dependent {
    * metadata "analytics".
    */
   val metadata: Map<String, Any?>?
-  val event: ServerDrivenEvent
 }

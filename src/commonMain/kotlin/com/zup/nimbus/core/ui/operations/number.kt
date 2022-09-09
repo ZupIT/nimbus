@@ -1,6 +1,6 @@
-package com.zup.nimbus.core.operations
+package com.zup.nimbus.core.ui.operations
 
-import com.zup.nimbus.core.OperationHandler
+import com.zup.nimbus.core.ui.UILibrary
 import com.zup.nimbus.core.utils.div
 import com.zup.nimbus.core.utils.minus
 import com.zup.nimbus.core.utils.plus
@@ -15,35 +15,34 @@ private fun toNumberList(values: List<Any?>): List<Number> {
   return result
 }
 
-internal fun getNumberOperations(): Map<String, OperationHandler> {
-  return mapOf(
-    "sum" to {
+internal fun registerNumberOperations(library: UILibrary) {
+  library
+    .addOperation("sum"){
       toNumberList(it).reduce { result, item -> result.plus(item) }
-    },
-    "subtract" to {
+    }
+    .addOperation("subtract"){
       toNumberList(it).reduce { result, item -> result.minus(item) }
-    },
-    "multiply" to {
+    }
+    .addOperation("multiply"){
       toNumberList(it).reduce { result, item -> result.times(item) }
-    },
-    "divide" to {
+    }
+    .addOperation("divide"){
       toNumberList(it).reduce { result, item -> result.div(item) }
-    },
-    "gt" to {
+    }
+    .addOperation("gt"){
       val (left, right) = toNumberList(it)
       left.toDouble() > right.toDouble()
-    },
-    "gte" to {
+    }
+    .addOperation("gte"){
       val (left, right) = toNumberList(it)
       left.toDouble() >= right.toDouble()
-    },
-    "lt" to {
+    }
+    .addOperation("lt"){
       val (left, right) = toNumberList(it)
       left.toDouble() < right.toDouble()
-    },
-    "lte" to {
+    }
+    .addOperation("lte"){
       val (left, right) = toNumberList(it)
       left.toDouble() <= right.toDouble()
-    },
-  )
+    }
 }

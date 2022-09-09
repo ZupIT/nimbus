@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.action
+package com.zup.nimbus.core.ui.action
 
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.ActionTriggeredEvent
@@ -7,7 +7,7 @@ import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
 
 internal fun log(event: ActionTriggeredEvent) {
-  val logger = event.origin.view.nimbusInstance.logger
+  val logger = event.scope.getLogger()
   val properties = event.action.properties
   try {
     val message: String = valueOfKey(properties, "message")

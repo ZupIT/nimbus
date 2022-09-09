@@ -1,6 +1,7 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependencyGraph.Dependency
+import com.zup.nimbus.core.scope.EventScope
 import com.zup.nimbus.core.tree.ServerDrivenAction
 import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 
@@ -10,14 +11,14 @@ interface ActionEvent {
    */
   val action: ServerDrivenAction
   /**
-   * The ServerDrivenEvent that triggered this ActionEvent.
+   * The scope of the event that triggered this ActionEvent.
    */
-  val origin: ServerDrivenEvent
+  val scope: EventScope
 }
 
 class ActionTriggeredEvent(
   override val action: ServerDrivenAction,
-  override val origin: ServerDrivenEvent,
+  override val scope: EventScope,
   /**
    * Every event can update the current state of the application based on the dependency graph. This set starts empty
    * when a ServerDrivenEvent is run. A ServerDrivenEvent is what triggers ActionEvents. Use this to tell the
@@ -30,5 +31,5 @@ class ActionTriggeredEvent(
 
 class ActionInitializedEvent(
   override val action: ServerDrivenAction,
-  override val origin: ServerDrivenEvent,
+  override val scope: EventScope,
 ): ActionEvent

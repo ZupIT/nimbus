@@ -1,28 +1,27 @@
 package com.zup.nimbus.core.tree.container
 
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.ast.Expression
-import com.zup.nimbus.core.ast.ExpressionParser
+import com.zup.nimbus.core.expression.Expression
 import com.zup.nimbus.core.dependencyGraph.Dependency
 import com.zup.nimbus.core.dependencyGraph.Dependent
-import com.zup.nimbus.core.tree.builder.ActionBuilder
+import com.zup.nimbus.core.scope.ViewScope
 import com.zup.nimbus.core.tree.builder.EventBuilder
 import com.zup.nimbus.core.tree.stateful.Stateful
 
 class PropertyContainer(
-  private val expressionParser: ExpressionParser,
-  private val actionBuilder: ActionBuilder,
-  private val view: ServerDrivenView,
   properties: Map<String, Any?>,
   stateSource: Stateful,
+  private val scope: ViewScope,
 ): Dependency(), Dependent {
   private var expressionEvaluators = mutableListOf<() -> Unit>()
   private var currentProperties = parseMap(properties, stateSource)
 
-  init { update() }
+  init {
+    update()
+    hasChanged = false
+  }
 
   private fun parseExpression(toParse: String, stateSource: Stateful): Expression {
-    val expression = expressionParser.parse(toParse, stateSource)
+    val expression = scope.getExpressionParser().parseString(toParse, stateSource)
     if (expression is Dependency) expression.dependents.add(this)
     return expression
   }
@@ -30,12 +29,12 @@ class PropertyContainer(
   private fun parseAny(toParse: Any?, stateSource: Stateful, key: String? = null): Any? {
     return when(toParse) {
       is String -> {
-        if (expressionParser.containsExpression(toParse)) parseExpression(toParse, stateSource)
+        if (scope.getExpressionParser().containsExpression(toParse)) parseExpression(toParse, stateSource)
         else toParse
       }
       is List<*> -> {
         if (key != null && EventBuilder.isJsonEvent(toParse)) {
-          EventBuilder.buildFromJsonEvent(key, toParse, stateSource, view, actionBuilder)
+          EventBuilder.buildFromJsonEvent(key, toParse, stateSource, scope)
         } else {
           parseList(toParse, stateSource)
         }
@@ -51,9 +50,9 @@ class PropertyContainer(
       val parsed = parseAny(value, stateSource)
       if (parsed is Expression) {
         expressionEvaluators.add { result[index] = parsed.getValue() }
-        result[index] = value
+        result.add(index, value)
       } else {
-        result[index] = parsed
+        result.add(index, parsed)
       }
     }
     return result
@@ -81,5 +80,6 @@ class PropertyContainer(
 
   override fun update() {
     expressionEvaluators.forEach { it() }
+    hasChanged = true
   }
 }

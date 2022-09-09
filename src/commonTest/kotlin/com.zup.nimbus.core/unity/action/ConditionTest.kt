@@ -1,18 +1,5 @@
 package com.zup.nimbus.core.unity.action
 
-import com.zup.nimbus.core.EmptyNavigator
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ObservableLogger
-import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.action.condition
-import com.zup.nimbus.core.log.LogLevel
-import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.ServerDrivenView
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 /*
 class ConditionTest {
   private val logger = ObservableLogger()

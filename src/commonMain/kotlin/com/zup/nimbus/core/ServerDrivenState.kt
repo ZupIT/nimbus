@@ -1,6 +1,7 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependencyGraph.Dependency
+import com.zup.nimbus.core.dependencyGraph.updateDependentsOf
 import com.zup.nimbus.core.utils.setMapValue
 import com.zup.nimbus.core.utils.valueOfPath
 
@@ -61,7 +62,8 @@ class ServerDrivenState(
     if (currentValue != newValue) {
       val mutableValue = getMutable(newValue)
       setValueAtPath(mutableValue, path)
-      hasChanged = shouldUpdateDependents
+      hasChanged = true
+      if (shouldUpdateDependents) updateDependentsOf(this)
     }
   }
 

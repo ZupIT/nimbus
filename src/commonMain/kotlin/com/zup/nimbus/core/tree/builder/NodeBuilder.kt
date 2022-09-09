@@ -1,11 +1,9 @@
 package com.zup.nimbus.core.tree.builder
 
 import com.zup.nimbus.core.RawJsonMap
-import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.ast.ExpressionParser
+import com.zup.nimbus.core.scope.ViewScope
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
 import com.zup.nimbus.core.tree.stateful.ForEachNode
@@ -16,20 +14,16 @@ import com.zup.nimbus.core.tree.stateful.UINode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfKey
 
-class NodeBuilder(
-  private val idManager: IdManager,
-  private val expressionParser: ExpressionParser,
-  private val actionBuilder: ActionBuilder,
-) {
+object NodeBuilder {
   private fun buildNode(
     jsonNode: RawJsonMap,
     parent: ServerDrivenNode,
-    view: ServerDrivenView,
     jsonPath: String,
+    scope: ViewScope,
   ): ServerDrivenNode {
     val originalId: String? = valueOfKey(jsonNode, "id")
     try {
-      val id = originalId ?: idManager.next()
+      val id = originalId ?: scope.getIdManager().next()
       val component: String = valueOfKey(jsonNode, "_:component")
       val stateMap: Map<String, Any>? = valueOfKey(jsonNode, "state")
       val states = stateMap?.let {
@@ -47,12 +41,12 @@ class NodeBuilder(
       }
 
       val propertyContainer = properties?.let {
-        PropertyContainer(expressionParser, actionBuilder, view, properties, node)
+        PropertyContainer(properties, node, scope)
       }
 
       val childrenContainer = children?.let {
         val childrenAsNodes = children.mapIndexed { index, item ->
-          buildNode(item, node, view, "$jsonPath.children[:$index]")
+          buildNode(item, node, "$jsonPath.children[:$index]", scope)
         }
         NodeContainer(childrenAsNodes)
       }
@@ -76,16 +70,16 @@ class NodeBuilder(
     jsonNode: RawJsonMap,
     id: String?,
     states: List<ServerDrivenState>?,
-    view: ServerDrivenView,
+    scope: ViewScope,
   ): RootNode {
-    val root = RootNode(id ?: idManager.next(), states)
-    updateRootNodeWithNewJsonNode(root, jsonNode, view)
+    val root = RootNode(id ?: scope.getIdManager().next(), states)
+    updateRootNodeWithNewJsonNode(root, jsonNode, scope)
     return root
   }
 
   @Throws(MalformedComponentError::class)
-  fun updateRootNodeWithNewJsonNode(root: RootNode, jsonNode: RawJsonMap, view: ServerDrivenView) {
-    val childrenContainer = NodeContainer(listOf(buildNode(jsonNode, root, view, "$")))
+  fun updateRootNodeWithNewJsonNode(root: RootNode, jsonNode: RawJsonMap, scope: ViewScope) {
+    val childrenContainer = NodeContainer(listOf(buildNode(jsonNode, root, "$", scope)))
     root.makeDynamic(null, childrenContainer)
   }
 }

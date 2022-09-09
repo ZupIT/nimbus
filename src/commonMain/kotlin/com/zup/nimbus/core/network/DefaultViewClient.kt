@@ -2,6 +2,7 @@ package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.RawJsonMap
 import com.zup.nimbus.core.log.Logger
+import com.zup.nimbus.core.scope.NimbusScope
 import com.zup.nimbus.core.utils.parseJsonString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -14,12 +15,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class DefaultViewClient(
-  private val httpClient: HttpClient,
-  private val urlBuilder: UrlBuilder,
-  private val logger: Logger,
-  private val platform: String,
-) : ViewClient {
+class DefaultViewClient(val scope: NimbusScope) : ViewClient {
   // used to prevent the ViewClient from launching multiple requests to the same URL in sub-sequent pre-fetches
   private val mutex = Mutex()
   // the keys here are in the format $method:$url
@@ -32,13 +28,13 @@ class DefaultViewClient(
   private suspend fun fetchView(request: ViewRequest): RawJsonMap {
     val coreHeaders = mapOf(
       // "Content-Type" to "application/json", fixme: ktor doesn't like this header
-      "platform" to platform,
+      "platform" to scope.getPlatform(),
     )
-    val url = urlBuilder.build(request.url)
+    val url = scope.getUrlBuilder().build(request.url)
     val response: ServerDrivenResponse
     try {
       try {
-        response = httpClient.sendRequest(
+        response = scope.getHttpClient().sendRequest(
           ServerDrivenRequest(
             url = url,
             method = request.method,
@@ -54,7 +50,7 @@ class DefaultViewClient(
       throw ResponseError(response.status, response.body)
     } catch (e: Throwable) {
       if (request.fallback == null) throw e
-      logger.error("Failed to perform network request to $url, using the provided fallback view instead. " +
+      scope.getLogger().error("Failed to perform network request to $url, using the provided fallback view instead. " +
         "Cause:\n${e.message ?: "Unknown"}")
       return request.fallback
     }

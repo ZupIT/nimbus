@@ -1,12 +1,14 @@
 package com.zup.nimbus.core
 
+import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
 import com.zup.nimbus.core.tree.stateful.findNodeById
 
 object NodeUtils {
-  fun triggerEvent(node: ServerDrivenNode?, event: String, implicitStateValue: Any? = null) {
-    val action = node?.properties?.get(event)
-    if (action is Function<*>) (action as (implicitState: Any?) -> Unit)(implicitStateValue)
+  fun triggerEvent(node: ServerDrivenNode?, eventName: String, implicitStateValue: Any? = null) {
+    val event = node?.properties?.get(eventName)
+    if (event is ServerDrivenEvent) event.run(implicitStateValue)
+    else throw IllegalArgumentException("The event name \"$eventName\" does not correspond to a real event.")
   }
 
   fun pressButton(screen: ServerDrivenNode?, buttonId: String) {

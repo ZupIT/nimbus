@@ -12,24 +12,16 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-/*
+
 class SetStateTest {
   private val logger = ObservableLogger()
   private val nimbus = Nimbus(ServerDrivenConfig("", "test", logger = logger))
-  private var currentUI: ServerDrivenNode? = null
-  private var numberOfRenders = 0
-  private var view: ServerDrivenView? = null
+  private lateinit var view: ServerDrivenView
 
   @BeforeTest
   fun setup() {
     logger.clear()
-    currentUI = null
-    numberOfRenders = 0
     view = nimbus.createView({ EmptyNavigator() })
-    view?.onChange {
-      currentUI = it
-      numberOfRenders++
-    }
   }
 
   private fun assertSetStateScreenIsCorrect(
@@ -60,21 +52,17 @@ class SetStateTest {
   @Test
   fun `should set states`() {
     // WHEN the GENERAL_SET_STATE is rendered
-    val screen = nimbus.createNodeFromJson(GENERAL_SET_STATE)
-    view!!.renderer.paint(screen)
+    view.render(GENERAL_SET_STATE)
     // THEN nothing should have been logged
     assertTrue(logger.entries.isEmpty())
-    // AND the number of renders should be 1
-    assertEquals(1, numberOfRenders)
     // AND the screen should have the correct content
+    val currentUI = view.getRendered()?.children?.first()
     assertSetStateScreenIsCorrect(currentUI)
 
     // WHEN we press the button to set the name
     NodeUtils.pressButton(currentUI, "setName")
     // THEN nothing should have been logged
     assertTrue(logger.entries.isEmpty())
-    // AND the number of renders should be 2
-    assertEquals(2, numberOfRenders)
     // AND the screen should have the correct content
     assertSetStateScreenIsCorrect(currentUI, "John")
 
@@ -82,8 +70,6 @@ class SetStateTest {
     NodeUtils.pressButton(currentUI, "setAge")
     // THEN nothing should have been logged
     assertTrue(logger.entries.isEmpty())
-    // AND the number of renders should be 3
-    assertEquals(3, numberOfRenders)
     // AND the screen should have the correct content
     assertSetStateScreenIsCorrect(currentUI, "John", 30)
 
@@ -91,8 +77,6 @@ class SetStateTest {
     NodeUtils.pressButton(currentUI, "setButtonText")
     // THEN nothing should have been logged
     assertTrue(logger.entries.isEmpty())
-    // AND the number of renders should be 4
-    assertEquals(4, numberOfRenders)
     // AND the screen should have the correct content
     assertSetStateScreenIsCorrect(currentUI, "John", 30, "bbb")
   }
@@ -100,17 +84,15 @@ class SetStateTest {
   @Test
   fun `should not set state`() {
     // WHEN the UNREACHABLE_STATE screen is rendered
-    val screen = nimbus.createNodeFromJson(UNREACHABLE_STATE)
-    view!!.renderer.paint(screen)
+    view.render(UNREACHABLE_STATE)
     // THEN nothing should've been logged
     assertTrue(logger.entries.isEmpty())
+    val currentUI = view.getRendered()?.children?.first()
     // WHEN the onInit lifecycle is run
     NodeUtils.triggerEvent(currentUI, "onInit")
     // THEN an error should've been logged
     assertEquals(1, logger.entries.size)
     assertEquals(LogLevel.Error, logger.entries.first().level)
-    // AND the screen should not have been updated
-    assertEquals(1, numberOfRenders)
     // AND the text content should not have been changed
     assertEquals("", currentUI?.children?.get(0)?.properties?.get("text"))
   }
@@ -118,10 +100,10 @@ class SetStateTest {
   @Test
   fun `should change the state type`() {
     // WHEN the MANY_TYPES screen is rendered
-    val screen = nimbus.createNodeFromJson(MANY_TYPES)
-    view!!.renderer.paint(screen)
+    view.render(MANY_TYPES)
     // THEN nothing should've been logged
     assertTrue(logger.entries.isEmpty())
+    val currentUI = view.getRendered()?.children?.first()
     // AND text should be the String "string"
     assertEquals("string", currentUI?.children?.get(0)?.properties?.get("text"))
 
@@ -173,18 +155,15 @@ class SetStateTest {
     assertTrue(logger.entries.isEmpty())
     // AND text should be the String "string"
     assertEquals("string", currentUI?.children?.get(0)?.properties?.get("text"))
-
-    // AND the screen should've been updated 7 times (8 renders)
-    assertEquals(8, numberOfRenders)
   }
 
   @Test
   fun `should set deep state path`() {
     // WHEN the DEEP_STATE screen is rendered
-    val screen = nimbus.createNodeFromJson(DEEP_STATE)
-    view!!.renderer.paint(screen)
+    view.render(DEEP_STATE)
     // THEN nothing should've been logged
     assertTrue(logger.entries.isEmpty())
+    val currentUI = view.getRendered()?.children?.first()
     // AND text should be { a: { b: { c: { d: { e: 0, f: 1 }, g: 2 } } } }
     assertEquals(
       mapOf("a" to mapOf("b" to mapOf("c" to mapOf("d" to mapOf("e" to 0, "f" to 1), "g" to 2)))),
@@ -217,18 +196,15 @@ class SetStateTest {
     assertTrue(logger.entries.isEmpty())
     // AND text should be { a: { b: { 5 } }
     assertEquals(mapOf("a" to mapOf("b" to 5)), currentUI?.children?.get(0)?.properties?.get("text"))
-
-    // AND the screen should've been updated 3 times (4 renders)
-    assertEquals(4, numberOfRenders)
   }
 
   @Test
   fun `should set global state`() {
     // WHEN the GLOBAL_STATE screen is rendered
-    val screen = nimbus.createNodeFromJson(GLOBAL_STATE)
-    view!!.renderer.paint(screen)
+    view.render(GLOBAL_STATE)
     // THEN nothing should've been logged
     assertTrue(logger.entries.isEmpty())
+    val currentUI = view.getRendered()?.children?.first()
     // AND text should be Hey !
     assertEquals("Hey !", currentUI?.children?.get(0)?.properties?.get("text"))
 
@@ -236,10 +212,7 @@ class SetStateTest {
     NodeUtils.pressButton(currentUI, "setUserName")
     // THEN nothing should've been logged
     assertTrue(logger.entries.isEmpty())
-    // AND the screen should've been updated
-    assertEquals(2, numberOfRenders)
     // AND text should be Hey John!
     assertEquals("Hey John!", currentUI?.children?.get(0)?.properties?.get("text"))
   }
 }
-*/

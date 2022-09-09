@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.action
+package com.zup.nimbus.core.ui.action
 
 import com.zup.nimbus.core.network.FIRST_BAD_STATUS
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
@@ -18,7 +18,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 internal fun sendRequest(event: ActionTriggeredEvent) {
-  val nimbus = event.origin.view.nimbusInstance
   val properties = event.action.properties
   try {
     // deserialize parameters
@@ -32,7 +31,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
 
     // create request and coroutine scope
     val request = ServerDrivenRequest(
-      url = nimbus.urlBuilder.build(url),
+      url = event.scope.getUrlBuilder().build(url),
       method = method,
       headers = headers,
       body = if (data == null) null else Json.encodeToString(data),
@@ -42,7 +41,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
     // launch the request thread
     coroutineScope.launch {
       try {
-        val response = nimbus.httpClient.sendRequest(request)
+        val response = event.scope.getHttpClient().sendRequest(request)
         val callbackData = HashMap<String, Any?>()
         val statusText = HttpStatusCode.fromValue(response.status).description
         callbackData["status"] = response.status
@@ -57,7 +56,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
         if (response.status >= FIRST_BAD_STATUS) @Suppress("TooGenericExceptionThrown") throw Error(statusText)
         onSuccess?.run(callbackData)
       } catch (e: Throwable) {
-        nimbus.logger.error("Unable to send request.\n${e.message ?: ""}")
+        event.scope.getLogger().error("Unable to send request.\n${e.message ?: ""}")
         onError?.run(mapOf(
           "status" to 0,
           "statusText" to "Unable to send request",
@@ -67,6 +66,6 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
       onFinish?.run()
     }
   } catch (e: Throwable) {
-    nimbus.logger.error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")
+    event.scope.getLogger().error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")
   }
 }

@@ -74,7 +74,7 @@ expect class FastRegex(pattern: String) {
 
   /**
    * Temporary solution for parsing expressions. We'll probably need to reformulate this when revising the
-   * implementation and extending grammar.
+   * implementation and extending the grammar.
    *
    * This replaces every unmatching substring with the transformUnmatching function passed as parameter and every
    * matching substring with the transformMatching substring passed as parameter. The result is a list of whatever

@@ -1,13 +1,12 @@
-package com.zup.nimbus.core.ast
+package com.zup.nimbus.core.expression
 
 import com.zup.nimbus.core.regex.toFastRegex
+import com.zup.nimbus.core.scope.NimbusScope
 import com.zup.nimbus.core.tree.stateful.Stateful
 
 private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)\}""".toFastRegex()
 
-class StringTemplateParser(
-  private val parseExpression: (code: String, origin: Stateful) -> Expression,
-) {
+class StringTemplateParser(private val scope: NimbusScope) {
   fun parse(stringContainingExpression: String, origin: Stateful): StringTemplate {
     val composition = expressionRegex.transform(stringContainingExpression, { Literal(it) }) {
       val (slashes, code) = it.destructured
@@ -16,7 +15,7 @@ class StringTemplateParser(
 
       if (isExpressionEscaped) return@transform Literal("${escapedSlashes.dropLast(1)}@{$code}")
 
-      val expression = parseExpression(code, origin)
+      val expression = scope.getExpressionParser().parseExpression(code, origin)
       return@transform (
         if (escapedSlashes.isEmpty()) expression
         else StringTemplate(listOf(Literal(escapedSlashes), expression))
