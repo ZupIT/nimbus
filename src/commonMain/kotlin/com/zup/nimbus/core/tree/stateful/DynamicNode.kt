@@ -4,11 +4,12 @@ import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
 
-abstract class DynamicNode(
+open class DynamicNode(
   id: String,
   component: String,
   states: List<ServerDrivenState>?,
-  parent: ServerDrivenNode?
+  parent: ServerDrivenNode?,
+  val polymorphic: Boolean = false,
 ) : ServerDrivenNode(id, component, null, null, states, parent) {
   internal var propertyContainer: PropertyContainer? = null
   internal var childrenContainer: NodeContainer? = null
@@ -20,5 +21,11 @@ abstract class DynamicNode(
     childrenContainer?.addDependent(this)
     update()
     hasChanged = false
+  }
+
+  override fun update() {
+    propertyContainer?.let { properties = it.read() }
+    childrenContainer?.let { children = it.read() }
+    hasChanged = true
   }
 }

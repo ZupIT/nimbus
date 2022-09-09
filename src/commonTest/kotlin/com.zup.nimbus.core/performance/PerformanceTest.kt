@@ -29,7 +29,7 @@ class PerformanceTest {
   private val uiLibrary = UILibrary()
     .addOperation("formatPrice") { "US$ ${it[0]}" }
 
-  private suspend fun addToCart(content: ServerDrivenNode, productId: Int): Long {
+  private fun addToCart(content: ServerDrivenNode, productId: Int): Long {
     // do not use NodeUtils.pressButton here, we can't measure the time it takes to find the button.
     val button = content.findNodeById("add-to-cart:$productId") ?: throw Error("Could not find button")
     val started = Clock.System.now().toEpochMilliseconds()

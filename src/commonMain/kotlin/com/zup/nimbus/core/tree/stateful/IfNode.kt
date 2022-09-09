@@ -7,7 +7,7 @@ class IfNode(
   id: String,
   states: List<ServerDrivenState>?,
   parent: ServerDrivenNode,
-) : DynamicNode(id, "if", states, parent) {
+) : DynamicNode(id, "if", states, parent, true) {
   override fun update() {
     val condition: Boolean = valueOfKey(propertyContainer?.read(), "condition")
     val fromContainer = childrenContainer?.read()

@@ -6,11 +6,11 @@ import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.scope.ViewScope
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
+import com.zup.nimbus.core.tree.stateful.DynamicNode
 import com.zup.nimbus.core.tree.stateful.ForEachNode
 import com.zup.nimbus.core.tree.stateful.IfNode
 import com.zup.nimbus.core.tree.stateful.RootNode
 import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import com.zup.nimbus.core.tree.stateful.UINode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfKey
 
@@ -37,7 +37,7 @@ object NodeBuilder {
       val node = when(component) {
         "if" -> IfNode(id, states, parent)
         "forEach" -> ForEachNode(id, states, parent)
-        else -> UINode(id, component, states, parent)
+        else -> DynamicNode(id, component, states, parent)
       }
 
       val propertyContainer = properties?.let {
