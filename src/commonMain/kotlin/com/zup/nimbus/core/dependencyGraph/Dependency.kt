@@ -23,4 +23,11 @@ abstract class Dependency {
   fun addDependent(dependent: Dependent) {
     dependents.add(dependent)
   }
+
+  /**
+   * Removes a dependent.
+   */
+  fun removeDependent(dependent: Dependent) {
+    dependents.remove(dependent)
+  }
 }

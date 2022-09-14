@@ -97,7 +97,7 @@ class IfTest {
   }
 
   @Test
-  fun `should toggle if-else content`() {
+  fun `should toggle then-else content`() {
     // WHEN a screen with if (condition = true) and then is rendered
     val nimbus = Nimbus(ServerDrivenConfig("", "test"))
     val page = nimbus.createView({ EmptyNavigator() })
@@ -107,5 +107,22 @@ class IfTest {
     assertElseContent(column?.children, true)
     NodeUtils.pressButton(column, "toggle")
     assertThenContent(column?.children, true)
+  }
+
+  @Test
+  fun `should create if-then-else behavior when if is the root node and declare its state`() {
+    // WHEN a screen with if as the root component is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val page = nimbus.createView({ EmptyNavigator() })
+    page.render(simpleRootIf)
+    val root = page.getRendered()
+    // THEN the content of then should be rendered
+    assertEquals(1, root?.children?.size)
+    assertEquals("toggle-true", root?.children?.get(0)?.id)
+    // WHEN the button to toggle the state is pressed
+    NodeUtils.pressButton(root, "toggle-true")
+    // THEN the content of else should be rendered
+    assertEquals(1, root?.children?.size)
+    assertEquals("toggle-false", root?.children?.get(0)?.id)
   }
 }

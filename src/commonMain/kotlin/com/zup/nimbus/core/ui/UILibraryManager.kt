@@ -7,17 +7,29 @@ import com.zup.nimbus.core.regex.toFastRegex
 
 private val identifierRegex = "(?:(\\w+):)?(\\w+)".toFastRegex()
 
+class NamespaceName(val namespace: String, val name: String) {
+  operator fun component1(): String = namespace
+  operator fun component2(): String = name
+}
+
 class UILibraryManager(libraries: List<UILibrary>? = null) {
   private val libraries = mutableMapOf<String, UILibrary>()
 
+  companion object {
+    fun splitIdentifier(identifier: String): NamespaceName? {
+      val matched = identifierRegex.findWithGroups(identifier) ?: return null
+      val (namespace, name) = matched.destructured
+      return NamespaceName(namespace, name)
+    }
+  }
+
   init {
-    this.libraries[""] = coreUILibrary
+    if (libraries?.isEmpty() != false) addLibrary(coreUILibrary)
     libraries?.forEach { addLibrary(it) }
   }
 
   private fun <T>get(identifier: String, getter: (UILibrary, String) -> T): T? {
-    val matched = identifierRegex.findWithGroups(identifier) ?: return null
-    val (namespace, name) = matched.destructured
+    val (namespace, name) = splitIdentifier(identifier) ?: return null
     val library = libraries[namespace]
     return library?.let { getter(it, name) }
   }
@@ -44,6 +56,10 @@ class UILibraryManager(libraries: List<UILibrary>? = null) {
       if (operation != null) return operation
     }
     return null
+  }
+
+  fun getLibrary(namespace: String): UILibrary? {
+    return libraries[namespace]
   }
 
   fun addLibrary(lib: UILibrary) {

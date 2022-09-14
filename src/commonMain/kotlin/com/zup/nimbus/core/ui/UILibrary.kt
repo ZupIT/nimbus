@@ -4,7 +4,7 @@ import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.ActionInitializationHandler
 import com.zup.nimbus.core.OperationHandler
 
-class UILibrary(val namespace: String = "") {
+open class UILibrary(val namespace: String = "") {
   private val actions = mutableMapOf<String, ActionHandler>()
   private val actionInitializers = mutableMapOf<String, ActionInitializationHandler>()
   private val actionObservers = mutableListOf<ActionHandler>()
@@ -46,10 +46,11 @@ class UILibrary(val namespace: String = "") {
     return operations[name]
   }
 
-  fun merge(other: UILibrary) {
+  open fun merge(other: UILibrary): UILibrary {
     actions.putAll(other.actions)
     actionInitializers.putAll(other.actionInitializers)
     actionObservers.addAll(other.actionObservers)
     operations.putAll(other.operations)
+    return this
   }
 }

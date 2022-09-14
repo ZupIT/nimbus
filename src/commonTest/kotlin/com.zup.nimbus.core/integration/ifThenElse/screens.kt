@@ -91,3 +91,39 @@ fun createIfThenElseScreen(
     ]
   }"""
 }
+
+private fun createRootIfButton(value: Boolean) = """{
+  "_:component": "material:button",
+  "id": "toggle-$value",
+  "properties": {
+    "text": "value is $value",
+    "onPress": [{
+      "_:action": "setState",
+      "properties": {
+        "path": "test",
+        "value": ${!value}
+      }
+    }]
+  }
+}"""
+
+val simpleRootIf = """{
+  "_:component": "if",
+  "state": {
+    "id": "test",
+    "value": true
+  },
+  "properties": {
+    "condition": "@{test}"
+  },
+  "children": [
+    {
+      "_:component": "then",
+      "children": [${createRootIfButton(true)}]
+    },
+    {
+      "_:component": "else",
+      "children": [${createRootIfButton(false)}]
+    }
+  ]
+}"""

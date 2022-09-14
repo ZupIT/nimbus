@@ -16,7 +16,7 @@ import com.zup.nimbus.core.ui.operations.registerNumberOperations
 import com.zup.nimbus.core.ui.operations.registerOtherOperations
 import com.zup.nimbus.core.ui.operations.registerStringOperations
 
-internal val coreUILibrary = UILibrary("")
+val coreUILibrary = UILibrary("")
   // Actions
   .addAction("push") { push(it) }
   .addAction("pop") { pop(it) }
