@@ -1,7 +1,7 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.dependencyGraph.Dependency
-import com.zup.nimbus.core.dependencyGraph.updateDependentsOf
+import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.updateDependentsOf
 import com.zup.nimbus.core.utils.setMapValue
 import com.zup.nimbus.core.utils.valueOfPath
 
@@ -41,6 +41,7 @@ class ServerDrivenState(
       value = newValue
     } else {
       if (value !is MutableMap<*, *>) value = HashMap<String, Any>()
+      @Suppress("UNCHECKED_CAST")
       setMapValue(value as MutableMap<String, Any?>, path, newValue)
     }
   }

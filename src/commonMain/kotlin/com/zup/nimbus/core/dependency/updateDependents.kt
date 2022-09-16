@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.dependencyGraph
+package com.zup.nimbus.core.dependency
 
 private fun traverseAndUpdateLevels(
   dependency: Dependency,

@@ -9,6 +9,8 @@ import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
 
+private inline fun getNavigator(event: ActionEvent) = event.scope.view.navigator
+
 private fun requestFromEvent(event: ActionEvent): ViewRequest {
   val properties = event.action.properties
   return ViewRequest(
@@ -22,36 +24,36 @@ private fun requestFromEvent(event: ActionEvent): ViewRequest {
 private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
   try {
     val request = requestFromEvent(event)
-    if (isPush) event.scope.getNavigator().push(request)
-    else event.scope.getNavigator().present(request)
+    if (isPush) getNavigator(event).push(request)
+    else getNavigator(event).present(request)
   } catch (e: UnexpectedDataTypeError) {
-    event.scope.getLogger().error("Error while navigating.\n${e.message}")
+    event.scope.nimbus.logger.error("Error while navigating.\n${e.message}")
   }
 }
 
 internal fun push(event: ActionTriggeredEvent) = pushOrPresent(event, true)
 
-internal fun pop(event: ActionTriggeredEvent) = event.scope.getNavigator().pop()
+internal fun pop(event: ActionTriggeredEvent) = getNavigator(event).pop()
 
 internal fun popTo(event: ActionTriggeredEvent) {
   try {
-    event.scope.getNavigator().popTo(valueOfKey(event.action.properties, "url"))
+    getNavigator(event).popTo(valueOfKey(event.action.properties, "url"))
   } catch (e: UnexpectedDataTypeError) {
-    event.scope.getLogger().error("Error while navigating.\n${e.message}")
+    event.scope.nimbus.logger.error("Error while navigating.\n${e.message}")
   }
 }
 
 internal fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
 
-internal fun dismiss(event: ActionTriggeredEvent) = event.scope.getNavigator().dismiss()
+internal fun dismiss(event: ActionTriggeredEvent) = getNavigator(event).dismiss()
 
 internal fun onPushOrPresentRendered(event: ActionInitializedEvent) {
   try {
     val prefetch: Boolean = valueOfKey(event.action.properties, "prefetch") ?: false
     if (!prefetch) return
     val request = requestFromEvent(event)
-    event.scope.getViewClient().preFetch(request)
+    event.scope.nimbus.viewClient.preFetch(request)
   } catch (e: Throwable) {
-    event.scope.getLogger().error("Error while pre-fetching view.\n${e.message}")
+    event.scope.nimbus.logger.error("Error while pre-fetching view.\n${e.message}")
   }
 }

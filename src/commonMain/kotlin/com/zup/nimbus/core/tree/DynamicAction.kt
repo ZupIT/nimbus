@@ -1,32 +1,46 @@
 package com.zup.nimbus.core.tree
 
 import com.zup.nimbus.core.ActionHandler
+import com.zup.nimbus.core.ActionInitializationHandler
+import com.zup.nimbus.core.ActionInitializedEvent
+import com.zup.nimbus.core.scope.CloneAfterInitializationError
+import com.zup.nimbus.core.scope.DoubleInitializationError
+import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.tree.container.PropertyContainer
-import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
 
 class DynamicAction(
   override val name: String,
   override val handler: ActionHandler,
+  private val initHandler: ActionInitializationHandler?,
 ) : ServerDrivenAction {
   override var properties: Map<String, Any?>? = null
   override var metadata: Map<String, Any?>? = null
-  private var propertyContainer: PropertyContainer? = null
-  private var metadataContainer: PropertyContainer? = null
-
-  internal fun setPropertyContainer(propertyContainer: PropertyContainer) {
-    this.propertyContainer = propertyContainer
-    propertyContainer.addDependent(this)
-    update()
-  }
-
-  internal fun setMetadataContainer(metadataContainer: PropertyContainer) {
-    this.metadataContainer = metadataContainer
-    metadataContainer.addDependent(this)
-    update()
-  }
+  internal var propertyContainer: PropertyContainer? = null
+  internal var metadataContainer: PropertyContainer? = null
+  private var hasInitialized = false
 
   override fun update() {
     properties = propertyContainer?.read()
     metadata = metadataContainer?.read()
+  }
+
+  override fun initialize(scope: Scope) {
+    if (scope !is ServerDrivenEvent) throw IllegalArgumentException("Actions must be initialized with events!")
+    if (hasInitialized) throw DoubleInitializationError()
+    propertyContainer?.initialize(scope)
+    metadataContainer?.initialize(scope)
+    propertyContainer?.addDependent(this)
+    metadataContainer?.addDependent(this)
+    initHandler?.let { it(ActionInitializedEvent(this, scope)) }
+    hasInitialized = true
+    update()
+  }
+
+  override fun clone(): ServerDrivenAction {
+    if (hasInitialized) throw CloneAfterInitializationError()
+    val cloned = DynamicAction(name, handler, initHandler)
+    cloned.metadataContainer = metadataContainer?.clone()
+    cloned.propertyContainer = propertyContainer?.clone()
+    return cloned
   }
 }

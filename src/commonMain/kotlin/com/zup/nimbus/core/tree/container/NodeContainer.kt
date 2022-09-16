@@ -1,18 +1,29 @@
 package com.zup.nimbus.core.tree.container
 
-import com.zup.nimbus.core.dependencyGraph.Dependency
-import com.zup.nimbus.core.dependencyGraph.Dependent
-import com.zup.nimbus.core.tree.stateful.DynamicNode
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
+import com.zup.nimbus.core.scope.CloneAfterInitializationError
+import com.zup.nimbus.core.scope.DoubleInitializationError
+import com.zup.nimbus.core.scope.LazilyScoped
+import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.Dependent
+import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.tree.node.DynamicNode
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
-class NodeContainer(private val nodeList: List<ServerDrivenNode>): Dependent, Dependency() {
+class NodeContainer(
+  private val nodeList: List<ServerDrivenNode>,
+): Dependent, Dependency(), LazilyScoped<NodeContainer> {
   private var uiNodes = emptyList<ServerDrivenNode>()
+  private var hasInitialized = false
 
-  init {
+  override fun initialize(scope: Scope) {
+    if (hasInitialized) throw DoubleInitializationError()
+    nodeList.forEach {
+      it.initialize(scope)
+      if (isPolymorphic(it)) it.addDependent(this)
+    }
+    hasInitialized = true
     update()
     hasChanged = false
-    // this should be updated whenever one of its polymorphic node changes
-    nodeList.forEach { if (isPolymorphic(it)) it.addDependent(this) }
   }
 
   private fun isPolymorphic(node: ServerDrivenNode): Boolean {
@@ -43,5 +54,11 @@ class NodeContainer(private val nodeList: List<ServerDrivenNode>): Dependent, De
       uiNodes = result
       hasChanged = true
     }
+  }
+
+  override fun clone(): NodeContainer {
+    if (hasInitialized) throw CloneAfterInitializationError()
+    val clonedNodeList = nodeList.map { it.clone() }
+    return NodeContainer(clonedNodeList)
   }
 }

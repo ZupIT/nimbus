@@ -1,9 +1,7 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.RawJsonMap
-import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.scope.NimbusScope
-import com.zup.nimbus.core.utils.parseJsonString
+import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.tree.node.RootNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -15,26 +13,26 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class DefaultViewClient(val scope: NimbusScope) : ViewClient {
+class DefaultViewClient(val nimbus: Nimbus) : ViewClient {
   // used to prevent the ViewClient from launching multiple requests to the same URL in sub-sequent pre-fetches
   private val mutex = Mutex()
   // the keys here are in the format $method:$url
-  private var preFetched = HashMap<String, Deferred<RawJsonMap>>()
+  private var preFetched = HashMap<String, Deferred<RootNode>>()
 
   private fun createPreFetchKey(request: ViewRequest): String {
     return "${request.method}:${request.url}"
   }
 
-  private suspend fun fetchView(request: ViewRequest): RawJsonMap {
+  private suspend fun fetchView(request: ViewRequest): RootNode {
     val coreHeaders = mapOf(
       // "Content-Type" to "application/json", fixme: ktor doesn't like this header
-      "platform" to scope.getPlatform(),
+      "platform" to nimbus.platform,
     )
-    val url = scope.getUrlBuilder().build(request.url)
+    val url = nimbus.urlBuilder.build(request.url)
     val response: ServerDrivenResponse
     try {
       try {
-        response = scope.getHttpClient().sendRequest(
+        response = nimbus.httpClient.sendRequest(
           ServerDrivenRequest(
             url = url,
             method = request.method,
@@ -46,17 +44,17 @@ class DefaultViewClient(val scope: NimbusScope) : ViewClient {
         throw RequestError(e.message)
       }
 
-      if (response.status < FIRST_BAD_STATUS) return parseJsonString(response.body)
+      if (response.status < FIRST_BAD_STATUS) return nimbus.nodeBuilder.buildFromJsonString(response.body)
       throw ResponseError(response.status, response.body)
     } catch (e: Throwable) {
       if (request.fallback == null) throw e
-      scope.getLogger().error("Failed to perform network request to $url, using the provided fallback view instead. " +
+      nimbus.logger.error("Failed to perform network request to $url, using the provided fallback view instead. " +
         "Cause:\n${e.message ?: "Unknown"}")
-      return request.fallback
+      return nimbus.nodeBuilder.buildFromJsonMap(request.fallback)
     }
   }
 
-  override suspend fun fetch(request: ViewRequest): RawJsonMap {
+  override suspend fun fetch(request: ViewRequest): RootNode {
     val key = createPreFetchKey(request)
     val deferred = preFetched[key]
     preFetched = HashMap()
@@ -93,7 +91,7 @@ class DefaultViewClient(val scope: NimbusScope) : ViewClient {
               return@async fetchView(request)
             } catch (e: Throwable) {
               this.cancel("Error while prefetching.\n${e.message}")
-              return@async emptyMap()
+              return@async RootNode()
             }
           }
         }

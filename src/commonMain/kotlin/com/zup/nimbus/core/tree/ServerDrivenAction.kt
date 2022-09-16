@@ -1,10 +1,10 @@
 package com.zup.nimbus.core.tree
 
 import com.zup.nimbus.core.ActionHandler
-import com.zup.nimbus.core.dependencyGraph.Dependent
-import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
+import com.zup.nimbus.core.scope.LazilyScoped
+import com.zup.nimbus.core.dependency.Dependent
 
-interface ServerDrivenAction: Dependent {
+interface ServerDrivenAction: Dependent, LazilyScoped<ServerDrivenAction> {
   /**
    * Identifies the action to execute. This follows the pattern "namespace:name", where "namespace:" is optional.
    * Actions without a namespace are core actions.

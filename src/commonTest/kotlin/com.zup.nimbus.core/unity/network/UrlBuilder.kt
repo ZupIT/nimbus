@@ -34,7 +34,7 @@ class UrlBuilderTest {
         urlBuilder = { CustomUrlBuilderTest() }
       )
     )
-    val result = nimbus.scope.getUrlBuilder().build("new-path")
+    val result = nimbus.urlBuilder.build("new-path")
     assertEquals("/custom-builder/new-path", result)
   }
 }

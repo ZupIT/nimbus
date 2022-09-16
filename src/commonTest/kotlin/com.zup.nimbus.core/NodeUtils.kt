@@ -1,8 +1,7 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import com.zup.nimbus.core.tree.stateful.findNodeById
+import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
 object NodeUtils {
   fun triggerEvent(node: ServerDrivenNode?, eventName: String, implicitStateValue: Any? = null) {

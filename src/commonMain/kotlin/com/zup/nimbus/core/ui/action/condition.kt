@@ -13,6 +13,6 @@ internal fun condition(event: ActionTriggeredEvent) {
     if (condition && onTrue != null) onTrue(null)
     else if (!condition && onFalse != null) onFalse(null)
   } catch (e: UnexpectedDataTypeError) {
-    event.scope.getLogger().error("Error while executing conditional action.\n${e.message}")
+    event.scope.nimbus.logger.error("Error while executing conditional action.\n${e.message}")
   }
 }

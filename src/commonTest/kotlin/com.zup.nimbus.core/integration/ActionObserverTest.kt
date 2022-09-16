@@ -1,13 +1,7 @@
 package com.zup.nimbus.core.integration
 
-import com.zup.nimbus.core.*
-import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.tree.ServerDrivenAction
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
 class AnalyticsRecord(
   val platform: String,

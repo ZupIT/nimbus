@@ -1,5 +1,6 @@
-package com.zup.nimbus.core.expression
+package com.zup.nimbus.core.expression.parser
 
+import com.zup.nimbus.core.expression.Literal
 import com.zup.nimbus.core.regex.matches
 import com.zup.nimbus.core.regex.toFastRegex
 

@@ -1,13 +1,6 @@
 package com.zup.nimbus.core.integration.forEach
 
-import com.zup.nimbus.core.EmptyNavigator
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
 private fun getComponentsInTree(tree: ServerDrivenNode): List<String> {
   val result = ArrayList<String>()

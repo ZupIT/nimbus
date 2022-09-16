@@ -12,7 +12,7 @@ class NamespaceName(val namespace: String, val name: String) {
   operator fun component2(): String = name
 }
 
-class UILibraryManager(libraries: List<UILibrary>? = null) {
+class UILibraryManager(coreLibrary: UILibrary, customLibraries: List<UILibrary>? = null) {
   private val libraries = mutableMapOf<String, UILibrary>()
 
   companion object {
@@ -24,8 +24,8 @@ class UILibraryManager(libraries: List<UILibrary>? = null) {
   }
 
   init {
-    if (libraries?.isEmpty() != false) addLibrary(coreUILibrary)
-    libraries?.forEach { addLibrary(it) }
+    addLibrary(coreLibrary)
+    customLibraries?.forEach { addLibrary(it) }
   }
 
   private fun <T>get(identifier: String, getter: (UILibrary, String) -> T): T? {

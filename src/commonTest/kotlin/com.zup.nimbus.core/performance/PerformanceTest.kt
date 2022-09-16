@@ -1,12 +1,10 @@
 package com.zup.nimbus.core.performance
 
-import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import com.zup.nimbus.core.tree.stateful.findNodeById
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 import com.zup.nimbus.core.ui.UILibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -49,14 +47,13 @@ class PerformanceTest {
     return "${intValue}.$decimalValue"
   }
 
-  private suspend fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
+  private fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
     val json = JsonLoader.loadJson(jsonFileName)
     val nimbus = Nimbus(ServerDrivenConfig("", "test", ui = listOf(uiLibrary)))
-    val page = nimbus.createView({ EmptyNavigator() })
     val started = Clock.System.now().toEpochMilliseconds()
-    page.render(json)
+    val content = nimbus.nodeBuilder.buildFromJsonString(json)
+    content.initialize(nimbus)
     val times = mutableListOf(Clock.System.now().toEpochMilliseconds() - started)
-    val content = page.getRendered()!!
     for (i in 1..20) {
       times.add(addToCart(content, i))
     }
@@ -85,3 +82,4 @@ class PerformanceTest {
     runPerformanceTest("products-forEach", FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS)
   }
 }
+

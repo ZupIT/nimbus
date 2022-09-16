@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.dependencyGraph
+package com.zup.nimbus.core.dependency
 
 /**
  * Makes this a node in the dependency graph so it can be a dependency of another node.

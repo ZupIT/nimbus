@@ -1,29 +1,28 @@
 package com.zup.nimbus.core.tree.builder
 
-import com.zup.nimbus.core.RawJsonMap
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.scope.ViewScope
+import com.zup.nimbus.core.tree.MalformedJsonError
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
-import com.zup.nimbus.core.tree.stateful.DynamicNode
-import com.zup.nimbus.core.tree.stateful.ForEachNode
-import com.zup.nimbus.core.tree.stateful.IfNode
-import com.zup.nimbus.core.tree.stateful.RootNode
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
+import com.zup.nimbus.core.tree.node.DynamicNode
+import com.zup.nimbus.core.tree.node.ForEachNode
+import com.zup.nimbus.core.tree.node.IfNode
+import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.node.ServerDrivenNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
+import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import com.zup.nimbus.core.utils.valueOfKey
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.decodeFromString
 
-object NodeBuilder {
-  private fun buildNode(
-    jsonNode: RawJsonMap,
-    parent: ServerDrivenNode,
-    jsonPath: String,
-    scope: ViewScope,
-  ): ServerDrivenNode {
+class NodeBuilder(private val nimbus: Nimbus) {
+  private fun buildNode(jsonNode: Map<String, Any?>, jsonPath: String): ServerDrivenNode {
     val originalId: String? = valueOfKey(jsonNode, "id")
     try {
-      val id = originalId ?: scope.getIdManager().next()
+      val id = originalId ?: nimbus.idManager.next()
       val component: String = valueOfKey(jsonNode, "_:component")
       val stateMap: Map<String, Any>? = valueOfKey(jsonNode, "state")
       val states = stateMap?.let {
@@ -35,27 +34,46 @@ object NodeBuilder {
       val children: List<Map<String, *>>? = valueOfKey(jsonNode, "children")
 
       val node = when(component) {
-        "if" -> IfNode(id, states, parent)
-        "forEach" -> ForEachNode(id, states, parent)
-        else -> DynamicNode(id, component, states, parent)
+        "if" -> IfNode(id, states)
+        "forEach" -> ForEachNode(id, states)
+        else -> DynamicNode(id, component, states)
       }
 
-      val propertyContainer = properties?.let {
-        PropertyContainer(properties, node, scope)
+      node.propertyContainer = properties?.let {
+        PropertyContainer(properties, nimbus)
       }
 
-      val childrenContainer = children?.let {
+      node.childrenContainer = children?.let {
         val childrenAsNodes = children.mapIndexed { index, item ->
-          buildNode(item, node, "$jsonPath.children[:$index]", scope)
+          buildNode(item, "$jsonPath.children[:$index]")
         }
         NodeContainer(childrenAsNodes)
       }
 
-      node.makeDynamic(propertyContainer, childrenContainer)
       return node
     } catch (e: UnexpectedDataTypeError) {
       throw MalformedComponentError(originalId, jsonPath, e.message)
     }
+  }
+
+  /**
+   * Creates a RenderNode from a Json string.
+   *
+   * @param json the json string to deserialize into a RenderNode.
+   * @param idManager the idManager to use for generating ids for components without ids.
+   * @return the resulting RenderNode.
+   * @throws MalformedJsonError if the string is not a valid json.
+   * @throws MalformedComponentError when a component node contains unexpected data.
+   */
+  @Throws(MalformedJsonError::class, MalformedComponentError::class)
+  fun buildFromJsonString(json: String): RootNode {
+    val jsonObject: JsonObject
+    try {
+      jsonObject = Json.decodeFromString(json)
+    } catch (e: Throwable) {
+      throw MalformedJsonError("The string provided is not a valid json.")
+    }
+    return buildFromJsonMap(transformJsonObjectToMap(jsonObject))
   }
 
   /**
@@ -66,20 +84,9 @@ object NodeBuilder {
    * @throws MalformedComponentError when a component node contains unexpected data.
    */
   @Throws(MalformedComponentError::class)
-  fun buildFromJsonNode(
-    jsonNode: RawJsonMap,
-    id: String?,
-    states: List<ServerDrivenState>?,
-    scope: ViewScope,
-  ): RootNode {
-    val root = RootNode(id ?: scope.getIdManager().next(), states)
-    updateRootNodeWithNewJsonNode(root, jsonNode, scope)
+  fun buildFromJsonMap(jsonMap: Map<String, Any?>): RootNode {
+    val root = RootNode()
+    root.childrenContainer = NodeContainer(listOf(buildNode(jsonMap, "$")))
     return root
-  }
-
-  @Throws(MalformedComponentError::class)
-  fun updateRootNodeWithNewJsonNode(root: RootNode, jsonNode: RawJsonMap, scope: ViewScope) {
-    val childrenContainer = NodeContainer(listOf(buildNode(jsonNode, root, "$", scope)))
-    root.makeDynamic(null, childrenContainer)
   }
 }

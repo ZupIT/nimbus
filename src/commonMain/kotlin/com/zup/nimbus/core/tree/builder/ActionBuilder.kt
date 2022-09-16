@@ -1,51 +1,48 @@
 package com.zup.nimbus.core.tree.builder
 
 import com.zup.nimbus.core.ActionHandler
-import com.zup.nimbus.core.ActionInitializedEvent
-import com.zup.nimbus.core.scope.EventScope
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.tree.DynamicAction
 import com.zup.nimbus.core.tree.ServerDrivenAction
 import com.zup.nimbus.core.tree.container.PropertyContainer
 import com.zup.nimbus.core.utils.valueOfKey
 
-object ActionBuilder {
+class ActionBuilder(private val nimbus: Nimbus) {
   fun isJsonAction(maybeAction: Any?): Boolean {
     return maybeAction is Map<*, *> && maybeAction.containsKey("_:action")
   }
 
-  private fun actionNotFoundError(name: String, scope: EventScope): ActionHandler {
+  private fun actionNotFoundError(name: String): ActionHandler {
     val error = "Couldn't find handler for action with name \"$name\". Please, make sure you registered your custom actions."
-    scope.getLogger().error(error)
-    return { scope.getLogger().error(error) }
+    nimbus.logger.error(error)
+    return { nimbus.logger.error(error) }
   }
 
-  private fun createHandler(name: String, scope: EventScope): ActionHandler {
-    val executionHandler = scope.getUILibraryManager().getAction(name) ?: return actionNotFoundError(name, scope)
-    val observers = scope.getUILibraryManager().getActionObservers()
+  private fun createHandler(name: String): ActionHandler {
+    val executionHandler = nimbus.uiLibraryManager.getAction(name) ?: return actionNotFoundError(name)
+    val observers = nimbus.uiLibraryManager.getActionObservers()
     return { event ->
       executionHandler(event)
       observers.forEach { it(event) }
     }
   }
 
-  fun fromJsonAction(map: Map<String, Any?>, scope: EventScope): ServerDrivenAction {
-    val event = scope.getEvent()
+  fun buildFromJsonMap(map: Map<String, Any?>): ServerDrivenAction {
     val name: String = valueOfKey(map, "_:action")
-    val handler = createHandler(name, scope)
-    val initHandler = scope.getUILibraryManager().getActionInitializer(name)
+    val handler = createHandler(name)
+    val initHandler = nimbus.uiLibraryManager.getActionInitializer(name)
     val properties: Map<String, Any?>? = valueOfKey(map, "properties")
     val metadata: Map<String, Any?>? = valueOfKey(map, "metadata")
-    val action = DynamicAction(name, handler)
+    val action = DynamicAction(name, handler, initHandler)
 
-    if (properties != null) {
-      action.setPropertyContainer(PropertyContainer(properties, event, scope))
+    action.propertyContainer = properties?.let {
+      PropertyContainer(it, nimbus)
     }
 
-    if (metadata != null) {
-      action.setMetadataContainer(PropertyContainer(metadata, event, scope))
+    action.metadataContainer = metadata?.let {
+      PropertyContainer(it, nimbus)
     }
 
-    initHandler?.let { it(ActionInitializedEvent(action, scope)) }
     return action
   }
 }

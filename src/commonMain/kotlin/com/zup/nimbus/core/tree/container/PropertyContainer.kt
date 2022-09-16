@@ -1,75 +1,127 @@
 package com.zup.nimbus.core.tree.container
 
+import com.zup.nimbus.core.scope.CloneAfterInitializationError
+import com.zup.nimbus.core.scope.DoubleInitializationError
+import com.zup.nimbus.core.scope.LazilyScoped
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.expression.Expression
-import com.zup.nimbus.core.dependencyGraph.Dependency
-import com.zup.nimbus.core.dependencyGraph.Dependent
-import com.zup.nimbus.core.scope.ViewScope
-import com.zup.nimbus.core.tree.builder.EventBuilder
-import com.zup.nimbus.core.tree.stateful.Stateful
+import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.Dependent
+import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.tree.ServerDrivenEvent
 
-class PropertyContainer(
-  properties: Map<String, Any?>,
-  stateSource: Stateful,
-  private val scope: ViewScope,
-): Dependency(), Dependent {
+class PropertyContainer private constructor(
+  private val nimbus: Nimbus,
+): LazilyScoped<PropertyContainer>, Dependency(), Dependent {
+  // General variables
+
   private var expressionEvaluators = mutableListOf<() -> Unit>()
-  private var currentProperties = parseMap(properties, stateSource)
+  private lateinit var currentProperties: Map<String, Any?>
+  private var hasInitialized = false
+  private var disabled = false
 
-  init {
+  // Variables that should be freed upon initialization
+
+  private var expressions: MutableList<Expression>? = mutableListOf()
+  private var events: MutableList<ServerDrivenEvent>? = mutableListOf()
+
+  // Constructors
+
+  constructor(properties: Map<String, Any?>, nimbus: Nimbus): this(nimbus) {
+    currentProperties = parseMap(properties)
+  }
+
+  private constructor(
+    currentProperties: Map<String, Any?>,
+    expressions: MutableList<Expression>,
+    expressionEvaluators: MutableList<() -> Unit>,
+    events: MutableList<ServerDrivenEvent>,
+    nimbus: Nimbus,
+  ): this(nimbus) {
+    this.currentProperties = currentProperties
+    this.expressions = expressions
+    this.expressionEvaluators = expressionEvaluators
+    this.events = events
+  }
+
+  // Lazy initialization and cloning
+
+  override fun initialize(scope: Scope) {
+    if (hasInitialized) throw DoubleInitializationError()
+    expressions?.forEach {
+      if (it is LazilyScoped<*>) it.initialize(scope)
+      if (it is Dependency) it.dependents.add(this)
+    }
+    events?.forEach { it.initialize(scope) }
+    expressions = null
+    events = null
+    hasInitialized = true
     update()
     hasChanged = false
   }
 
-  private fun parseExpression(toParse: String, stateSource: Stateful): Expression {
-    val expression = scope.getExpressionParser().parseString(toParse, stateSource)
-    if (expression is Dependency) expression.dependents.add(this)
-    return expression
+  override fun clone(): PropertyContainer {
+    if (hasInitialized) throw CloneAfterInitializationError()
+    val clonedExpressions = mutableListOf<Expression>()
+    val clonedEvents = mutableListOf<ServerDrivenEvent>()
+    val clonedExpressionEvaluators = mutableListOf<() -> Unit>()
+    val clonedProperties = PropertyCopying.copyMap(
+      source = currentProperties,
+      clonedExpressions,
+      clonedExpressionEvaluators,
+      clonedEvents,
+    )
+    return PropertyContainer(clonedProperties, clonedExpressions, clonedExpressionEvaluators, clonedEvents, nimbus)
   }
 
-  private fun parseAny(toParse: Any?, stateSource: Stateful, key: String? = null): Any? {
+  // Other methods
+
+  private fun parseAny(toParse: Any?, key: String? = null): Any? {
     return when(toParse) {
       is String -> {
-        if (scope.getExpressionParser().containsExpression(toParse)) parseExpression(toParse, stateSource)
+        if (nimbus.expressionParser.containsExpression(toParse)) {
+          val expression = nimbus.expressionParser.parseString(toParse)
+          expressions?.add(expression)
+          expression
+        }
         else toParse
       }
       is List<*> -> {
-        if (key != null && EventBuilder.isJsonEvent(toParse)) {
-          EventBuilder.buildFromJsonEvent(key, toParse, stateSource, scope)
+        if (key != null && nimbus.eventBuilder.isJsonEvent(toParse)) {
+          val event = nimbus.eventBuilder.buildFromJsonMap(key, toParse)
+          events?.add(event)
+          event
         } else {
-          parseList(toParse, stateSource)
+          parseList(toParse)
         }
       }
-      is Map<*, *> -> parseMap(toParse as Map<String, Any?>, stateSource)
+      is Map<*, *> -> @Suppress("UNCHECKED_CAST") parseMap(toParse as Map<String, Any?>)
       else -> toParse
     }
   }
 
-  private fun parseList(toParse: List<Any?>, stateSource: Stateful): List<Any?> {
+  private fun parseList(toParse: List<Any?>): List<Any?> {
     val result = mutableListOf<Any?>()
     toParse.forEachIndexed { index, value ->
-      val parsed = parseAny(value, stateSource)
+      val parsed = parseAny(value)
       if (parsed is Expression) {
         expressionEvaluators.add { result[index] = parsed.getValue() }
-        result.add(index, value)
-      } else {
-        result.add(index, parsed)
       }
+      result.add(index, parsed)
     }
     return result
   }
 
-  private fun parseMap(toParse: Map<String, Any?>, stateSource: Stateful): HashMap<String, Any?> {
+  private fun parseMap(toParse: Map<String, Any?>): HashMap<String, Any?> {
     val result = HashMap<String, Any?>()
     toParse.forEach {
       val key = it.key
       val value = it.value
-      val parsed = parseAny(value, stateSource, key)
+      val parsed = parseAny(value, key)
       if (parsed is Expression) {
         expressionEvaluators.add { result[key] = parsed.getValue() }
-        result[key] = value
-      } else {
-        result[key] = parsed
       }
+      result[key] = parsed
     }
     return result
   }
@@ -79,7 +131,13 @@ class PropertyContainer(
   }
 
   override fun update() {
+    if (disabled) return
     expressionEvaluators.forEach { it() }
     hasChanged = true
+  }
+
+  fun disable() {
+    disabled = true
+    expressionEvaluators.clear()
   }
 }

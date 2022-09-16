@@ -5,7 +5,6 @@ import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
-import com.zup.nimbus.core.scope.NimbusScope
 import com.zup.nimbus.core.tree.IdManager
 
 data class ServerDrivenConfig(
@@ -18,6 +17,7 @@ data class ServerDrivenConfig(
    */
   val platform: String,
   val ui: List<UILibrary>? = null,
+  val coreUILibrary: UILibrary? = null,
   /**
    * The logger to call when printing errors, warning and information messages. By default, Nimbus will use its
    * DefaultLogger that just prints the messages to the console.
@@ -44,10 +44,11 @@ data class ServerDrivenConfig(
    * A ViewClient is also responsible for implementing the prefetch logic, indicated by the property "prefetch" of a
    * navigation action. Check the DefaultViewClient documentation to know more about how it deals with prefetching.
    */
-  val viewClient: ((scope: NimbusScope) -> ViewClient)? = null,
+  val viewClient: ((nimbus: Nimbus) -> ViewClient)? = null,
   /**
    * An id generator for creating unique ids for nodes in a UI tree when one is not provided by the JSON. By default,
    * the ids are incremental, starting at 0 and prefixed with "nimbus:".
    */
   val idManager: IdManager? = null,
+  val states: List<ServerDrivenState>? = null,
 )

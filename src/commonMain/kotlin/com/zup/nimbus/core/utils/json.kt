@@ -1,10 +1,5 @@
 package com.zup.nimbus.core.utils
 
-import com.zup.nimbus.core.RawJsonMap
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.MalformedJsonError
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -20,24 +15,7 @@ import kotlinx.serialization.json.longOrNull
 /* fixme: when we started this project we believed our maps and lists inside a node would need to be mutable, but we're
 currently very far into the implementation and we didn't need anything to be mutable. I already changed the types
 to immutable maps/lists in the RenderNode. But here, where we deserialize everything, we keep creating mutable data
-structures, which is unnecessary. */
-
-/**
- * Creates a RenderNode from a Json string.
- *
- * @param json the json string to deserialize into a RenderNode.
- * @throws MalformedJsonError if the string is not a valid json.
- */
-@Throws(MalformedJsonError::class)
-fun parseJsonString(json: String): RawJsonMap {
-  val jsonObject: JsonObject
-  try {
-    jsonObject = Json.decodeFromString(json)
-    return transformJsonObjectToMap(jsonObject)
-  } catch (e: Throwable) {
-    throw MalformedJsonError("The string provided is not a valid json.")
-  }
-}
+structures, which is unnecessary.*/
 
 /**
  * Transforms a JsonObject into a Kotlin Mutable Map recursively, i.e. this method will transform every JsonElement

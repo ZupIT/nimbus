@@ -59,7 +59,7 @@ class DefaultHttpClientTest {
       )
     )
 
-    val response = nimbus.scope.getHttpClient()
+    val response = nimbus.httpClient
       .sendRequest(ServerDrivenRequest("/", null, null, null))
     assertEquals(response.status, TestCustomHttpClient.expectedStatusCode)
     assertEquals(response.body, TestCustomHttpClient.expectedBody)

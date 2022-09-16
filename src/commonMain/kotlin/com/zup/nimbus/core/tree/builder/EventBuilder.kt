@@ -1,26 +1,23 @@
 package com.zup.nimbus.core.tree.builder
 
-import com.zup.nimbus.core.scope.ViewScope
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.tree.MalformedActionListError
-import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
-import com.zup.nimbus.core.tree.stateful.Stateful
+import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 
-object EventBuilder {
+class EventBuilder(nimbus: Nimbus) {
+  private val actionBuilder = ActionBuilder(nimbus)
+
   fun isJsonEvent(maybeEvent: Any?): Boolean {
-    return maybeEvent is List<*> && maybeEvent.isNotEmpty() && ActionBuilder.isJsonAction(maybeEvent.first()!!)
+    return maybeEvent is List<*> && maybeEvent.isNotEmpty() && actionBuilder.isJsonAction(maybeEvent.first()!!)
   }
 
-  fun buildFromJsonEvent(
-    name: String,
-    jsonEvent: Any?,
-    parent: Stateful,
-    scope: ViewScope,
-  ): ServerDrivenEvent {
+  fun buildFromJsonMap(name: String, jsonEvent: Any?): ServerDrivenEvent {
     try {
+      @Suppress("UNCHECKED_CAST")
       jsonEvent as List<Map<String, Any?>>
-      val event = ServerDrivenEvent(name, parent, scope)
-      event.actions = jsonEvent.map { ActionBuilder.fromJsonAction(it, event.scope) }
+      val event = ServerDrivenEvent(name)
+      event.actions = jsonEvent.map { actionBuilder.buildFromJsonMap(it) }
       return event
     } catch (e: UnexpectedDataTypeError) {
       throw MalformedActionListError(e.message)

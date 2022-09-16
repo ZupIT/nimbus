@@ -1,7 +1,5 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.tree.stateful.ServerDrivenNode
-import kotlinx.coroutines.CompletableDeferred
 /*
 class ViewObserver(view: ServerDrivenView) {
   var history = ArrayList<ServerDrivenNode>()

@@ -4,7 +4,7 @@ import com.zup.nimbus.core.network.FIRST_BAD_STATUS
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ServerDrivenRequest
 import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.tree.stateful.ServerDrivenEvent
+import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
@@ -19,6 +19,7 @@ import kotlinx.serialization.json.JsonElement
 
 internal fun sendRequest(event: ActionTriggeredEvent) {
   val properties = event.action.properties
+  val nimbus = event.scope.nimbus
   try {
     // deserialize parameters
     val url: String = valueOfKey(properties, "url")
@@ -31,7 +32,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
 
     // create request and coroutine scope
     val request = ServerDrivenRequest(
-      url = event.scope.getUrlBuilder().build(url),
+      url = nimbus.urlBuilder.build(url),
       method = method,
       headers = headers,
       body = if (data == null) null else Json.encodeToString(data),
@@ -41,7 +42,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
     // launch the request thread
     coroutineScope.launch {
       try {
-        val response = event.scope.getHttpClient().sendRequest(request)
+        val response = nimbus.httpClient.sendRequest(request)
         val callbackData = HashMap<String, Any?>()
         val statusText = HttpStatusCode.fromValue(response.status).description
         callbackData["status"] = response.status
@@ -56,7 +57,7 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
         if (response.status >= FIRST_BAD_STATUS) @Suppress("TooGenericExceptionThrown") throw Error(statusText)
         onSuccess?.run(callbackData)
       } catch (e: Throwable) {
-        event.scope.getLogger().error("Unable to send request.\n${e.message ?: ""}")
+        nimbus.logger.error("Unable to send request.\n${e.message ?: ""}")
         onError?.run(mapOf(
           "status" to 0,
           "statusText" to "Unable to send request",
@@ -66,6 +67,6 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
       onFinish?.run()
     }
   } catch (e: Throwable) {
-    event.scope.getLogger().error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")
+    nimbus.logger.error("Error while executing action \"sendRequest\".\n${e.message ?: ""}")
   }
 }
