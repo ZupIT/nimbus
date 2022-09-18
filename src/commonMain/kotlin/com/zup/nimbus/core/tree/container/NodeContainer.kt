@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.tree.container
 
+import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
@@ -56,9 +57,11 @@ class NodeContainer(
     }
   }
 
-  override fun clone(): NodeContainer {
+  fun clone(idSuffix: String): NodeContainer {
     if (hasInitialized) throw CloneAfterInitializationError()
-    val clonedNodeList = nodeList.map { it.clone() }
+    val clonedNodeList = nodeList.map { it.clone(idSuffix) }
     return NodeContainer(clonedNodeList)
   }
+
+  override fun clone(): NodeContainer = clone("")
 }

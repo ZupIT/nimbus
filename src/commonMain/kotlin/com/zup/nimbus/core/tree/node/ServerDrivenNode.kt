@@ -27,27 +27,6 @@ abstract class ServerDrivenNode(
   var children: List<ServerDrivenNode>?,
   states: List<ServerDrivenState>?,
 ): Dependency(), Dependent, LazilyScoped<ServerDrivenNode>, Scope by CommonScope(states) {
-  /*val view: ServerDrivenView by lazy {
-    when (parent) {
-      is ServerDrivenView -> parent
-      is ServerDrivenNode -> parent.view
-      else -> throw IllegalStateException(
-        "This node is not yet linked to a view. If you need the nimbus instance, access the property nimbus instead."
-      )
-    }
-  }
-
-  val nimbus: Nimbus by lazy {
-    when (parent) {
-      // it is important that it doesn't rely in the property "view" for getting the nimbus instance because most of
-      // the times, "nimbus" will be available and accessed much before "view".
-      is Nimbus -> parent
-      is ServerDrivenView -> parent.nimbus
-      is ServerDrivenNode -> parent.nimbus
-      else -> throw IllegalStateException("This node is not linked to a nimbus instance!")
-    }
-  }*/
-
   fun findNodeById(id: String): ServerDrivenNode? {
     if (this.id == id) return this
     this.children?.forEach {
@@ -56,4 +35,8 @@ abstract class ServerDrivenNode(
     }
     return null
   }
+
+  abstract fun clone(idSuffix: String): ServerDrivenNode
+
+  override fun clone() = clone("")
 }

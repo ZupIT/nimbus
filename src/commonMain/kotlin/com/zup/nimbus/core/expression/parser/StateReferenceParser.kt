@@ -8,6 +8,7 @@ import com.zup.nimbus.core.expression.StateReference
 import com.zup.nimbus.core.regex.matches
 import com.zup.nimbus.core.regex.toFastRegex
 import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.scope.getPathToScope
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
@@ -30,17 +31,8 @@ class StateReferenceParser(private val nimbus: Nimbus) {
     return Literal(null)
   }
 
-  private fun getLocation(scope: Scope?): String {
-    return when (scope) {
-      is ServerDrivenEvent -> "${getLocation(scope.parent)} > ${scope.name}"
-      is ServerDrivenNode -> "${getLocation(scope.parent)} > ${scope.id} (${scope.component})"
-      is ServerDrivenView -> scope.description ?: "Unknown View"
-      else -> ""
-    }
-  }
-
   private val stateNotFoundError: (String, Scope) -> Unit = { stateId, scope ->
-    val location = "At: ${getLocation(scope)}"
+    val location = "At: ${scope.getPathToScope()}"
     nimbus.logger.error("Couldn't find state with id \"$stateId\". Using null in its place.\n$location")
   }
 

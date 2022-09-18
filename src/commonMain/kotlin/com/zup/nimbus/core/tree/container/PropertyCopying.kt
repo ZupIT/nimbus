@@ -54,7 +54,10 @@ internal object PropertyCopying {
     return when(source) {
       is String, is Number, is Boolean, is Literal -> source
       is List<*> -> copyList(source, expressions, expressionEvaluators, events)
-      is Map<*, *> -> copyMap(source as Map<String, Any?>, expressions, expressionEvaluators, events)
+      is Map<*, *> -> {
+        @Suppress("UNCHECKED_CAST")
+        copyMap(source as Map<String, Any?>, expressions, expressionEvaluators, events)
+      }
       is Expression -> {
         val clonedExpression = if (source is LazilyScoped<*>) source.clone() as Expression else source
         expressions.add(clonedExpression)

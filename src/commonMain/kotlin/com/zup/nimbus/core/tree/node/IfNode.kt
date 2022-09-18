@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.tree.node
 
 import com.zup.nimbus.core.ServerDrivenState
+import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.utils.valueOfKey
 
 // fixme: normally, in UI frameworks, if-else blocks completely remove the other branch from the tree and rebuilds it
@@ -21,4 +22,6 @@ class IfNode(
     children = if (condition) thenNode?.children else elseNode?.children
     hasChanged = previousChildrenStructure != children?.map { it.id }
   }
+
+  override fun clone(idSuffix: String): ServerDrivenNode = clone(idSuffix) { id, states -> IfNode(id, states) }
 }

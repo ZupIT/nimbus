@@ -97,7 +97,7 @@ const val GENERAL_FOR_EACH = """{
   ]
 }"""
 
-const val FOR_EACH_WITH_STATES = """{
+const val STATEFUL_FOR_EACH = """{
   "_:component": "layout:column",
   "children": [
     {
@@ -125,23 +125,29 @@ const val FOR_EACH_WITH_STATES = """{
             },
             {
               "_:component": "material:button",
+              "id": "increment-list",
               "properties": {
-                "text": "Increment listCounter: @{listCounter}",
+                "text": "Increment list counter: @{listCounter}",
                 "onPress": [{
                   "_:action": "setState",
-                  "path": "listCounter",
-                  "value": "@{sum(listCounter, 1)}"
+                  "properties": {
+                    "path": "listCounter",
+                    "value": "@{sum(listCounter, 1)}"
+                  }
                 }]
               }
             },
             {
               "_:component": "material:button",
+              "id": "increment-item",
               "properties": {
                 "text": "Increment item counter: @{itemCounter}",
                 "onPress": [{
                   "_:action": "setState",
-                  "path": "itemCounter",
-                  "value": "@{sum(itemCounter, 1)}"
+                  "properties": {
+                    "path": "itemCounter",
+                    "value": "@{sum(itemCounter, 1)}"
+                  }
                 }]
               }
             }

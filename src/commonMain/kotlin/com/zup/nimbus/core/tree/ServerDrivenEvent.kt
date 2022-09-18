@@ -11,7 +11,7 @@ import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.scope.CommonScope
 import com.zup.nimbus.core.scope.Scope
-import com.zup.nimbus.core.scope.getParentScopeWithType
+import com.zup.nimbus.core.scope.closestScopeWithType
 import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
 class ServerDrivenEvent(
@@ -20,13 +20,13 @@ class ServerDrivenEvent(
   internal lateinit var actions: List<ServerDrivenAction>
 
   val node: ServerDrivenNode by lazy {
-    getParentScopeWithType() ?: throw IllegalStateException("This event is not linked to a node!")
+    closestScopeWithType() ?: throw IllegalStateException("This event is not linked to a node!")
   }
   val view: ServerDrivenView by lazy {
-    getParentScopeWithType() ?: throw IllegalStateException("This event is not linked to a view!")
+    closestScopeWithType() ?: throw IllegalStateException("This event is not linked to a view!")
   }
   val nimbus: Nimbus by lazy {
-    view.nimbus
+    closestScopeWithType() ?: throw IllegalStateException("This event is not linked to a nimbus instance!")
   }
 
   fun run() {

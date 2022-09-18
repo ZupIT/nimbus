@@ -19,8 +19,4 @@ open class CommonScope(
   override fun unset(key: String) {
     storage.remove(key)
   }
-
-  override fun closestState(id: String): ServerDrivenState? {
-    return states?.find { it.id == id } ?: parent?.closestState(id)
-  }
 }

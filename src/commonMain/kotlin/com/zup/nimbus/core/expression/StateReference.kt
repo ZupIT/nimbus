@@ -7,6 +7,7 @@ import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.scope.closestState
 import com.zup.nimbus.core.utils.valueOfPath
 
 class StateReference(

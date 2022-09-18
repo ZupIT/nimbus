@@ -2,6 +2,7 @@ package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependency.Dependency
 import com.zup.nimbus.core.dependency.updateDependentsOf
+import com.zup.nimbus.core.utils.deepCopyMutable
 import com.zup.nimbus.core.utils.setMapValue
 import com.zup.nimbus.core.utils.valueOfPath
 
@@ -73,5 +74,9 @@ class ServerDrivenState(
    */
   fun set(newValue: Any?) {
     set(newValue, "")
+  }
+
+  fun clone(): ServerDrivenState {
+    return ServerDrivenState(id, deepCopyMutable(value))
   }
 }

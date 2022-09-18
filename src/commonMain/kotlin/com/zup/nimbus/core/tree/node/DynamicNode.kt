@@ -4,6 +4,7 @@ import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.tree.builder.NodeBuilder
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
 
@@ -33,11 +34,15 @@ open class DynamicNode(
     hasChanged = false
   }
 
-  override fun clone(): ServerDrivenNode {
+  protected fun clone(idSuffix: String, builder: (String, List<ServerDrivenState>?) -> DynamicNode): ServerDrivenNode {
     if (parent != null) throw CloneAfterInitializationError()
-    val cloned = DynamicNode(id, component, states)
+    val cloned = builder("$id$idSuffix", states?.map { it.clone() })
     cloned.propertyContainer = propertyContainer?.clone()
-    cloned.childrenContainer = childrenContainer?.clone()
+    cloned.childrenContainer = childrenContainer?.clone(idSuffix)
     return cloned
+  }
+
+  override fun clone(idSuffix: String): ServerDrivenNode = clone(idSuffix) { id, states ->
+    DynamicNode(id, component, states)
   }
 }
