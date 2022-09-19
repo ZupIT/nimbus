@@ -3,7 +3,7 @@ package com.zup.nimbus.core.ui
 import com.zup.nimbus.core.ui.action.condition
 import com.zup.nimbus.core.ui.action.dismiss
 import com.zup.nimbus.core.ui.action.log
-import com.zup.nimbus.core.ui.action.onPushOrPresentRendered
+import com.zup.nimbus.core.ui.action.onPushOrPresentInitialized
 import com.zup.nimbus.core.ui.action.pop
 import com.zup.nimbus.core.ui.action.popTo
 import com.zup.nimbus.core.ui.action.present
@@ -28,8 +28,8 @@ val coreUILibrary = UILibrary("")
   .addAction("setState") { setState(it) }
   .addAction("condition") { condition(it) }
   // Action initializers
-  .addActionInitializer("push") { onPushOrPresentRendered(it) }
-  .addActionInitializer("present") { onPushOrPresentRendered(it) }
+  .addActionInitializer("push") { onPushOrPresentInitialized(it) }
+  .addActionInitializer("present") { onPushOrPresentInitialized(it) }
   // operations
   .run {
     registerArrayOperations(this)

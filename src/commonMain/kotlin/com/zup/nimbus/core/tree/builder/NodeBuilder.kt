@@ -10,7 +10,6 @@ import com.zup.nimbus.core.tree.node.DynamicNode
 import com.zup.nimbus.core.tree.node.ForEachNode
 import com.zup.nimbus.core.tree.node.IfNode
 import com.zup.nimbus.core.tree.node.RootNode
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import com.zup.nimbus.core.utils.valueOfKey
@@ -19,7 +18,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.decodeFromString
 
 class NodeBuilder(private val nimbus: Nimbus) {
-  private fun buildNode(jsonNode: Map<String, Any?>, jsonPath: String): ServerDrivenNode {
+  private fun buildNode(jsonNode: Map<String, Any?>, jsonPath: String): DynamicNode {
     val originalId: String? = valueOfKey(jsonNode, "id")
     try {
       val id = originalId ?: nimbus.idManager.next()

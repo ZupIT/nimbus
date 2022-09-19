@@ -3,6 +3,7 @@ package com.zup.nimbus.core.integration.navigation
 import com.zup.nimbus.core.*
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ViewRequest
+import com.zup.nimbus.core.scope.closestState
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -10,7 +11,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-/*
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreFetchTest {
   private val scope = TestScope()
@@ -64,7 +65,7 @@ class PreFetchTest {
     // WHEN a request to /prefetch2 takes 1 second to complete
     httpClient.delayMsPerUrl["${BASE_URL}/prefetch2"] = 1000
     // WHEN the user navigates to /prefetch2.json
-    NodeUtils.pressButton(prefetch1.content, "go-to-prefetch2")
+    NodeUtils.pressButton(prefetch1, "go-to-prefetch2")
     // THEN it should use the prefetched result to render /prefetch2. Since this test fails after 100ms and the request
     // will take 1s, it fails if the prefetched result is not used.
     navigator.awaitPushCompletion()
@@ -88,7 +89,7 @@ class PreFetchTest {
     httpClient.awaitAllCurrentRequestsToFinish()
     httpClient.clear()
     // When the user navigates to /bad.json
-    NodeUtils.pressButton(prefetch1.content, "go-to-bad-url")
+    NodeUtils.pressButton(prefetch1, "go-to-bad-url")
     // THEN it should ignore the failed prefetched result and make a new network call
     AsyncUtils.flush()
     assertEquals(1, httpClient.entries.size)
@@ -106,7 +107,7 @@ class PreFetchTest {
     AsyncUtils.flush()
     httpClient.clear()
     // When the user navigates to /prefetch2.json
-    NodeUtils.pressButton(prefetch1.content, "go-to-prefetch2")
+    NodeUtils.pressButton(prefetch1, "go-to-prefetch2")
     // WHEN we give enough time for every asynchronous pre-fetch to be triggered (less than 1 second)
     AsyncUtils.flush()
     // THEN it should await the existing request instead of making another one
@@ -134,11 +135,10 @@ class PreFetchTest {
     httpClient.awaitAllCurrentRequestsToFinish()
     httpClient.clear()
     // WHEN the global state is updated and every node in the page is forced to refresh
-    nimbus.globalState.set("test")
+    nimbus.closestState("global")!!.set("test")
     // WHEN we give enough time for every asynchronous pre-fetch to be triggered
     AsyncUtils.flush()
     // THEN no prefetch should have been triggered again
     assertTrue(httpClient.entries.isEmpty())
   }
 }
-*/

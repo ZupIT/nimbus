@@ -5,6 +5,7 @@ import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.node.findNodeById
 import com.zup.nimbus.core.ui.UILibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -16,9 +17,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-private const val MAX_AVERAGE_UPDATE_TIME_MS = 60
-private const val FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS = 80
-private const val SHOULD_PRINT_TIMES = true
+private const val MAX_AVERAGE_UPDATE_TIME_MS = 15
+private const val FOR_EACH_MAX_AVERAGE_UPDATE_TIME_MS = 15
+private const val SHOULD_PRINT_TIMES = false
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerformanceTest {

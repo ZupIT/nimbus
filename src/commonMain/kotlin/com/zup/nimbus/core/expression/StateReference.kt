@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.expression
 
 import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
@@ -14,7 +14,7 @@ class StateReference(
   private var id: String,
   private val path: String,
   private var onNotFound: ((String, Scope) -> Unit)? = null,
-): Expression, Dependency(), Dependent, LazilyScoped<StateReference> {
+): Expression, CommonDependency(), Dependent, LazilyScoped<StateReference> {
   private var state: ServerDrivenState? = null
   private var value: Any? = null
 

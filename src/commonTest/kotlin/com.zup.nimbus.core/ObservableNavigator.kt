@@ -3,18 +3,19 @@ package com.zup.nimbus.core
 import com.zup.nimbus.core.network.NetworkError
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.tree.MalformedComponentError
+import com.zup.nimbus.core.tree.node.RootNode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
-/*
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class ObservableNavigator(
-  private val scope: TestScope,
+  private val testScope: TestScope,
   private val nimbus: Nimbus,
 ): ServerDrivenNavigator {
-  var pages = ArrayList<Page>()
-  private var deferredPush: CompletableDeferred<Page>? = null
+  var pages = ArrayList<RootNode>()
+  private var deferredPush: CompletableDeferred<RootNode>? = null
 
-  suspend fun awaitPushCompletion(): Page {
+  suspend fun awaitPushCompletion(): RootNode {
     deferredPush = CompletableDeferred()
     return deferredPush!!.await()
   }
@@ -24,12 +25,12 @@ class ObservableNavigator(
   }
 
   override fun push(request: ViewRequest) {
-    val view = nimbus.createView({ this })
-    pages.add(Page(request.url, view))
-    scope.launch {
+    val view = ServerDrivenView(nimbus, description = request.url) { this }
+    testScope.launch {
       try {
         val tree = nimbus.viewClient.fetch(request)
-        view.renderer.paint(tree)
+        tree.initialize(view)
+        pages.add(tree)
         deferredPush?.complete(pages.last())
       } catch (e: NetworkError) {
         deferredPush?.cancel(e.message, e)
@@ -55,4 +56,4 @@ class ObservableNavigator(
     // no need create an integration test for this (similar to pop)
   }
 }
-*/
+

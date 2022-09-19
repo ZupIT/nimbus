@@ -3,6 +3,7 @@ package com.zup.nimbus.core
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.tree.node.RootNode
 import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.node.findNodeById
 
 object NodeUtils {
   fun triggerEvent(node: ServerDrivenNode?, eventName: String, implicitStateValue: Any? = null) {
@@ -16,16 +17,6 @@ object NodeUtils {
     if (screen == null) return
     val button = screen.findNodeById(buttonId) ?: throw Error("Could not find button with id $buttonId")
     triggerEvent(button, "onPress")
-  }
-
-  // transforms a tree of nodes into a list of nodes (Depth First Search)
-  fun flatten(tree: ServerDrivenNode?): List<ServerDrivenNode> {
-    val result = ArrayList<ServerDrivenNode>()
-    if (tree != null) {
-      result.add(tree)
-      tree.children?.forEach { result.addAll(flatten(it)) }
-    }
-    return result
   }
 
   fun getContent(tree: RootNode): ServerDrivenNode = tree.children?.first()!!

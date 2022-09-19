@@ -23,5 +23,5 @@ class IfNode(
     hasChanged = previousChildrenStructure != children?.map { it.id }
   }
 
-  override fun clone(idSuffix: String): ServerDrivenNode = clone(idSuffix) { id, states -> IfNode(id, states) }
+  override fun clone(idSuffix: String): DynamicNode = clone(idSuffix) { id, states -> IfNode(id, states) }
 }

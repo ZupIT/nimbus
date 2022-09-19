@@ -5,6 +5,7 @@ import com.zup.nimbus.core.ActionInitializationHandler
 import com.zup.nimbus.core.ActionInitializedEvent
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
+import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.tree.container.PropertyContainer
 
@@ -12,7 +13,7 @@ class DynamicAction(
   override val name: String,
   override val handler: ActionHandler,
   private val initHandler: ActionInitializationHandler?,
-) : ServerDrivenAction {
+) : ServerDrivenAction, LazilyScoped<DynamicAction> {
   override var properties: Map<String, Any?>? = null
   override var metadata: Map<String, Any?>? = null
   internal var propertyContainer: PropertyContainer? = null
@@ -31,12 +32,12 @@ class DynamicAction(
     metadataContainer?.initialize(scope)
     propertyContainer?.addDependent(this)
     metadataContainer?.addDependent(this)
+    update()
     initHandler?.let { it(ActionInitializedEvent(this, scope)) }
     hasInitialized = true
-    update()
   }
 
-  override fun clone(): ServerDrivenAction {
+  override fun clone(): DynamicAction {
     if (hasInitialized) throw CloneAfterInitializationError()
     val cloned = DynamicAction(name, handler, initHandler)
     cloned.metadataContainer = metadataContainer?.clone()

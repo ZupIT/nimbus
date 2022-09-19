@@ -27,7 +27,7 @@ class ActionBuilder(private val nimbus: Nimbus) {
     }
   }
 
-  fun buildFromJsonMap(map: Map<String, Any?>): ServerDrivenAction {
+  fun buildFromJsonMap(map: Map<String, Any?>): DynamicAction {
     val name: String = valueOfKey(map, "_:action")
     val handler = createHandler(name)
     val initHandler = nimbus.uiLibraryManager.getActionInitializer(name)

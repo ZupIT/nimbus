@@ -1,9 +1,9 @@
 package com.zup.nimbus.core.dependency
 
 private fun traverseAndUpdateLevels(
-  dependency: Dependency,
+  dependency: CommonDependency,
   levels: MutableMap<Dependent, Int>,
-  dependencyMap: MutableMap<Dependent, MutableSet<Dependency>>,
+  dependencyMap: MutableMap<Dependent, MutableSet<CommonDependency>>,
   currentLevel: Int,
 ) {
   dependency.dependents.forEach {
@@ -13,15 +13,15 @@ private fun traverseAndUpdateLevels(
       dependencyMap[it] = dependencyMap[it] ?: mutableSetOf()
       dependencyMap[it]?.add(dependency)
     }
-    if (it is Dependency) traverseAndUpdateLevels(it, levels, dependencyMap, currentLevel + 1)
+    if (it is CommonDependency) traverseAndUpdateLevels(it, levels, dependencyMap, currentLevel + 1)
   }
 }
 
 private fun createGroupsAndDependencyMap(
-  dependencies: Set<Dependency>,
-): Pair<List<List<Dependent>>, Map<Dependent, Set<Dependency>>> {
+  dependencies: Set<CommonDependency>,
+): Pair<List<List<Dependent>>, Map<Dependent, Set<CommonDependency>>> {
   val levels = mutableMapOf<Dependent, Int>()
-  val dependencyMap = mutableMapOf<Dependent, MutableSet<Dependency>>()
+  val dependencyMap = mutableMapOf<Dependent, MutableSet<CommonDependency>>()
   dependencies.forEach { traverseAndUpdateLevels(it, levels, dependencyMap, 0) }
   val groups = mutableListOf<MutableList<Dependent>>()
   levels.forEach {
@@ -35,9 +35,9 @@ private fun createGroupsAndDependencyMap(
 
 private fun updateDependents(
   groups: List<List<Dependent>>,
-  dependencyMap: Map<Dependent, Set<Dependency>>,
-): Set<Dependency> {
-  val updated = mutableSetOf<Dependency>()
+  dependencyMap: Map<Dependent, Set<CommonDependency>>,
+): Set<CommonDependency> {
+  val updated = mutableSetOf<CommonDependency>()
   groups.forEach { group ->
     group.forEach { dependent ->
       if (dependencyMap[dependent]?.find { it.hasChanged } != null) {
@@ -49,10 +49,10 @@ private fun updateDependents(
   return updated
 }
 
-fun updateDependentsOf(dependencies: Set<Dependency>) {
+fun updateDependentsOf(dependencies: Set<CommonDependency>) {
   val (groups, dependencyMap) = createGroupsAndDependencyMap(dependencies)
   val updated = updateDependents(groups, dependencyMap)
   updated.forEach { it.hasChanged = false }
 }
 
-fun updateDependentsOf(dependency: Dependency) = updateDependentsOf(setOf(dependency))
+fun updateDependentsOf(dependency: CommonDependency) = updateDependentsOf(setOf(dependency))

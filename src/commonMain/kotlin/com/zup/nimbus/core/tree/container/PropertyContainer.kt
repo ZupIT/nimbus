@@ -5,14 +5,15 @@ import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.expression.Expression
-import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
 import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.tree.DynamicEvent
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 
 class PropertyContainer private constructor(
   private val nimbus: Nimbus,
-): LazilyScoped<PropertyContainer>, Dependency(), Dependent {
+): LazilyScoped<PropertyContainer>, CommonDependency(), Dependent {
   // General variables
 
   private var expressionEvaluators = mutableListOf<() -> Unit>()
@@ -23,7 +24,7 @@ class PropertyContainer private constructor(
   // Variables that should be freed upon initialization
 
   private var expressions: MutableList<Expression>? = mutableListOf()
-  private var events: MutableList<ServerDrivenEvent>? = mutableListOf()
+  private var events: MutableList<DynamicEvent>? = mutableListOf()
 
   // Constructors
 
@@ -35,7 +36,7 @@ class PropertyContainer private constructor(
     currentProperties: Map<String, Any?>,
     expressions: MutableList<Expression>,
     expressionEvaluators: MutableList<() -> Unit>,
-    events: MutableList<ServerDrivenEvent>,
+    events: MutableList<DynamicEvent>,
     nimbus: Nimbus,
   ): this(nimbus) {
     this.currentProperties = currentProperties
@@ -50,7 +51,7 @@ class PropertyContainer private constructor(
     if (hasInitialized) throw DoubleInitializationError()
     expressions?.forEach {
       if (it is LazilyScoped<*>) it.initialize(scope)
-      if (it is Dependency) it.dependents.add(this)
+      if (it is CommonDependency) it.dependents.add(this)
     }
     events?.forEach { it.initialize(scope) }
     expressions = null
@@ -63,7 +64,7 @@ class PropertyContainer private constructor(
   override fun clone(): PropertyContainer {
     if (hasInitialized) throw CloneAfterInitializationError()
     val clonedExpressions = mutableListOf<Expression>()
-    val clonedEvents = mutableListOf<ServerDrivenEvent>()
+    val clonedEvents = mutableListOf<DynamicEvent>()
     val clonedExpressionEvaluators = mutableListOf<() -> Unit>()
     val clonedProperties = PropertyCopying.copyMap(
       source = currentProperties,
@@ -134,10 +135,5 @@ class PropertyContainer private constructor(
     if (disabled) return
     expressionEvaluators.forEach { it() }
     hasChanged = true
-  }
-
-  fun disable() {
-    disabled = true
-    expressionEvaluators.clear()
   }
 }

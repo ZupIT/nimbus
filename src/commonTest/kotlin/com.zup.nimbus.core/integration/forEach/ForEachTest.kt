@@ -4,6 +4,7 @@ import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.node.findNodeById
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

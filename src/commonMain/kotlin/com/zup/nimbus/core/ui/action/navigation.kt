@@ -47,7 +47,7 @@ internal fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
 
 internal fun dismiss(event: ActionTriggeredEvent) = getNavigator(event).dismiss()
 
-internal fun onPushOrPresentRendered(event: ActionInitializedEvent) {
+internal fun onPushOrPresentInitialized(event: ActionInitializedEvent) {
   try {
     val prefetch: Boolean = valueOfKey(event.action.properties, "prefetch") ?: false
     if (!prefetch) return

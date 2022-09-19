@@ -1,55 +1,49 @@
 package com.zup.nimbus.core.tree.container
 
-import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
-import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.tree.node.DynamicNode
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
 
 class NodeContainer(
-  private val nodeList: List<ServerDrivenNode>,
-): Dependent, Dependency(), LazilyScoped<NodeContainer> {
-  private var uiNodes = emptyList<ServerDrivenNode>()
+  private val nodeList: List<DynamicNode>,
+): Dependent, CommonDependency(), LazilyScoped<NodeContainer> {
+  private var uiNodes = emptyList<DynamicNode>()
   private var hasInitialized = false
 
   override fun initialize(scope: Scope) {
     if (hasInitialized) throw DoubleInitializationError()
     nodeList.forEach {
       it.initialize(scope)
-      if (isPolymorphic(it)) it.addDependent(this)
+      if (it.polymorphic) it.addDependent(this)
     }
     hasInitialized = true
     update()
     hasChanged = false
   }
 
-  private fun isPolymorphic(node: ServerDrivenNode): Boolean {
-    return node is DynamicNode && node.polymorphic
-  }
-
-  fun read(): List<ServerDrivenNode> {
+  fun read(): List<DynamicNode> {
     return uiNodes
   }
 
-  private fun extractUIFromPolymorphicNode(node: ServerDrivenNode): List<ServerDrivenNode> {
-    val result = mutableListOf<ServerDrivenNode>()
+  private fun extractUIFromPolymorphicNode(node: DynamicNode): List<DynamicNode> {
+    val result = mutableListOf<DynamicNode>()
     node.children?.forEach {
-      if (isPolymorphic(it)) result.addAll(extractUIFromPolymorphicNode(it))
+      if (it.polymorphic) result.addAll(extractUIFromPolymorphicNode(it))
       else result.add(it)
     }
     return result
   }
 
-  private fun extractUIFromNode(node: ServerDrivenNode): List<ServerDrivenNode> {
-    return if (isPolymorphic(node)) extractUIFromPolymorphicNode(node) else listOf(node)
+  private fun extractUIFromNode(node: DynamicNode): List<DynamicNode> {
+    return if (node.polymorphic) extractUIFromPolymorphicNode(node) else listOf(node)
   }
 
   override fun update() {
-    val result = mutableListOf<ServerDrivenNode>()
+    val result = mutableListOf<DynamicNode>()
     nodeList.forEach { result.addAll(extractUIFromNode(it)) }
     if (result.map { it.id } != uiNodes.map { it.id }) {
       uiNodes = result

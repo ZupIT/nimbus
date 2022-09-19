@@ -3,14 +3,14 @@ package com.zup.nimbus.core.tree.container
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.expression.Expression
 import com.zup.nimbus.core.expression.Literal
-import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.DynamicEvent
 
 internal object PropertyCopying {
   fun copyMap(
     source: Map<String, Any?>,
     expressions: MutableList<Expression>,
     expressionEvaluators: MutableList<() -> Unit>,
-    events: MutableList<ServerDrivenEvent>,
+    events: MutableList<DynamicEvent>,
   ): MutableMap<String, Any?> {
     val result = mutableMapOf<String, Any?>()
     source.forEach { entry ->
@@ -29,7 +29,7 @@ internal object PropertyCopying {
     source: List<Any?>,
     expressions: MutableList<Expression>,
     expressionEvaluators: MutableList<() -> Unit>,
-    events: MutableList<ServerDrivenEvent>,
+    events: MutableList<DynamicEvent>,
   ): MutableList<Any?> {
     val result = mutableListOf<Any?>()
     source.forEachIndexed { index, value ->
@@ -49,7 +49,7 @@ internal object PropertyCopying {
     setter: (value: Any?) -> Unit,
     expressions: MutableList<Expression>,
     expressionEvaluators: MutableList<() -> Unit>,
-    events: MutableList<ServerDrivenEvent>,
+    events: MutableList<DynamicEvent>,
   ): Any? {
     return when(source) {
       is String, is Number, is Boolean, is Literal -> source
@@ -64,7 +64,7 @@ internal object PropertyCopying {
         expressionEvaluators.add { setter(clonedExpression.getValue()) }
         clonedExpression
       }
-      is ServerDrivenEvent -> {
+      is DynamicEvent -> {
         val clonedEvent = source.clone()
         events.add(clonedEvent)
         clonedEvent

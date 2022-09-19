@@ -2,7 +2,6 @@ package com.zup.nimbus.core.tree.node
 
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.scope.StateOnlyScope
 import com.zup.nimbus.core.scope.closestScopeWithType
@@ -85,7 +84,7 @@ class ForEachNode(
     return child
   }
 
-  private fun calculateChildren(): List<ServerDrivenNode>? {
+  private fun calculateChildren(): List<DynamicNode>? {
     return childrenContainer?.let { childrenContainer ->
       val containers = items.mapIndexed { index, item ->
         nodeStorage[item.id] ?: buildChild(index, item, childrenContainer)
@@ -115,5 +114,5 @@ class ForEachNode(
     }
   }
 
-  override fun clone(idSuffix: String): ServerDrivenNode = clone(idSuffix) { id, states -> ForEachNode(id, states) }
+  override fun clone(idSuffix: String): DynamicNode = clone(idSuffix) { id, states -> ForEachNode(id, states) }
 }

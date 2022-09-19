@@ -3,17 +3,21 @@ package com.zup.nimbus.core.tree.node
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.ServerDrivenState
+import com.zup.nimbus.core.dependency.CommonDependency
+import com.zup.nimbus.core.scope.CommonScope
+import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
-import com.zup.nimbus.core.tree.builder.NodeBuilder
 import com.zup.nimbus.core.tree.container.NodeContainer
 import com.zup.nimbus.core.tree.container.PropertyContainer
 
 open class DynamicNode(
-  id: String,
-  component: String,
+  override val id: String,
+  override val component: String,
   states: List<ServerDrivenState>?,
   val polymorphic: Boolean = false,
-) : ServerDrivenNode(id, component, null, null, states) {
+): CommonDependency(), Scope by CommonScope(states), LazilyScoped<DynamicNode>, ServerDrivenNode {
+  override var properties: Map<String, Any?>? = null
+  override var children: List<DynamicNode>? = null
   internal var propertyContainer: PropertyContainer? = null
   internal var childrenContainer: NodeContainer? = null
 
@@ -34,7 +38,7 @@ open class DynamicNode(
     hasChanged = false
   }
 
-  protected fun clone(idSuffix: String, builder: (String, List<ServerDrivenState>?) -> DynamicNode): ServerDrivenNode {
+  protected fun clone(idSuffix: String, builder: (String, List<ServerDrivenState>?) -> DynamicNode): DynamicNode {
     if (parent != null) throw CloneAfterInitializationError()
     val cloned = builder("$id$idSuffix", states?.map { it.clone() })
     cloned.propertyContainer = propertyContainer?.clone()
@@ -42,7 +46,9 @@ open class DynamicNode(
     return cloned
   }
 
-  override fun clone(idSuffix: String): ServerDrivenNode = clone(idSuffix) { id, states ->
+  open fun clone(idSuffix: String): DynamicNode = clone(idSuffix) { id, states ->
     DynamicNode(id, component, states)
   }
+
+  override fun clone(): DynamicNode = clone("")
 }

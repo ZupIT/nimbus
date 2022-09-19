@@ -1,6 +1,6 @@
 package com.zup.nimbus.core.expression
 
-import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
@@ -9,7 +9,7 @@ import com.zup.nimbus.core.scope.Scope
 
 class StringTemplate(
   private val composition: List<Expression>,
-): Expression, Dependency(), Dependent, LazilyScoped<StringTemplate> {
+): Expression, CommonDependency(), Dependent, LazilyScoped<StringTemplate> {
   private var value: String = ""
   private var hasInitialized = false
 
@@ -17,7 +17,7 @@ class StringTemplate(
     if (hasInitialized) throw DoubleInitializationError()
     composition.forEach {
       if (it is LazilyScoped<*>) it.initialize(scope)
-      if (it is Dependency) it.addDependent(this)
+      if (it is CommonDependency) it.addDependent(this)
     }
     hasInitialized = true
     update()

@@ -1,6 +1,6 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.dependency.Dependency
+import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.updateDependentsOf
 import com.zup.nimbus.core.utils.deepCopyMutable
 import com.zup.nimbus.core.utils.setMapValue
@@ -16,7 +16,7 @@ class ServerDrivenState(
    * @see set, to set the new value of this state use the `set` function.
   */
   internal var value: Any?,
-): Dependency() {
+): CommonDependency() {
   /**
    * Gets the current value of this state. Do not use this value as settable.
    *
