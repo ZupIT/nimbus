@@ -4,7 +4,26 @@ import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.ActionInitializationHandler
 import com.zup.nimbus.core.OperationHandler
 
-open class UILibrary(val namespace: String = "") {
+/**
+ * Represents the UI extensions that can be made by a third-party application.
+ *
+ * It's considered to be a UI extension every:
+ * - Action execution handler
+ * - Action initializer
+ * - Action observer
+ * - Operation
+ *
+ * This class must be extended in the UI layer to include components.
+ */
+open class UILibrary(
+  /**
+   * The namespace for this library. This string prefixes every action in the library with "${namespace}:". If namespace
+   * is an empty string, no prefix is added and this is considered to be an extension of the core UI library.
+   *
+   * Attention: this has no effect over operation names.
+   */
+  val namespace: String = "",
+) {
   private val actions = mutableMapOf<String, ActionHandler>()
   private val actionInitializers = mutableMapOf<String, ActionInitializationHandler>()
   private val actionObservers = mutableListOf<ActionHandler>()
@@ -46,6 +65,11 @@ open class UILibrary(val namespace: String = "") {
     return operations[name]
   }
 
+  /**
+   * Merges the given UILibrary into this UILibrary. This alters the current UILibrary.
+   *
+   * Attention: remember to override this method when extending this class.
+   */
   open fun merge(other: UILibrary): UILibrary {
     actions.putAll(other.actions)
     actionInitializers.putAll(other.actionInitializers)

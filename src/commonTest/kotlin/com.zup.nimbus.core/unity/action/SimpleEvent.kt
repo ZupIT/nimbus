@@ -8,7 +8,7 @@ import com.zup.nimbus.core.scope.CommonScope
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.scope.closestScopeWithType
 import com.zup.nimbus.core.tree.ServerDrivenEvent
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.ServerDrivenNode
 
 class SimpleEvent(
   override val name: String = "mock",

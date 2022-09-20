@@ -1,20 +1,25 @@
 package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependency.CommonDependency
-import com.zup.nimbus.core.dependency.updateDependentsOf
+import com.zup.nimbus.core.dependency.DependencyUpdateManager
 import com.zup.nimbus.core.utils.deepCopyMutable
 import com.zup.nimbus.core.utils.setMapValue
 import com.zup.nimbus.core.utils.valueOfPath
 
+/**
+ * Represents a state in the scope hierarchy.
+ *
+ * Considering the Json tree, a state is represented by the key "state" in a component.
+ */
 class ServerDrivenState(
   /**
    * The id of the state.
    */
   val id: String,
   /**
-   * The value of the state. Do not use this value as settable.
-   * @see set, to set the new value of this state use the `set` function.
-  */
+   * The value of the state.
+   * If you need set this value and have this change propagated, consider using "set" instead.
+   */
   internal var value: Any?,
 ): CommonDependency() {
   /**
@@ -65,7 +70,7 @@ class ServerDrivenState(
       val mutableValue = getMutable(newValue)
       setValueAtPath(mutableValue, path)
       hasChanged = true
-      if (shouldUpdateDependents) updateDependentsOf(this)
+      if (shouldUpdateDependents) DependencyUpdateManager.updateDependentsOf(this)
     }
   }
 

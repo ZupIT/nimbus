@@ -2,7 +2,7 @@ package com.zup.nimbus.core.integration
 
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.tree.node.findNodeById
+import com.zup.nimbus.core.tree.findNodeById
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

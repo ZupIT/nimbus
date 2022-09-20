@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.deserialization
 
 import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.ServerDrivenNode
 
 class ComponentDeserializer(val logger: Logger, val node: ServerDrivenNode) {
   private val deserializer = MapDeserializer()

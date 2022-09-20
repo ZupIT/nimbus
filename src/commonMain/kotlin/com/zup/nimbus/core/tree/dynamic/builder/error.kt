@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.tree
+package com.zup.nimbus.core.tree.dynamic.builder
 
 open class MalformedJsonError(override val message: String): Error("$message Please check your json string.")
 

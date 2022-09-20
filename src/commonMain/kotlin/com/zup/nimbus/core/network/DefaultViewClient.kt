@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

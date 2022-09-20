@@ -2,7 +2,7 @@ package com.zup.nimbus.core.unity.tree
 
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.tree.MalformedJsonError
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedJsonError
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

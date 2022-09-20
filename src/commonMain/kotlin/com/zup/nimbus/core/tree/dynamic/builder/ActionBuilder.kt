@@ -1,13 +1,18 @@
-package com.zup.nimbus.core.tree.builder
+package com.zup.nimbus.core.tree.dynamic.builder
 
 import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.tree.DynamicAction
-import com.zup.nimbus.core.tree.ServerDrivenAction
-import com.zup.nimbus.core.tree.container.PropertyContainer
+import com.zup.nimbus.core.tree.dynamic.DynamicAction
+import com.zup.nimbus.core.tree.dynamic.container.PropertyContainer
 import com.zup.nimbus.core.utils.valueOfKey
 
+/**
+ * Builds DynamicActions from JSON sources.
+ */
 class ActionBuilder(private val nimbus: Nimbus) {
+  /**
+   * Verifies if this JSON structure represents an action.
+   */
   fun isJsonAction(maybeAction: Any?): Boolean {
     return maybeAction is Map<*, *> && maybeAction.containsKey("_:action")
   }
@@ -27,6 +32,11 @@ class ActionBuilder(private val nimbus: Nimbus) {
     }
   }
 
+  /**
+   * Builds a DynamicAction from its json map representation.
+   *
+   * To avoid errors, verify if `map` is an action (isJsonAction) before calling this method.
+   */
   fun buildFromJsonMap(map: Map<String, Any?>): DynamicAction {
     val name: String = valueOfKey(map, "_:action")
     val handler = createHandler(name)

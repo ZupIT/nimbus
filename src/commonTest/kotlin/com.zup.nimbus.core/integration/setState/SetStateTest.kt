@@ -5,7 +5,7 @@ import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.log.LogLevel
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,10 +21,10 @@ class SetStateTest {
   }
 
   private fun assertSetStateScreenIsCorrect(
-      screen: ServerDrivenNode?,
-      expectedName: String = "",
-      expectedAge: Int = 0,
-      expectedButtonText: String = "aaa",
+    screen: ServerDrivenNode?,
+    expectedName: String = "",
+    expectedAge: Int = 0,
+    expectedButtonText: String = "aaa",
   ) {
     // THEN there should be 2 rows: 1 of texts and another of buttons
     assertEquals(2, screen?.children?.size)

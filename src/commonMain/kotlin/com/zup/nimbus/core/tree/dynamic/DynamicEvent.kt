@@ -1,19 +1,23 @@
-package com.zup.nimbus.core.tree
+package com.zup.nimbus.core.tree.dynamic
 
 import com.zup.nimbus.core.dependency.CommonDependency
-import com.zup.nimbus.core.dependency.updateDependentsOf
 import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.ServerDrivenView
+import com.zup.nimbus.core.dependency.DependencyUpdateManager
 import com.zup.nimbus.core.scope.CommonScope
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.scope.closestScopeWithType
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.ServerDrivenNode
 
+/**
+ * DynamicEvents are a type of ServerDrivenEvent that can run DynamicActions.
+ */
 class DynamicEvent(
   override val name: String,
 ): ServerDrivenEvent, LazilyScoped<DynamicEvent>, CommonScope(listOf(ServerDrivenState(name, null))) {
@@ -32,12 +36,12 @@ class DynamicEvent(
   override fun run() {
     val dependencies = mutableSetOf<CommonDependency>()
     actions.forEach { it.handler(ActionTriggeredEvent(action = it, dependencies = dependencies, scope = this)) }
-    updateDependentsOf(dependencies)
+    DependencyUpdateManager.updateDependentsOf(dependencies)
   }
 
   override fun run(implicitStateValue: Any?) {
     states!!.first().set(implicitStateValue)
-    updateDependentsOf(states.toSet())
+    DependencyUpdateManager.updateDependentsOf(states.toSet())
     run()
   }
 

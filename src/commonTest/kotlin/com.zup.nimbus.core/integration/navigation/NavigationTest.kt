@@ -5,7 +5,7 @@ import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ResponseError
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.scope.closestScopeWithType
-import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi

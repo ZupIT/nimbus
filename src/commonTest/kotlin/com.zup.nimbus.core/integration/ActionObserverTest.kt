@@ -6,8 +6,8 @@ import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.ServerDrivenAction
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
-import com.zup.nimbus.core.tree.node.findNodeById
+import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.findNodeById
 import com.zup.nimbus.core.ui.UILibrary
 import kotlin.test.BeforeTest
 import kotlin.test.Test

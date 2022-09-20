@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.tree.node
+package com.zup.nimbus.core.tree.dynamic.node
 
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
@@ -6,9 +6,14 @@ import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.scope.StateOnlyScope
 import com.zup.nimbus.core.scope.closestScopeWithType
 import com.zup.nimbus.core.scope.getPathToScope
-import com.zup.nimbus.core.tree.container.NodeContainer
+import com.zup.nimbus.core.tree.dynamic.container.NodeContainer
 import com.zup.nimbus.core.utils.valueOfKey
 
+/**
+ * A rendered list that can change must somehow identify each of its item. This encapsulates an item with an object
+ * that has an id and is comparable (equals). Ideally, the user will pass a key to allow us to identify the unique
+ * property within an item. If this doesn't happen, we'll use the index of the item in the list.
+ */
 private class IdentifiableItem(val value: Any?, index: Int, key: String?) {
   val id: String
 
@@ -44,10 +49,31 @@ private class IdentifiableItem(val value: Any?, index: Int, key: String?) {
 //  A possible fix would be to make each item state depend on the array. The problem is, by implementing this fix and
 //  the fix to the previous issue (2), we create lots of cyclic dependencies, which will end up in an infinity loop
 //  when processed by the function updateDependents.
+/**
+ * ForEachNode is a polymorphic DynamicNode that iterates over a data set (items) and generate some UI for each of its
+ * items. The template used for each iteration is the children in the original json.
+ *
+ * Reminder: a polymorphic node is a special type of dynamic node that is always skipped by the NodeContainer when
+ * calculating the children of a node. Only the non-polymorphic children of a polymorphic node ends up in the UI tree.
+ * To know more about polymorphic nodes, read the documentation for "polymorphic" in "DynamicNode".
+ *
+ * A ForEach node in its json form is represented by the following type definition (Typescript):
+ * interface ForEach {
+ *   items?: any[], // the data set to iterate over
+ *   iteratorName?: string, // the state id to use for the current item; default: item
+ *   indexName?: string, // the state id to use for the current index; default: index
+ *   key?: string, // a property key to identify each item in the data set
+ *   children: Component[], // the template
+ * }
+ */
 class ForEachNode(
   id: String,
   states: List<ServerDrivenState>?,
 ) : DynamicNode(id, "forEach", states, true) {
+  /**
+   * We can't recreate the entire subtree everytime an item is added or removed. For this reason, we save every node
+   * upon its creation and just recover it when updating the content of the ForEach.
+   */
   private val nodeStorage = mutableMapOf<String, NodeContainer>()
   private var iteratorName: String = "item"
   private var indexName: String = "index"
@@ -70,9 +96,9 @@ class ForEachNode(
   }
 
   private fun buildChild(
-    index: Int,
-    item: IdentifiableItem,
-    template: NodeContainer,
+      index: Int,
+      item: IdentifiableItem,
+      template: NodeContainer,
   ): NodeContainer {
     val itemState = ServerDrivenState(iteratorName, item.value)
     val indexState = ServerDrivenState(indexName, index)

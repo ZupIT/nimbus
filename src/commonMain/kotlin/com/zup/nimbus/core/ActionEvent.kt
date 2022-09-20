@@ -15,10 +15,13 @@ interface ActionEvent {
   val scope: ServerDrivenEvent
 }
 
+/**
+ * All information needed for an action to execute. Represents the trigger event of an action.
+ */
 class ActionTriggeredEvent(
-    override val action: ServerDrivenAction,
-    override val scope: ServerDrivenEvent,
-    /**
+  override val action: ServerDrivenAction,
+  override val scope: ServerDrivenEvent,
+  /**
    * Every event can update the current state of the application based on the dependency graph. This set starts empty
    * when a ServerDrivenEvent is run. A ServerDrivenEvent is what triggers ActionEvents. Use this to tell the
    * ServerDrivenEvent (parent) which dependencies might need to propagate its changes to its dependents after it
@@ -28,6 +31,9 @@ class ActionTriggeredEvent(
   val dependencies: MutableSet<CommonDependency>,
 ): ActionEvent
 
+/**
+ * All information needed for an action to initialize. Represents the initialization event of an action.
+ */
 class ActionInitializedEvent(
   override val action: ServerDrivenAction,
   override val scope: ServerDrivenEvent,

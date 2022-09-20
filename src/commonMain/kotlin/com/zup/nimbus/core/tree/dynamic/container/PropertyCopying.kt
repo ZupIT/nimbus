@@ -1,10 +1,14 @@
-package com.zup.nimbus.core.tree.container
+package com.zup.nimbus.core.tree.dynamic.container
 
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.expression.Expression
 import com.zup.nimbus.core.expression.Literal
-import com.zup.nimbus.core.tree.DynamicEvent
+import com.zup.nimbus.core.tree.dynamic.DynamicEvent
 
+/**
+ * This is a helper for the PropertyContainer class. Its objective is to help cloning the parsed properties into a new
+ * PropertyContainer.
+ */
 internal object PropertyCopying {
   fun copyMap(
     source: Map<String, Any?>,
@@ -33,13 +37,15 @@ internal object PropertyCopying {
   ): MutableList<Any?> {
     val result = mutableListOf<Any?>()
     source.forEachIndexed { index, value ->
-      result.add(copyAny(
+      result.add(
+        copyAny(
         source = value,
         setter = { result[index] = it },
         expressions,
         expressionEvaluators,
         events,
-      ))
+      )
+      )
     }
     return result
   }
@@ -56,7 +62,12 @@ internal object PropertyCopying {
       is List<*> -> copyList(source, expressions, expressionEvaluators, events)
       is Map<*, *> -> {
         @Suppress("UNCHECKED_CAST")
-        copyMap(source as Map<String, Any?>, expressions, expressionEvaluators, events)
+        (copyMap(
+        source as Map<String, Any?>,
+        expressions,
+        expressionEvaluators,
+        events
+    ))
       }
       is Expression -> {
         val clonedExpression = if (source is LazilyScoped<*>) source.clone() as Expression else source

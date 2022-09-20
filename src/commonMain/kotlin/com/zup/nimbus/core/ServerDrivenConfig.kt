@@ -16,7 +16,13 @@ data class ServerDrivenConfig(
    * The platform running the Server Driven Lib. Examples: "Android", "iOS".
    */
   val platform: String,
+  /**
+   * The custom UI extensions to use within this nimbus instance.
+   */
   val ui: List<UILibrary>? = null,
+  /**
+   * Use this to replace the core UI library.
+   */
   val coreUILibrary: UILibrary? = null,
   /**
    * The logger to call when printing errors, warning and information messages. By default, Nimbus will use its
@@ -50,5 +56,9 @@ data class ServerDrivenConfig(
    * the ids are incremental, starting at 0 and prefixed with "nimbus:".
    */
   val idManager: IdManager? = null,
+  /**
+   * The states to be globally available in this Nimbus instance. By default, only the state named "global" exists in
+   * the nimbus (global) scope.
+   */
   val states: List<ServerDrivenState>? = null,
 )

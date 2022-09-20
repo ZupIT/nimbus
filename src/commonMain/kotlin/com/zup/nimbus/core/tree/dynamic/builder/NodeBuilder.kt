@@ -1,15 +1,13 @@
-package com.zup.nimbus.core.tree.builder
+package com.zup.nimbus.core.tree.dynamic.builder
 
 import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.tree.MalformedComponentError
 import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.tree.MalformedJsonError
-import com.zup.nimbus.core.tree.container.NodeContainer
-import com.zup.nimbus.core.tree.container.PropertyContainer
-import com.zup.nimbus.core.tree.node.DynamicNode
-import com.zup.nimbus.core.tree.node.ForEachNode
-import com.zup.nimbus.core.tree.node.IfNode
-import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.dynamic.container.NodeContainer
+import com.zup.nimbus.core.tree.dynamic.container.PropertyContainer
+import com.zup.nimbus.core.tree.dynamic.node.DynamicNode
+import com.zup.nimbus.core.tree.dynamic.node.ForEachNode
+import com.zup.nimbus.core.tree.dynamic.node.IfNode
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.transformJsonObjectToMap
 import com.zup.nimbus.core.utils.valueOfKey
@@ -17,6 +15,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.decodeFromString
 
+/**
+ * Builds DynamicNodes from JSON sources.
+ */
 class NodeBuilder(private val nimbus: Nimbus) {
   private fun buildNode(jsonNode: Map<String, Any?>, jsonPath: String): DynamicNode {
     val originalId: String? = valueOfKey(jsonNode, "id")
@@ -56,11 +57,13 @@ class NodeBuilder(private val nimbus: Nimbus) {
   }
 
   /**
-   * Creates a RenderNode from a Json string.
+   * Builds a DynamicNode tree from its string representation (json).
    *
-   * @param json the json string to deserialize into a RenderNode.
-   * @param idManager the idManager to use for generating ids for components without ids.
-   * @return the resulting RenderNode.
+   * This method is recursive, i.e. it will transform every Json Node into its DynamicNode representation. After
+   * processing every node, the tree will be encapsulated in a RootNode.
+   *
+   * Attention: the returned node must be initialized before rendered.
+   *
    * @throws MalformedJsonError if the string is not a valid json.
    * @throws MalformedComponentError when a component node contains unexpected data.
    */
@@ -76,10 +79,8 @@ class NodeBuilder(private val nimbus: Nimbus) {
   }
 
   /**
-   * Creates a ServerDrivenNode from a Map.
-   * @param map the map to deserialize into a RenderNode.
-   * @param idManager the idManager to use for generating ids for components without ids.
-   * @return the resulting RenderNode.
+   * Same as buildFromJsonString, but accepts the parsed Json map instead.
+   *
    * @throws MalformedComponentError when a component node contains unexpected data.
    */
   @Throws(MalformedComponentError::class)

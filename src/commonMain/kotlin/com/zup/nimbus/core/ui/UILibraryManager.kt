@@ -7,11 +7,17 @@ import com.zup.nimbus.core.regex.toFastRegex
 
 private val identifierRegex = "(?:(\\w+):)?(\\w+)".toFastRegex()
 
+/**
+ * Combines namespace and name in a single structure.
+ */
 class NamespaceName(val namespace: String, val name: String) {
   operator fun component1(): String = namespace
   operator fun component2(): String = name
 }
 
+/**
+ * Manages the UILibraries. This class makes it easier to retrieve UI elements from all registered UILibraries.
+ */
 class UILibraryManager(coreLibrary: UILibrary, customLibraries: List<UILibrary>? = null) {
   private val libraries = mutableMapOf<String, UILibrary>()
 

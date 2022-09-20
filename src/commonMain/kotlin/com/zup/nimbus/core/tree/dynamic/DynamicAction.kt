@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.tree
+package com.zup.nimbus.core.tree.dynamic
 
 import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.ActionInitializationHandler
@@ -7,16 +7,31 @@ import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
-import com.zup.nimbus.core.tree.container.PropertyContainer
+import com.zup.nimbus.core.tree.ServerDrivenAction
+import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.dynamic.container.PropertyContainer
 
+/**
+ * DynamicActions are a type of ServerDrivenAction that can change its properties during its lifecycle. These changes
+ * are made according to expressions and states in the current tree.
+ */
 class DynamicAction(
   override val name: String,
   override val handler: ActionHandler,
+  /**
+   * The function to run once the action is initialized.
+   */
   private val initHandler: ActionInitializationHandler?,
 ) : ServerDrivenAction, LazilyScoped<DynamicAction> {
   override var properties: Map<String, Any?>? = null
   override var metadata: Map<String, Any?>? = null
+  /**
+   * A container that knows how to update the dynamic properties of this action.
+   */
   internal var propertyContainer: PropertyContainer? = null
+  /**
+   * A container that knows how to update the dynamic metadata of this action.
+   */
   internal var metadataContainer: PropertyContainer? = null
   private var hasInitialized = false
 

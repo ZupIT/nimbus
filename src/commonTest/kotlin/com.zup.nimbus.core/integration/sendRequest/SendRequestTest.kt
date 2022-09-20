@@ -7,10 +7,6 @@ import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.network.DefaultHttpClient
-import com.zup.nimbus.core.tree.ServerDrivenEvent
-import com.zup.nimbus.core.tree.node.RootNode
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
-import com.zup.nimbus.core.utils.valueOfKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest

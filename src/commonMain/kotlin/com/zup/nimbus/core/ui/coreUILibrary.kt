@@ -16,6 +16,9 @@ import com.zup.nimbus.core.ui.operations.registerNumberOperations
 import com.zup.nimbus.core.ui.operations.registerOtherOperations
 import com.zup.nimbus.core.ui.operations.registerStringOperations
 
+/**
+ * The action handlers, action initializers, action observers and operations of the core Nimbus library.
+ */
 val coreUILibrary = UILibrary("")
   // Actions
   .addAction("push") { push(it) }

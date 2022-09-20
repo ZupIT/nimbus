@@ -4,8 +4,8 @@ import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
-import com.zup.nimbus.core.tree.node.findNodeById
+import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.findNodeById
 import com.zup.nimbus.core.ui.UILibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope

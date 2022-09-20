@@ -2,8 +2,8 @@ package com.zup.nimbus.core
 
 import com.zup.nimbus.core.network.NetworkError
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedComponentError
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.TestScope
 

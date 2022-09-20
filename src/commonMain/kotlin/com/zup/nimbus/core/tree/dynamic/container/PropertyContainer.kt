@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.tree.container
+package com.zup.nimbus.core.tree.dynamic.container
 
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
@@ -8,18 +8,27 @@ import com.zup.nimbus.core.expression.Expression
 import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
 import com.zup.nimbus.core.scope.Scope
-import com.zup.nimbus.core.tree.DynamicEvent
-import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.dynamic.DynamicEvent
 
+/**
+ * Manages a dynamic property map, where a value can change depending on the current evaluation of an expression.
+ */
 class PropertyContainer private constructor(
   private val nimbus: Nimbus,
 ): LazilyScoped<PropertyContainer>, CommonDependency(), Dependent {
   // General variables
 
+  /**
+   * Functions that must be called to update the current map of properties. Each function in this list updates a
+   * specific key in the map according to its original expression.
+   */
   private var expressionEvaluators = mutableListOf<() -> Unit>()
+  /**
+   * The current processed map of properties. This map must never contain an expression, since it will be received by
+   * the UI Layer.
+   */
   private lateinit var currentProperties: Map<String, Any?>
   private var hasInitialized = false
-  private var disabled = false
 
   // Variables that should be freed upon initialization
 
@@ -77,6 +86,9 @@ class PropertyContainer private constructor(
 
   // Other methods
 
+  /**
+   * Parses any value in the original property map.
+   */
   private fun parseAny(toParse: Any?, key: String? = null): Any? {
     return when(toParse) {
       is String -> {
@@ -101,6 +113,9 @@ class PropertyContainer private constructor(
     }
   }
 
+  /**
+   * Parses a list in the original property map.
+   */
   private fun parseList(toParse: List<Any?>): List<Any?> {
     val result = mutableListOf<Any?>()
     toParse.forEachIndexed { index, value ->
@@ -113,6 +128,9 @@ class PropertyContainer private constructor(
     return result
   }
 
+  /**
+   * Parses a map in the original property map.
+   */
   private fun parseMap(toParse: Map<String, Any?>): HashMap<String, Any?> {
     val result = HashMap<String, Any?>()
     toParse.forEach {
@@ -127,12 +145,15 @@ class PropertyContainer private constructor(
     return result
   }
 
+  /**
+   * Returns the current map of properties with each value updated according to the most recent result of its expression
+   * (if it was originally an expression).
+   */
   fun read(): Map<String, Any?> {
     return currentProperties
   }
 
   override fun update() {
-    if (disabled) return
     expressionEvaluators.forEach { it() }
     hasChanged = true
   }

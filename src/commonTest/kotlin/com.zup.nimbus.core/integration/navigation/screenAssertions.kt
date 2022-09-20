@@ -1,7 +1,7 @@
 package com.zup.nimbus.core.integration.navigation
 
 import com.zup.nimbus.core.tree.ServerDrivenEvent
-import com.zup.nimbus.core.tree.node.ServerDrivenNode
+import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlin.test.assertEquals
 
 fun verifyScreen1(tree: ServerDrivenNode?) {

@@ -1,8 +1,8 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.MalformedJsonError
-import com.zup.nimbus.core.tree.node.RootNode
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedComponentError
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedJsonError
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlin.coroutines.cancellation.CancellationException
 
 interface ViewClient {
