@@ -37,6 +37,10 @@ interface ServerDrivenEvent: Scope {
    */
   val nimbus: Nimbus
   /**
+   * The actions contained in this event
+   */
+  val actions: List<ServerDrivenAction>
+  /**
    * Runs the current event by triggering all actions contained in it.
    */
   fun run()

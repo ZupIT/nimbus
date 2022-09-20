@@ -18,10 +18,11 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 /**
  * DynamicEvents are a type of ServerDrivenEvent that can run DynamicActions.
  */
+@Suppress("UseCheckOrError")
 class DynamicEvent(
   override val name: String,
 ): ServerDrivenEvent, LazilyScoped<DynamicEvent>, CommonScope(listOf(ServerDrivenState(name, null))) {
-  internal lateinit var actions: List<DynamicAction>
+  override lateinit var actions: List<DynamicAction>
 
   override val node: ServerDrivenNode by lazy {
     closestScopeWithType() ?: throw IllegalStateException("This event is not linked to a node!")
