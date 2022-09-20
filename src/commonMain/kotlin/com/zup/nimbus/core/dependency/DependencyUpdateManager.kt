@@ -37,6 +37,7 @@ object DependencyUpdateManager {
     return Pair(groups, dependencyMap)
   }
 
+  @Suppress("NestedBlockDepth")
   private fun updateDependents(
     groups: List<List<Dependent>>,
     dependencyMap: Map<Dependent, Set<Dependency>>,

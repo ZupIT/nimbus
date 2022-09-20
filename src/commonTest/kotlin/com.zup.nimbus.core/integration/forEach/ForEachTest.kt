@@ -225,5 +225,28 @@ class ForEachTest {
         "122.225.974-87 (belonging to Paul)", "SC41257896 (belonging to Paul)"),
     )
   }
+
+  @Test
+  fun `should add and remove elements in the dataset`() {
+    // WHEN the FOR_EACH_MUTABLE_DATASET screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_MUTABLE_DATASET)
+    tree.initialize(nimbus)
+    val column = NodeUtils.getContent(tree).children?.first()!!
+    // THEN 3 texts + 2 buttons should be rendered
+    assertEquals(5, column.children?.size)
+    // WHEN the button to add one more item is pressed
+    NodeUtils.pressButton(column, "add")
+    // THEN 4 texts + 2 buttons should be rendered
+    assertEquals(6, column.children?.size)
+    // AND the last text must be "Paul"
+    assertEquals(column.children?.get(3)?.properties?.get("text"), "Paul")
+    // WHEN the button to remove the second item is pressed
+    NodeUtils.pressButton(column, "remove")
+    // THEN 3 texts + 2 buttons should be rendered
+    assertEquals(5, column.children?.size)
+    // AND the second text must be "Anthony"
+    assertEquals(column.children?.get(1)?.properties?.get("text"), "Anthony")
+  }
 }
 

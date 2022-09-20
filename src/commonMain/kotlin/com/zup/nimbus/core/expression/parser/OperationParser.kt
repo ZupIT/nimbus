@@ -37,7 +37,7 @@ private fun parseParameters(parameterString: String): List<String> {
 
   while (position < parameterString.length) {
     val match = parameterMatcher.match(parameterString.substring(position))
-      ?: throw Error("wrong format for parameters: $parameterString")
+      ?: throw IllegalArgumentException("wrong format for parameters: $parameterString")
     parameters.add(match.removeSuffix(",").trim())
     position += match.length
   }
@@ -46,6 +46,7 @@ private fun parseParameters(parameterString: String): List<String> {
 }
 
 class OperationParser(private val nimbus: Nimbus) {
+  @Suppress("ReturnCount")
   fun parse(code: String): Expression {
     val match = operationRegex.findWithGroups(code)
 
@@ -61,11 +62,15 @@ class OperationParser(private val nimbus: Nimbus) {
       return Literal(null)
     }
 
-    val params = parseParameters(paramString)
-    val resolvedParams = params.map { param ->
-      nimbus.expressionParser.parseExpression(param)
+    return try {
+      val params = parseParameters(paramString)
+      val resolvedParams = params.map { param ->
+        nimbus.expressionParser.parseExpression(param)
+      }
+      Operation(operationHandler, resolvedParams)
+    } catch (e: IllegalArgumentException) {
+      nimbus.logger.error(e.message ?: "Error while parsing expression.")
+      Literal(null)
     }
-
-    return Operation(operationHandler, resolvedParams)
   }
 }

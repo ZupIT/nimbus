@@ -300,3 +300,85 @@ const val NESTED_FOR_EACH = """{
     }
   ]
 }"""
+
+const val FOR_EACH_MUTABLE_DATASET = """{
+  "_:component":"layout:column",
+  "state":{
+    "id":"dataset",
+    "value":[
+      {
+        "id":1,
+        "name":"John"
+      },
+      {
+        "id":2,
+        "name":"Mary"
+      },
+      {
+        "id":3,
+        "name":"Anthony"
+      }
+    ]
+  },
+  "children":[
+    {
+      "_:component":"layout:column",
+      "state":{
+        "id":"newItem",
+        "value":{
+          "id":4,
+          "name":"Paul"
+        }
+      },
+      "children":[
+        {
+          "_:component":"forEach",
+          "children":[
+            {
+              "_:component":"layout:text",
+              "properties":{
+                "text":"@{item.name}"
+              }
+            }
+          ],
+          "properties":{
+            "key":"id",
+            "items":"@{dataset}"
+          }
+        },
+        {
+          "_:component":"store:button",
+          "id":"add",
+          "properties":{
+            "text":"Add one more",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"dataset",
+                  "value":"@{insert(dataset, newItem)}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component":"store:button",
+          "id":"remove",
+          "properties":{
+            "text":"Remove second",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"dataset",
+                  "value":"@{removeIndex(dataset, 1)}"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}"""

@@ -18,7 +18,8 @@ class ActionBuilder(private val nimbus: Nimbus) {
   }
 
   private fun actionNotFoundError(name: String): ActionHandler {
-    val error = "Couldn't find handler for action with name \"$name\". Please, make sure you registered your custom actions."
+    val error = "Couldn't find handler for action with name \"$name\". Please, make sure you registered your " +
+      "custom actions."
     nimbus.logger.error(error)
     return { nimbus.logger.error(error) }
   }
