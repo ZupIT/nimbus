@@ -1,11 +1,11 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.getOtherOperations
+import com.zup.nimbus.core.ui.coreUILibrary
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-private val contains = getOtherOperations()["contains"]!!
+private val contains = coreUILibrary.getOperation("contains")!!
 
 class ContainsOperationTest {
   private val list = listOf("one", "two", "three")

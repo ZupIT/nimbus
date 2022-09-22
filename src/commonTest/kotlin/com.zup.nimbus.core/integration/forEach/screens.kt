@@ -97,7 +97,7 @@ const val GENERAL_FOR_EACH = """{
   ]
 }"""
 
-const val FOR_EACH_WITH_STATES = """{
+const val STATEFUL_FOR_EACH = """{
   "_:component": "layout:column",
   "children": [
     {
@@ -125,23 +125,29 @@ const val FOR_EACH_WITH_STATES = """{
             },
             {
               "_:component": "material:button",
+              "id": "increment-list",
               "properties": {
-                "text": "Increment listCounter: @{listCounter}",
+                "text": "Increment list counter: @{listCounter}",
                 "onPress": [{
                   "_:action": "setState",
-                  "path": "listCounter",
-                  "value": "@{sum(listCounter, 1)}"
+                  "properties": {
+                    "path": "listCounter",
+                    "value": "@{sum(listCounter, 1)}"
+                  }
                 }]
               }
             },
             {
               "_:component": "material:button",
+              "id": "increment-item",
               "properties": {
                 "text": "Increment item counter: @{itemCounter}",
                 "onPress": [{
                   "_:action": "setState",
-                  "path": "itemCounter",
-                  "value": "@{sum(itemCounter, 1)}"
+                  "properties": {
+                    "path": "itemCounter",
+                    "value": "@{sum(itemCounter, 1)}"
+                  }
                 }]
               }
             }
@@ -291,6 +297,88 @@ const val NESTED_FOR_EACH = """{
           }
         ]
       }]
+    }
+  ]
+}"""
+
+const val FOR_EACH_MUTABLE_DATASET = """{
+  "_:component":"layout:column",
+  "state":{
+    "id":"dataset",
+    "value":[
+      {
+        "id":1,
+        "name":"John"
+      },
+      {
+        "id":2,
+        "name":"Mary"
+      },
+      {
+        "id":3,
+        "name":"Anthony"
+      }
+    ]
+  },
+  "children":[
+    {
+      "_:component":"layout:column",
+      "state":{
+        "id":"newItem",
+        "value":{
+          "id":4,
+          "name":"Paul"
+        }
+      },
+      "children":[
+        {
+          "_:component":"forEach",
+          "children":[
+            {
+              "_:component":"layout:text",
+              "properties":{
+                "text":"@{item.name}"
+              }
+            }
+          ],
+          "properties":{
+            "key":"id",
+            "items":"@{dataset}"
+          }
+        },
+        {
+          "_:component":"store:button",
+          "id":"add",
+          "properties":{
+            "text":"Add one more",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"dataset",
+                  "value":"@{insert(dataset, newItem)}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component":"store:button",
+          "id":"remove",
+          "properties":{
+            "text":"Remove second",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"dataset",
+                  "value":"@{removeIndex(dataset, 1)}"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }"""

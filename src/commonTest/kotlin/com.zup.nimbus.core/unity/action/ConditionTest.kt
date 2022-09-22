@@ -1,88 +1,69 @@
 package com.zup.nimbus.core.unity.action
 
-import com.zup.nimbus.core.EmptyNavigator
+import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.action.condition
 import com.zup.nimbus.core.log.LogLevel
-import com.zup.nimbus.core.render.ActionEvent
-import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.RenderAction
-import com.zup.nimbus.core.tree.RenderNode
-import kotlin.test.BeforeTest
+import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.ui.action.condition
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ConditionTest {
-  private val logger = ObservableLogger()
-  private val nimbus = Nimbus(ServerDrivenConfig("", "", logger = logger))
-
-  private fun createEvent(
+  private fun createActionTriggeredEvent(
     conditionValue: Boolean? = null,
-    onTrue: ((_: Any?) -> Unit)? = null,
-    onFalse: ((_: Any?) -> Unit)? = null,
-  ): ActionEvent {
-    return ActionEvent(
-      action = RenderAction(
-        action = "condition",
-        properties = mapOf("condition" to conditionValue, "onTrue" to onTrue, "onFalse" to onFalse),
-        metadata = null,
-        rawProperties = null,
-        rawMetadata = null,
-      ),
-      view = ServerDrivenView(nimbus, { EmptyNavigator() }),
-      name = "event",
-      node = RenderNode.empty(),
-    )
-  }
-
-  @BeforeTest
-  fun clear() {
-    logger.clear()
+    onTrue: ServerDrivenEvent? = null,
+    onFalse: ServerDrivenEvent? = null,
+    parent: Scope? = null
+  ): ActionTriggeredEvent {
+    val action = SimpleAction("condition", { condition(it) }, mapOf(
+      "condition" to conditionValue,
+      "onTrue" to onTrue,
+      "onFalse" to onFalse,
+    ))
+    return ActionTriggeredEvent(action = action, scope = SimpleEvent(parent = parent), dependencies = mutableSetOf())
   }
 
   @Test
   fun `should run onTrue if condition is true`() {
-    var called = false
-    val event = createEvent(conditionValue = true, onTrue = { called = true })
+    val onTrue = SimpleEvent()
+    val event = createActionTriggeredEvent(conditionValue = true, onTrue = onTrue)
     condition(event)
-    assertTrue(called)
-    assertTrue(logger.entries.isEmpty())
+    assertEquals(1, onTrue.calls.size)
   }
 
   @Test
   fun `should run onFalse if condition is false`() {
-    var called = false
-    val event = createEvent(conditionValue = false, onFalse = { called = true })
+    val onFalse = SimpleEvent()
+    val event = createActionTriggeredEvent(conditionValue = false, onFalse = onFalse)
     condition(event)
-    assertTrue(called)
-    assertTrue(logger.entries.isEmpty())
+    assertEquals(1, onFalse.calls.size)
   }
 
   @Test
   fun `should do nothing if condition is true and onTrue is not provided`() {
-    var called = false
-    val event = createEvent(conditionValue = true, onFalse = { called = true })
+    val onFalse = SimpleEvent()
+    val event = createActionTriggeredEvent(conditionValue = true, onFalse = onFalse)
     condition(event)
-    assertFalse(called)
-    assertTrue(logger.entries.isEmpty())
+    assertTrue(onFalse.calls.isEmpty())
   }
 
   @Test
   fun `should do nothing if condition is false and onFalse is not provided`() {
-    var called = false
-    val event = createEvent(conditionValue = false, onTrue = { called = true })
+    val onTrue = SimpleEvent()
+    val event = createActionTriggeredEvent(conditionValue = false, onTrue = onTrue)
     condition(event)
-    assertFalse(called)
-    assertTrue(logger.entries.isEmpty())
+    assertTrue(onTrue.calls.isEmpty())
   }
 
   @Test
   fun `should fail if condition is not provided`() {
-    val event = createEvent()
+    val logger = ObservableLogger()
+    val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test", logger = logger))
+    val event = createActionTriggeredEvent(parent = nimbus)
     condition(event)
     assertEquals(1, logger.entries.size)
     assertEquals(LogLevel.Error, logger.entries[0].level)

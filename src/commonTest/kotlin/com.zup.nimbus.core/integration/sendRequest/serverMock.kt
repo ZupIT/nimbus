@@ -12,6 +12,7 @@ fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true
     "children": [
       {
         "_:component": "material:button",
+        "id": "send-request-btn",
         "properties": {
           "text": "Load",
           "onPress": [{

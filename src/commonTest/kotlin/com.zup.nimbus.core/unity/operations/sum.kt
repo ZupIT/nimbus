@@ -1,10 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.getNumberOperations
+import com.zup.nimbus.core.ui.coreUILibrary
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val sum = getNumberOperations()["sum"]!!
+private val sum = coreUILibrary.getOperation("sum")!!
 
 class SumOperationTest {
   @Test

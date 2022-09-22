@@ -1,8 +1,7 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -14,32 +13,26 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class DefaultViewClient(
-  private val httpClient: HttpClient,
-  private val urlBuilder: UrlBuilder,
-  private val idManager: IdManager,
-  private val logger: Logger,
-  private val platform: String,
-) : ViewClient {
+class DefaultViewClient(val nimbus: Nimbus) : ViewClient {
   // used to prevent the ViewClient from launching multiple requests to the same URL in sub-sequent pre-fetches
   private val mutex = Mutex()
   // the keys here are in the format $method:$url
-  private var preFetched = HashMap<String, Deferred<RenderNode>>()
+  private var preFetched = HashMap<String, Deferred<RootNode>>()
 
   private fun createPreFetchKey(request: ViewRequest): String {
     return "${request.method}:${request.url}"
   }
 
-  private suspend fun fetchView(request: ViewRequest): RenderNode {
+  private suspend fun fetchView(request: ViewRequest): RootNode {
     val coreHeaders = mapOf(
       // "Content-Type" to "application/json", fixme: ktor doesn't like this header
-      "platform" to platform,
+      "platform" to nimbus.platform,
     )
-    val url = urlBuilder.build(request.url)
+    val url = nimbus.urlBuilder.build(request.url)
     val response: ServerDrivenResponse
     try {
       try {
-        response = httpClient.sendRequest(
+        response = nimbus.httpClient.sendRequest(
           ServerDrivenRequest(
             url = url,
             method = request.method,
@@ -51,17 +44,17 @@ class DefaultViewClient(
         throw RequestError(e.message)
       }
 
-      if (response.status < FIRST_BAD_STATUS) return RenderNode.fromJsonString(response.body, idManager)
+      if (response.status < FIRST_BAD_STATUS) return nimbus.nodeBuilder.buildFromJsonString(response.body)
       throw ResponseError(response.status, response.body)
     } catch (e: Throwable) {
       if (request.fallback == null) throw e
-      logger.error("Failed to perform network request to $url, using the provided fallback view instead. " +
+      nimbus.logger.error("Failed to perform network request to $url, using the provided fallback view instead. " +
         "Cause:\n${e.message ?: "Unknown"}")
-      return request.fallback
+      return nimbus.nodeBuilder.buildFromJsonMap(request.fallback)
     }
   }
 
-  override suspend fun fetch(request: ViewRequest): RenderNode {
+  override suspend fun fetch(request: ViewRequest): RootNode {
     val key = createPreFetchKey(request)
     val deferred = preFetched[key]
     preFetched = HashMap()
@@ -98,7 +91,7 @@ class DefaultViewClient(
               return@async fetchView(request)
             } catch (e: Throwable) {
               this.cancel("Error while prefetching.\n${e.message}")
-              return@async RenderNode.empty()
+              return@async RootNode()
             }
           }
         }

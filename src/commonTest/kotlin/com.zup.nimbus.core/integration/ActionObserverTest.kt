@@ -1,27 +1,30 @@
 package com.zup.nimbus.core.integration
 
-import com.zup.nimbus.core.*
-import com.zup.nimbus.core.render.ActionEvent
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.ActionTriggeredEvent
+import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.NodeUtils
+import com.zup.nimbus.core.ObservableLogger
+import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.ServerDrivenAction
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.findNodeById
+import com.zup.nimbus.core.ui.UILibrary
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AnalyticsRecord(
   val platform: String,
   val action: ServerDrivenAction,
   val node: ServerDrivenNode,
   val event: String,
-  val screen: String,
   val timestamp: Long,
 )
 
 /**
  * A simple analytics service that creates an analytics record if the action has `analytics = true` in its metadata.
  */
+
 class MyAnalyticsService {
   var entries = ArrayList<AnalyticsRecord>()
 
@@ -29,14 +32,13 @@ class MyAnalyticsService {
     entries = ArrayList()
   }
 
-  fun createRecord(event: ActionEvent) {
+  fun createRecord(event: ActionTriggeredEvent) {
     if (event.action.metadata?.get("analytics") != true) return
     entries.add(AnalyticsRecord(
       platform = "Test",
       action = event.action,
-      node = event.node,
-      event = event.name,
-      screen = event.view.description ?: "unknown",
+      node = event.scope.node,
+      event = event.scope.name,
       timestamp = 98844454548L, // in a real implementation, get the current unix time
     ))
   }
@@ -47,6 +49,7 @@ private const val SCREEN = """{
   "children": [
     {
       "_:component": "layout:layoutHandler",
+      "id": "init",
       "properties": {
         "onInit": [{
           "_:action": "log",
@@ -62,6 +65,7 @@ private const val SCREEN = """{
     },
     {
       "_:component": "material:button",
+      "id": "btn-without-analytics",
       "properties": {
         "text": "Log without analytics",
         "onPress": [{
@@ -74,12 +78,13 @@ private const val SCREEN = """{
     },
     {
       "_:component": "material:button",
+      "id": "btn-with-analytics",
       "properties": {
         "text": "Push with analytics",
         "onPress": [{
-          "_:action": "push",
+          "_:action": "log",
           "properties": {
-            "url": "/screen2"
+            "message": "Pressed"
           },
           "metadata": {
             "analytics": true
@@ -93,12 +98,14 @@ private const val SCREEN = """{
 class ActionObserverTest {
   private val logger = ObservableLogger()
   private val analytics = MyAnalyticsService()
-  private val nimbus = Nimbus(ServerDrivenConfig(
-    baseUrl = "",
-    platform = "",
-    logger = logger,
-    actionObservers = listOf({ analytics.createRecord(it) }),
-  ))
+  private val nimbus = Nimbus(
+    ServerDrivenConfig(
+      baseUrl = "",
+      platform = "",
+      logger = logger,
+      ui = listOf(UILibrary().addActionObserver { analytics.createRecord(it) })
+    )
+  )
 
   @BeforeTest
   fun clear() {
@@ -108,62 +115,40 @@ class ActionObserverTest {
 
   @Test
   fun `should create an  analytics record for log`() {
-    val view = nimbus.createView({ EmptyNavigator() }, "json")
-    val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
-    var hasRendered = false
-    view.renderer.paint(screen)
-    view.onChange {
-      val layoutHandler = it.children!![0]
-      NodeUtils.triggerEvent(layoutHandler, "onInit")
-      assertEquals(1, logger.entries.size)
-      assertEquals(1, analytics.entries.size)
-      val record = analytics.entries.first()
-      assertEquals("Test", record.platform)
-      assertEquals("log", record.action.action)
-      assertEquals(layoutHandler, record.node)
-      assertEquals("onInit", record.event)
-      assertEquals("json", record.screen)
-      assertEquals(98844454548L, record.timestamp)
-      hasRendered = true
-    }
-    assertTrue(hasRendered)
+    val screen = nimbus.nodeBuilder.buildFromJsonString(SCREEN)
+    screen.initialize(nimbus)
+    val layoutHandler = screen.findNodeById("init")
+    NodeUtils.triggerEvent(layoutHandler, "onInit")
+    assertEquals(1, logger.entries.size)
+    assertEquals(1, analytics.entries.size)
+    val record = analytics.entries.first()
+    assertEquals("Test", record.platform)
+    assertEquals("log", record.action.name)
+    assertEquals(layoutHandler, record.node)
+    assertEquals("onInit", record.event)
+    assertEquals(98844454548L, record.timestamp)
   }
 
   @Test
   fun `should not create an analytics record for log`() {
-    val view = nimbus.createView({ EmptyNavigator() }, "json")
-    val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
-    var hasRendered = false
-    view.renderer.paint(screen)
-    view.onChange {
-      val button = it.children!![1]
-      NodeUtils.triggerEvent(button, "onPress")
-      assertEquals(1, logger.entries.size)
-      assertEquals(0, analytics.entries.size)
-      hasRendered = true
-    }
-    assertTrue(hasRendered)
+    val screen = nimbus.nodeBuilder.buildFromJsonString(SCREEN)
+    screen.initialize(nimbus)
+    NodeUtils.pressButton(screen, "btn-without-analytics")
+    assertEquals(1, logger.entries.size)
+    assertEquals(0, analytics.entries.size)
   }
 
   @Test
   fun `should create an analytics record for push`() {
-    val view = nimbus.createView({ EmptyNavigator() }, "json")
-    val screen = RenderNode.fromJsonString(SCREEN, nimbus.idManager)
-    var hasRendered = false
-    view.renderer.paint(screen)
-    view.onChange {
-      val button = it.children!![2]
-      NodeUtils.triggerEvent(button, "onPress")
-      assertEquals(1, analytics.entries.size)
-      val record = analytics.entries.first()
-      assertEquals("Test", record.platform)
-      assertEquals("push", record.action.action)
-      assertEquals(button, record.node)
-      assertEquals("onPress", record.event)
-      assertEquals("json", record.screen)
-      assertEquals(98844454548L, record.timestamp)
-      hasRendered = true
-    }
-    assertTrue(hasRendered)
+    val screen = nimbus.nodeBuilder.buildFromJsonString(SCREEN)
+    screen.initialize(nimbus)
+    NodeUtils.pressButton(screen, "btn-with-analytics")
+    assertEquals(1, analytics.entries.size)
+    val record = analytics.entries.first()
+    assertEquals("Test", record.platform)
+    assertEquals("log", record.action.name)
+    assertEquals(screen.findNodeById("btn-with-analytics"), record.node)
+    assertEquals("onPress", record.event)
+    assertEquals(98844454548L, record.timestamp)
   }
 }

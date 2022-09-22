@@ -1,6 +1,5 @@
 package com.zup.nimbus.core
 
-import com.zup.nimbus.core.integration.navigation.BASE_URL
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.ServerDrivenRequest

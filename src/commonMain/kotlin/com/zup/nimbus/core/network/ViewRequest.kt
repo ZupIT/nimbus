@@ -1,7 +1,5 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.tree.RenderNode
-
 data class ViewRequest(
   /**
    * The URL to send the request to. When it starts with "/", it's relative to the BaseUrl.
@@ -22,5 +20,5 @@ data class ViewRequest(
   /**
    * UI tree to show if an error occurs and the view can't be fetched.
    */
-  val fallback: RenderNode? = null,
+  val fallback: Map<String, Any?>? = null,
 )

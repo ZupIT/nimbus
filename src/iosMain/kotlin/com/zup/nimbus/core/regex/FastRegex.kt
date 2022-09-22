@@ -95,19 +95,27 @@ actual class FastRegex actual constructor(actual val pattern: String) {
   }
 
   actual fun replace(input: String, transform: (MatchGroups) -> String): String {
+    return transform(input, { it }, transform).joinToString("")
+  }
+
+  actual fun <T>transform(
+    input: String,
+    transformUnmatching: (String) -> T,
+    transformMatching: (MatchGroups) -> T,
+  ): List<T> {
     val matches = findAllMatches(input)
-    val parts = mutableListOf<String>()
+    val parts = mutableListOf<T>()
     var next = 0
     matches.forEach {
       val groups = collectGroups(nsStr(input), it)
       val length = groups.values.first().length
       val end = NSMaxRange(it.rangeAtIndex(0)).toInt()
       val start = end - length
-      parts.add(input.substring(next, start))
-      parts.add(transform(groups))
+      parts.add(transformUnmatching(input.substring(next, start)))
+      parts.add(transformMatching(groups))
       next = end
     }
-    parts.add(input.substring(next))
-    return parts.joinToString("")
+    parts.add(transformUnmatching(input.substring(next)))
+    return parts
   }
 }

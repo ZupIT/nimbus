@@ -4,6 +4,8 @@ import com.zup.nimbus.core.*
 import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.ResponseError
 import com.zup.nimbus.core.network.ViewRequest
+import com.zup.nimbus.core.scope.closestScopeWithType
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,12 +23,12 @@ class NavigationTest {
   ))
   private val navigator = ObservableNavigator(scope, nimbus)
 
-  private suspend fun pushViews(numberOfViews: Int): Page {
+  private suspend fun pushViews(numberOfViews: Int): RootNode {
     var current = 1
     navigator.push(ViewRequest("/screen1"))
     var result = navigator.awaitPushCompletion()
     while (current < numberOfViews) {
-      NodeUtils.pressButton(result.content, "next")
+      NodeUtils.pressButton(result, "next")
       result = navigator.awaitPushCompletion()
       current++
     }
@@ -42,7 +44,7 @@ class NavigationTest {
   fun `should render the first view`() = scope.runTest {
     val page1 = pushViews(1)
     assertEquals(1, navigator.pages.size)
-    verifyScreen1(page1.content)
+    verifyScreen1(NodeUtils.getContent(page1))
   }
 
   @Test
@@ -64,21 +66,21 @@ class NavigationTest {
   fun `should push the second view`() = scope.runTest {
     val page2 = pushViews(2)
     assertEquals(2, navigator.pages.size)
-    verifyScreen2(page2.content)
+    verifyScreen2(NodeUtils.getContent(page2))
   }
 
   @Test
   fun `should push the third view`() = scope.runTest {
     val page3 = pushViews(3)
     assertEquals(3, navigator.pages.size)
-    verifyScreen3(page3.content)
+    verifyScreen3(NodeUtils.getContent(page3))
   }
 
   @Test
   fun `should show the fallback when pushing the fourth view`() = scope.runTest {
     val fallbackPage = pushViews(4)
     assertEquals(4, navigator.pages.size)
-    verifyFallbackScreen(fallbackPage.content)
+    NodeUtils.getContent(fallbackPage)
   }
 
   @Test
@@ -86,7 +88,7 @@ class NavigationTest {
     val page3 = pushViews(3)
     var error: Throwable? = null
     try {
-      NodeUtils.pressButton(page3.content, "next-error")
+      NodeUtils.pressButton(page3, "next-error")
       navigator.awaitPushCompletion()
     } catch(e: CancellationException) {
       // this is super-weird, but on Android the error will be at e.cause.cause while on iOS it will be in e.cause
@@ -99,25 +101,36 @@ class NavigationTest {
   @Test
   fun `should push the second view and pop`() = scope.runTest {
     val page2 = pushViews(2)
-    NodeUtils.pressButton(page2.content, "previous")
+    NodeUtils.pressButton(page2, "previous")
     assertEquals(1, navigator.pages.size)
-    assertEquals("/screen1", navigator.pages.last().id)
+    val view: ServerDrivenView? = navigator.pages.last().closestScopeWithType()
+    assertEquals("/screen1", view?.description)
   }
 
   @Test
   fun `should pop to root from fallback`() = scope.runTest {
     val fallbackPage = pushViews(4)
+
     // fallback to /screen3
-    NodeUtils.pressButton(fallbackPage.content, "previous")
+    NodeUtils.pressButton(fallbackPage, "previous")
     assertEquals(3, navigator.pages.size)
-    assertEquals("/screen3", navigator.pages.last().id)
+    var lastPage = navigator.pages.last()
+    var view: ServerDrivenView? = lastPage.closestScopeWithType()
+    assertEquals("/screen3", view?.description)
+
     // /screen3 to /screen2
-    NodeUtils.pressButton(navigator.pages.last().content, "previous")
+    NodeUtils.pressButton(lastPage, "previous")
+    lastPage = navigator.pages.last()
+    view = lastPage.closestScopeWithType()
     assertEquals(2, navigator.pages.size)
-    assertEquals("/screen2", navigator.pages.last().id)
+    assertEquals("/screen2", view?.description)
+
     // /screen2 to /screen1
-    NodeUtils.pressButton(navigator.pages.last().content, "previous")
+    NodeUtils.pressButton(lastPage, "previous")
     assertEquals(1, navigator.pages.size)
-    assertEquals("/screen1", navigator.pages.last().id)
+    lastPage = navigator.pages.last()
+    view = lastPage.closestScopeWithType()
+    assertEquals("/screen1", view?.description)
   }
 }
+

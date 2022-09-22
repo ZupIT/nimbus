@@ -53,18 +53,14 @@ class DefaultHttpClientTest {
   fun `should be able to use a custom http client on the nimbus instance`() = runTest {
     val nimbus = Nimbus(
       ServerDrivenConfig(
-        "/",
-        "test",
-        null,
-        null,
-        null,
-        null,
-        null,
-        TestCustomHttpClient()
+        baseUrl = "/",
+        platform = "test",
+        httpClient = TestCustomHttpClient()
       )
     )
 
-    val response = nimbus.httpClient.sendRequest(ServerDrivenRequest("/", null, null, null))
+    val response = nimbus.httpClient
+      .sendRequest(ServerDrivenRequest("/", null, null, null))
     assertEquals(response.status, TestCustomHttpClient.expectedStatusCode)
     assertEquals(response.body, TestCustomHttpClient.expectedBody)
     assertEquals(response.headers, TestCustomHttpClient.expectedHeaders)
