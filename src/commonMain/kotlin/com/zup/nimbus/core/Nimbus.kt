@@ -15,7 +15,7 @@ import com.zup.nimbus.core.ui.coreUILibrary
 /**
  * The root scope of a nimbus application. Contains important objects like the logger and the httpClient.
  */
-class Nimbus(config: ServerDrivenConfig): CommonScope(
+open class Nimbus(config: ServerDrivenConfig): CommonScope(
   parent = null,
   states = (config.states ?: emptyList()) + ServerDrivenState("global", null),
 ) {
