@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.deserialization
 
 import com.zup.nimbus.core.log.Logger
+import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
 class ComponentDeserializer(val logger: Logger, val node: ServerDrivenNode) {
@@ -58,8 +59,8 @@ class ComponentDeserializer(val logger: Logger, val node: ServerDrivenNode) {
     return deserializer.asMap(key)
   }
 
-  fun asAction(key: String): (Any?) -> Unit {
-    return deserializer.asAction(key)
+  fun asEvent(key: String): ServerDrivenEvent {
+    return deserializer.asEvent(key)
   }
 
   fun asStringOrNull(key: String): String? {
@@ -90,7 +91,7 @@ class ComponentDeserializer(val logger: Logger, val node: ServerDrivenNode) {
     return deserializer.asMapOrNull(key)
   }
 
-  fun asActionOrNull(key: String): ((Any?) -> Unit)? {
-    return deserializer.asActionOrNull(key)
+  fun asEventOrNull(key: String): ServerDrivenEvent? {
+    return deserializer.asEventOrNull(key)
   }
 }

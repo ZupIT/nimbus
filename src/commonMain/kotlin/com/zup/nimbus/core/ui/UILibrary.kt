@@ -29,22 +29,22 @@ open class UILibrary(
   private val actionObservers = mutableListOf<ActionHandler>()
   private val operations = mutableMapOf<String, OperationHandler>()
 
-  fun addAction(name: String, handler: ActionHandler): UILibrary {
+  open fun addAction(name: String, handler: ActionHandler): UILibrary {
     actions[name] = handler
     return this
   }
 
-  fun addActionInitializer(name: String, handler: ActionInitializationHandler): UILibrary {
+  open fun addActionInitializer(name: String, handler: ActionInitializationHandler): UILibrary {
     actionInitializers[name] = handler
     return this
   }
 
-  fun addActionObserver(observer: ActionHandler): UILibrary {
+  open fun addActionObserver(observer: ActionHandler): UILibrary {
     actionObservers.add(observer)
     return this
   }
 
-  fun addOperation(name: String, handler: OperationHandler): UILibrary {
+  open fun addOperation(name: String, handler: OperationHandler): UILibrary {
     operations[name] = handler
     return this
   }
@@ -65,11 +65,6 @@ open class UILibrary(
     return operations[name]
   }
 
-  /**
-   * Merges the given UILibrary into this UILibrary. This alters the current UILibrary.
-   *
-   * Attention: remember to override this method when extending this class.
-   */
   open fun merge(other: UILibrary): UILibrary {
     actions.putAll(other.actions)
     actionInitializers.putAll(other.actionInitializers)

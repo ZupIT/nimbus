@@ -3,11 +3,17 @@ package com.zup.nimbus.core.tree.dynamic.node
 import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.utils.valueOfKey
 
-// fixme: normally, in UI frameworks, if-else blocks completely remove the other branch from the tree and rebuilds it
+// fixme(1): normally, in UI frameworks, if-else blocks completely remove the other branch from the tree and rebuilds it
 //  when the condition changes. This is not being done here. On the positive side, states will never be lost when
 //  switching from true to false. On the other hand, we won't free up the memory for the if-else branch not currently
 //  rendered until the associated RootNode is unmounted. If we decide this to be a feature and not a bug, remove this
 //  commentary.
+//
+// fixme(2): we shouldn't try to run the components of Else if the condition is true; or the components of Then when
+//  the condition is false. Example: we may use an operation that expects something not to be null and this can only be
+//  guaranteed by the if's condition. By initializing both Then and Else no matter the condition value, we'll end up
+//  processing way more than we need and risk running operations that expect values different than the ones we have.
+//  PS: fixing the first issue automatically fixes this.
 /**
  * IfNode is a polymorphic DynamicNode that chooses only one of its original subtree (json) to render at a time. The
  * chosen subtree depends on the value of the property "condition". When "condition" is true and "Then" is a child of

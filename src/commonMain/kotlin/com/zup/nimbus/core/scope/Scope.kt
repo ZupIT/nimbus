@@ -55,7 +55,7 @@ interface Scope {
 /**
  * Returns the closest Scope with the specified type.
  */
-internal inline fun <reified T: Scope> Scope.closestScopeWithType(): T? {
+inline fun <reified T: Scope> Scope.closestScopeWithType(): T? {
   var current: Scope? = this
   while (current != null && current !is T) current = current.parent
   return current?.let { current as T }
