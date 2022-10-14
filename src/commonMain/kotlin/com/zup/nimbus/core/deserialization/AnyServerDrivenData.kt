@@ -6,7 +6,7 @@ import com.zup.nimbus.core.tree.dynamic.DynamicEvent
 class AnyServerDrivenData private constructor (
   val value: Any?,
   val path: String,
-  val errors: MutableList<String>,
+  private val errors: MutableList<String>,
 ) {
   constructor(value: Any?): this(value, "", mutableListOf())
 
@@ -187,6 +187,11 @@ class AnyServerDrivenData private constructor (
 
   fun hasError(): Boolean = errors.isNotEmpty()
   fun errorsAsString(): String = errors.joinToString("\n")
+  fun collectErrors(): List<String> {
+    val copy = errors.map { it }
+    errors.clear()
+    return copy
+  }
 
   // Accessors
 
