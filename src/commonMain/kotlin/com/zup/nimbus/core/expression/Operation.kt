@@ -1,12 +1,15 @@
 package com.zup.nimbus.core.expression
 
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.Dependent
+import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.scope.CloneAfterInitializationError
 import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
+import com.zup.nimbus.core.scope.closestScopeWithType
 
 class Operation(
   private val handler: OperationHandler,
@@ -14,9 +17,11 @@ class Operation(
 ): Expression, CommonDependency(), Dependent, LazilyScoped<Operation> {
   private var value: Any? = null
   private var hasInitialized = false
+  private var getLogger: (() -> Logger?)? = null
 
   override fun initialize(scope: Scope) {
     if (hasInitialized) throw DoubleInitializationError()
+    getLogger = { scope.closestScopeWithType<Nimbus>()?.logger }
     arguments.forEach {
       if (it is LazilyScoped<*>) it.initialize(scope)
       if (it is CommonDependency) it.addDependent(this)
@@ -28,7 +33,12 @@ class Operation(
 
   override fun update() {
     val argValues = arguments.map { it.getValue() }
-    val newValue = handler(argValues)
+    val newValue = try {
+      handler(argValues)
+    } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {
+      getLogger?.let { it()?.error(t.stackTraceToString()) }
+      null
+    }
     if (value != newValue) {
       value = newValue
       hasChanged = true

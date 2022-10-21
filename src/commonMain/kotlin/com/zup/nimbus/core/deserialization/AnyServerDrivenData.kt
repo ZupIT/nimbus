@@ -179,6 +179,7 @@ class AnyServerDrivenData private constructor (
   // Map and List utilities
 
   fun containsKey(key: String): Boolean = value is Map<*, *> && value.containsKey(key)
+  fun hasAnyOfKeys(keys: List<String>): Boolean = value is Map<*, *> && keys.find { value.keys.contains(it) } != null
   fun containsElement(element: Any?): Boolean = value is List<*> && value.contains(element)
   fun listSize(): Int = if (value is List<*>) value.size else 0
   fun mapSize(): Int = if (value is Map<*, *>) value.size else 0
@@ -186,12 +187,7 @@ class AnyServerDrivenData private constructor (
   // Error handling
 
   fun hasError(): Boolean = errors.isNotEmpty()
-  fun errorsAsString(): String = errors.joinToString("\n")
-  fun collectErrors(): List<String> {
-    val copy = errors.map { it }
-    errors.clear()
-    return copy
-  }
+  fun errorsAsString(prefix: String = "\n\t"): String = "$prefix${errors.joinToString(prefix)}"
 
   // Accessors
 
