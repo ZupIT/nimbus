@@ -1,11 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.getOtherOperations
+import com.zup.nimbus.core.ui.coreUILibrary
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-private val length = getOtherOperations()["length"]!!
+private val length = coreUILibrary.getOperation("length")!!
 
 class LengthOperationTest {
   @Test

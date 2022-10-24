@@ -51,9 +51,9 @@ kotlin {
   }
 
   sourceSets {
-    val serializationVersion = "1.3.3"
-    val coroutinesVersion = "1.6.3"
-    val ktorVersion = "2.0.3"
+    val serializationVersion = "1.4.0"
+    val coroutinesVersion = "1.6.4"
+    val ktorVersion = "2.1.1"
     val commonMain by getting {
       dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")

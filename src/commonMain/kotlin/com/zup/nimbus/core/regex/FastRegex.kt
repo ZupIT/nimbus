@@ -71,4 +71,19 @@ expect class FastRegex(pattern: String) {
    * @return the new string with the replaced values.
    */
   fun replace(input: String, transform: (MatchGroups) -> String): String
+
+  /**
+   * Temporary solution for parsing expressions. We'll probably need to reformulate this when revising the
+   * implementation and extending the grammar.
+   *
+   * This replaces every unmatching substring with the transformUnmatching function passed as parameter and every
+   * matching substring with the transformMatching substring passed as parameter. The result is a list of whatever
+   * the substrings have been transformed into.
+   *
+   * @param input the string to match the regex against.
+   * @param transformUnmatching a function to transform the unmatched substring into T.
+   * @param transformMatching a function to transform the matched substring into T.
+   * @return the list of T with the replaced values.
+   */
+  fun <T>transform(input: String, transformUnmatching: (String) -> T, transformMatching: (MatchGroups) -> T): List<T>
 }

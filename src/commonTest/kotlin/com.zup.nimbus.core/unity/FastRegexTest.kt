@@ -149,4 +149,29 @@ class FastRegexTest {
     val regex = FastRegex("""(^\w+)|(\.\w+)|(\[\d+\])""")
     assertFalse(regex.containsMatchIn("..."))
   }
+
+  @Test
+  fun `should transform String into something else according to a pattern`() {
+    class IntOrString(
+      val str: String? = null,
+      val int: Int? = null,
+    ) {
+      override fun toString(): String {
+        return if (str == null) "$int" else "\"$str\""
+      }
+
+      override fun equals(other: Any?): Boolean {
+        return other is IntOrString && other.int == int && other.str == str
+      }
+    }
+    val pattern = FastRegex("""\d+""")
+    val result = pattern.transform("Hello 123 4 W0rld!", { IntOrString(str = it) }) {
+      IntOrString(int = it.values.first().toInt())
+    }
+    assertEquals(
+      listOf(IntOrString(str = "Hello "), IntOrString(int = 123), IntOrString(str = " "), IntOrString(int = 4),
+        IntOrString(str = " W"), IntOrString(int = 0), IntOrString(str = "rld!")),
+      result,
+    )
+  }
 }

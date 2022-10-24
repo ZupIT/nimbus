@@ -13,7 +13,9 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import kotlin.collections.set
 
-class DefaultHttpClient(engine: HttpClientEngine? = null): com.zup.nimbus.core.network.HttpClient {
+class DefaultHttpClient (engine: HttpClientEngine? = null): com.zup.nimbus.core.network.HttpClient {
+  constructor() : this(null)
+
   private val client = if (engine == null) HttpClient() else HttpClient(engine)
 
   override suspend fun sendRequest(request: ServerDrivenRequest): ServerDrivenResponse {

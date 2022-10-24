@@ -1,11 +1,10 @@
 package com.zup.nimbus.core.integration
 
-import com.zup.nimbus.core.EmptyNavigator
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.tree.findNodeById
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private const val SCREEN = """{
   "_:component": "layout:column",
@@ -19,6 +18,7 @@ private const val SCREEN = """{
   "children": [
     {
       "_:component": "material:text",
+      "id": "formal",
       "properties": {
         "text": "@{greetings.formal}?"
       }
@@ -31,6 +31,7 @@ private const val SCREEN = """{
       },
       "children": [{
         "_:component": "material:text",
+        "id": "mundane",
         "properties": {
           "text": "@{greetings.mundane} @{firstName}?"
         }
@@ -43,15 +44,10 @@ class StateResolutionTest {
   @Test
   fun shouldResolveStates() {
     val nimbus = Nimbus(ServerDrivenConfig("", "test"))
-    val node = nimbus.createNodeFromJson(SCREEN)
-    val page = nimbus.createView({ EmptyNavigator() })
-    var hasRendered = false
-    page.renderer.paint(node)
-    page.onChange {
-      assertEquals("How are you?", it.children?.get(0)?.properties?.get("text"))
-      assertEquals("Whazap John?", it.children?.get(1)?.children?.get(0)?.properties?.get("text"))
-      hasRendered = true
-    }
-    assertTrue(hasRendered)
+    val tree = nimbus.nodeBuilder.buildFromJsonString(SCREEN)
+    tree.initialize(nimbus)
+    assertEquals("How are you?", tree.findNodeById("formal")?.properties?.get("text"))
+    assertEquals("Whazap John?", tree.findNodeById("mundane")?.properties?.get("text"))
   }
 }
+

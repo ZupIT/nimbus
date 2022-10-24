@@ -1,8 +1,8 @@
 package com.zup.nimbus.core.network
 
-import com.zup.nimbus.core.tree.MalformedComponentError
-import com.zup.nimbus.core.tree.MalformedJsonError
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedComponentError
+import com.zup.nimbus.core.tree.dynamic.builder.MalformedJsonError
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlin.coroutines.cancellation.CancellationException
 
 interface ViewClient {
@@ -18,7 +18,7 @@ interface ViewClient {
    */
   @Throws(RequestError::class, ResponseError::class, MalformedJsonError::class, MalformedComponentError::class,
     CancellationException::class)
-  suspend fun fetch(request: ViewRequest): RenderNode
+  suspend fun fetch(request: ViewRequest): RootNode
 
   /**
    * Pre-fetches a view (UI tree) from the server and stores it. The next fetch will get the stored value instead of

@@ -1,10 +1,10 @@
 package com.zup.nimbus.core.unity.operations
 
-import com.zup.nimbus.core.operations.getArrayOperations
+import com.zup.nimbus.core.ui.coreUILibrary
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val removeIndex = getArrayOperations()["removeIndex"]!!
+private val removeIndex = coreUILibrary.getOperation("removeIndex")!!
 
 class RemoveIndexOperationTest {
   @Test

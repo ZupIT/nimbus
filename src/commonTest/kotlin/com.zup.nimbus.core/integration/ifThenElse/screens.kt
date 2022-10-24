@@ -5,6 +5,7 @@ fun createIfThenElseScreen(
   includeThen: Boolean = true,
   includeElse: Boolean = false,
   includeInvalid: Boolean = false,
+  includeButton: Boolean = false,
 ): String {
   val thenComponent = """{
     "_:component": "then",
@@ -49,6 +50,23 @@ fun createIfThenElseScreen(
     }
   }"""
 
+  val button = if (includeButton) """, {
+    "_:component": "material:button",
+    "id": "toggle",
+    "properties": {
+      "text": "toggle",
+      "onPress": [
+        {
+          "_:action": "setState",
+          "properties": {
+            "path": "isMorning",
+            "value": "@{not(isMorning)}"
+          }
+        }
+      ]
+    }
+  }""" else ""
+
   val components = ArrayList<String>()
   if (includeThen) components.add(thenComponent)
   if (includeElse) components.add(elseComponent)
@@ -69,7 +87,43 @@ fun createIfThenElseScreen(
         "children": [
           ${components.joinToString(",")}
         ]
-      }
+      }$button
     ]
   }"""
 }
+
+private fun createRootIfButton(value: Boolean) = """{
+  "_:component": "material:button",
+  "id": "toggle-$value",
+  "properties": {
+    "text": "value is $value",
+    "onPress": [{
+      "_:action": "setState",
+      "properties": {
+        "path": "test",
+        "value": ${!value}
+      }
+    }]
+  }
+}"""
+
+val simpleRootIf = """{
+  "_:component": "if",
+  "state": {
+    "id": "test",
+    "value": true
+  },
+  "properties": {
+    "condition": "@{test}"
+  },
+  "children": [
+    {
+      "_:component": "then",
+      "children": [${createRootIfButton(true)}]
+    },
+    {
+      "_:component": "else",
+      "children": [${createRootIfButton(false)}]
+    }
+  ]
+}"""

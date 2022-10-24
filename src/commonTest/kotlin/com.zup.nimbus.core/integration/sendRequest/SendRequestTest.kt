@@ -1,10 +1,12 @@
 package com.zup.nimbus.core.integration.sendRequest
 
-import com.zup.nimbus.core.*
+import com.zup.nimbus.core.AsyncUtils
+import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.NodeUtils
+import com.zup.nimbus.core.ObservableLogger
+import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.network.DefaultHttpClient
-import com.zup.nimbus.core.tree.ServerDrivenNode
-import com.zup.nimbus.core.utils.valueOfKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -17,34 +19,24 @@ class SendRequestTest {
   private val scope = TestScope()
   private val logger = ObservableLogger()
 
-  private val nimbus = Nimbus(ServerDrivenConfig(
-    baseUrl = BASE_URL,
-    platform = "test",
-    httpClient = DefaultHttpClient(serverMock),
-    logger = logger,
-  ))
-
-  private fun pressButtonToSendRequest(content: ServerDrivenNode) {
-    val button = content.children?.get(0)!!
-    val pressButton = valueOfKey<(value: Any?) -> Unit>(button.properties, "onPress")
-    pressButton(null)
-  }
+  private val nimbus = Nimbus(
+    ServerDrivenConfig(
+      baseUrl = BASE_URL,
+      platform = "test",
+      httpClient = DefaultHttpClient(serverMock),
+      logger = logger,
+    )
+  )
 
   private fun runSendRequestTest(
     json: String,
     numberOfLogsToWaitFor: Int = 2,
     onLogEvent: () -> Unit,
   ) = scope.runTest {
-    var changed = 0
-    val screen = nimbus.createNodeFromJson(json)
-    val view = nimbus.createView({ EmptyNavigator() })
     logger.clear()
-    view.onChange {
-      changed++
-      pressButtonToSendRequest(it)
-    }
-    view.renderer.paint(screen)
-    assertEquals(1, changed)
+    val tree = nimbus.nodeBuilder.buildFromJsonString(json)
+    tree.initialize(nimbus)
+    NodeUtils.pressButton(tree, "send-request-btn")
     AsyncUtils.waitUntil { logger.entries.size >= numberOfLogsToWaitFor }
     onLogEvent()
   }

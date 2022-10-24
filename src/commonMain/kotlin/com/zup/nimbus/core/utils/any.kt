@@ -186,3 +186,18 @@ fun <T>deepCopy(value: T): T {
   if (value is List<*>) return value.map { deepCopy(it) } as T
   return value
 }
+
+/**
+ * Recursively copies a value if it's a list or a map. Otherwise, it returns the received value.
+ *
+ * Attention: the copied lists and maps are mutable.
+ *
+ * @param value the value to copy.
+ * @return the copied value.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T>deepCopyMutable(value: T): T {
+  if (value is Map<*, *>) return mapValuesToMutableMap(value) { deepCopy(it.value) } as T
+  if (value is List<*>) return mapValuesToMutableList(value) { deepCopy(it) } as T
+  return value
+}

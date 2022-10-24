@@ -1,5 +1,8 @@
 package com.zup.nimbus.core.deserialization
 
+import com.zup.nimbus.core.tree.ServerDrivenEvent
+import com.zup.nimbus.core.tree.dynamic.DynamicEvent
+
 class MapDeserializer {
   private var errors = ArrayList<String>()
   private var current: Map<String, Any?>? = null
@@ -72,13 +75,12 @@ class MapDeserializer {
     return emptyMap()
   }
 
-  private fun getAction(key: String, nullable: Boolean): ((Any?) -> Unit)? {
+  private fun getEvent(key: String, nullable: Boolean): ServerDrivenEvent? {
     val value = current?.get(key)
     if (nullable && value == null) return null
-    @Suppress("UNCHECKED_CAST")
-    if (value is Function1<*, *>) return value as (Any?) -> Unit
-    addTypeError("an array of Actions", key, value)
-    return { _ -> }
+    if (value is ServerDrivenEvent) return value
+    addTypeError("an event, i.e. an array of actions.", key, value)
+    return DynamicEvent("Unknown")
   }
 
   fun start(map: Map<String, Any?>?) {
@@ -134,8 +136,8 @@ class MapDeserializer {
     return getMap(key, false)!!
   }
 
-  fun asAction(key: String): (Any?) -> Unit {
-    return getAction(key, false)!!
+  fun asEvent(key: String): ServerDrivenEvent {
+    return getEvent(key, false)!!
   }
 
   fun asStringOrNull(key: String): String? {
@@ -166,7 +168,7 @@ class MapDeserializer {
     return getMap(key, true)
   }
 
-  fun asActionOrNull(key: String): ((Any?) -> Unit)? {
-    return getAction(key, true)
+  fun asEventOrNull(key: String): ServerDrivenEvent? {
+    return getEvent(key, true)
   }
 }
