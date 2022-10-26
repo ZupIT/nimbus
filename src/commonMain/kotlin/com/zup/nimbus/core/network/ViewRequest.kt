@@ -21,4 +21,8 @@ data class ViewRequest(
    * UI tree to show if an error occurs and the view can't be fetched.
    */
   val fallback: Map<String, Any?>? = null,
+  /**
+   * The map of state ids and its values that will be used on the next page.
+   */
+  val params: Map<String, Any?>? = null,
 )

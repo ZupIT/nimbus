@@ -18,6 +18,7 @@ private fun requestFromEvent(event: ActionEvent): ViewRequest {
     method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
     headers = valueOfKey(properties, "headers"),
     fallback = valueOfKey(properties, "fallback"),
+    params = valueOfKey(properties, "params"),
   )
 }
 
