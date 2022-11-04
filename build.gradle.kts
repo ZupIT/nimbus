@@ -25,6 +25,7 @@ repositories {
 }
 
 kotlin {
+  jvm()
   android {
     publishAllLibraryVariants()
   }

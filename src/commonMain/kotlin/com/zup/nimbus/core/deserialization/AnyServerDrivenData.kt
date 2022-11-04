@@ -33,8 +33,8 @@ class AnyServerDrivenData private constructor (
   fun <T: Enum<*>>asEnum(enum: Array<T>, nullable: Boolean): T? {
     val stringValue = asString(true)
     if (nullable && stringValue == null) return null
-    val data = enum.find { it.name.lowercase() == stringValue!!.lowercase() }
-    if (data != null || nullable) return data
+    val data = enum.find { it.name.lowercase() == stringValue?.lowercase() }
+    if (data != null) return data
     addTypeError(enum.joinToString(", ") { it.name }, true)
     return enum[0]
   }
@@ -177,10 +177,11 @@ class AnyServerDrivenData private constructor (
   fun isNull(): Boolean = value == null
 
   // Map and List utilities
-
   fun containsKey(key: String): Boolean = value is Map<*, *> && value.containsKey(key)
+  fun hasValueForKey(key: String): Boolean = value is Map<*, *> && value[key] != null
   fun hasAnyOfKeys(keys: List<String>): Boolean = value is Map<*, *> && keys.find { value.keys.contains(it) } != null
   fun containsElement(element: Any?): Boolean = value is List<*> && value.contains(element)
+  fun hasValueForIndex(index: Int): Boolean = value is List<*> && value.getOrNull(index) != null
   fun listSize(): Int = if (value is List<*>) value.size else 0
   fun mapSize(): Int = if (value is Map<*, *>) value.size else 0
 

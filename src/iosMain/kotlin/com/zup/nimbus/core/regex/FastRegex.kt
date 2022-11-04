@@ -22,15 +22,15 @@ actual class FastRegex actual constructor(actual val pattern: String) {
   private lateinit var regex: NSRegularExpression
 
   init {
-    memScoped {
-      val error = alloc<ObjCObjectVar<NSError?>>()
-      try {
-        regex = NSRegularExpression(pattern, 0, error.ptr)
-      } catch (e: Throwable) {
-        val errorMessage = error.value?.localizedDescription
-        throw if (errorMessage != null) IllegalArgumentException(errorMessage) else e
+      memScoped {
+          val error = alloc<ObjCObjectVar<NSError?>>()
+          try {
+              regex = NSRegularExpression(pattern, 0, error.ptr)
+          } catch (e: Throwable) {
+              val errorMessage = error.value?.localizedDescription
+              throw if (errorMessage != null) IllegalArgumentException(errorMessage) else e
+          }
       }
-    }
   }
 
   private fun nsStr(str: String): NSString {
@@ -99,9 +99,9 @@ actual class FastRegex actual constructor(actual val pattern: String) {
   }
 
   actual fun <T>transform(
-    input: String,
-    transformUnmatching: (String) -> T,
-    transformMatching: (MatchGroups) -> T,
+      input: String,
+      transformUnmatching: (String) -> T,
+      transformMatching: (MatchGroups) -> T,
   ): List<T> {
     val matches = findAllMatches(input)
     val parts = mutableListOf<T>()
