@@ -6,25 +6,26 @@ import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.utils.UnexpectedDataTypeError
+import com.zup.nimbus.core.utils.then
 import com.zup.nimbus.core.utils.valueOfEnum
 import com.zup.nimbus.core.utils.valueOfKey
 
 private inline fun getNavigator(event: ActionEvent) = event.scope.view.navigator
 
-private fun requestFromEvent(event: ActionEvent): ViewRequest {
+private fun requestFromEvent(event: ActionEvent, isPushOrPresent: Boolean): ViewRequest {
   val properties = event.action.properties
   return ViewRequest(
     url = valueOfKey(properties, "url"),
     method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
     headers = valueOfKey(properties, "headers"),
     fallback = valueOfKey(properties, "fallback"),
-    params = valueOfKey(properties, "params"),
+    params = (isPushOrPresent then valueOfKey(properties, "params")),
   )
 }
 
 private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
   try {
-    val request = requestFromEvent(event)
+    val request = requestFromEvent(event, true)
     if (isPush) getNavigator(event).push(request)
     else getNavigator(event).present(request)
   } catch (e: UnexpectedDataTypeError) {
@@ -52,7 +53,7 @@ internal fun onPushOrPresentInitialized(event: ActionInitializedEvent) {
   try {
     val prefetch: Boolean = valueOfKey(event.action.properties, "prefetch") ?: false
     if (!prefetch) return
-    val request = requestFromEvent(event)
+    val request = requestFromEvent(event, true)
     event.scope.nimbus.viewClient.preFetch(request)
   } catch (e: Throwable) {
     event.scope.nimbus.logger.error("Error while pre-fetching view.\n${e.message}")
