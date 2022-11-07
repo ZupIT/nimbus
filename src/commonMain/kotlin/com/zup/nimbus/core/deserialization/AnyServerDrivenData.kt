@@ -198,7 +198,7 @@ class AnyServerDrivenData private constructor (
   }
 
   fun at(index: Int): AnyServerDrivenData {
-    val actualValue = if (value is List<*>) value[index] else null
+    val actualValue = if (value is List<*>) value.getOrNull(index) else null
     return AnyServerDrivenData(actualValue, buildPath(index), errors)
   }
 }
