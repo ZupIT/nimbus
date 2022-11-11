@@ -22,6 +22,13 @@ class AnyServerDrivenData private constructor (
 
   // Type converters with "nullable" parameter
 
+  fun asAny(nullable: Boolean): Any? {
+    return value ?: if (nullable) null else {
+      addTypeError("anything")
+      Any()
+    }
+  }
+
   fun asString(nullable: Boolean): String? {
     return value?.let { "$value" } ?: if (nullable) null else {
       addTypeError("a string")
@@ -47,7 +54,7 @@ class AnyServerDrivenData private constructor (
       is Number -> value.toInt()
       is Long -> value.toInt()
       is Float -> value.toInt()
-      is String -> value.toIntOrNull()
+      is String -> value.toDoubleOrNull()?.toInt()
       else -> null
     } ?: run {
       addTypeError("a number")
@@ -63,7 +70,7 @@ class AnyServerDrivenData private constructor (
       is Number -> value.toLong()
       is Long -> value
       is Float -> value.toLong()
-      is String -> value.toLongOrNull()
+      is String -> value.toDoubleOrNull()?.toLong()
       else -> null
     } ?: run {
       addTypeError("a number")
@@ -140,6 +147,7 @@ class AnyServerDrivenData private constructor (
 
   // Non-nullable type converters: aliases to asType(false)!!
 
+  fun asAny(): Any = asAny(false)!!
   fun asString(): String = asString(false)!!
   fun <T: Enum<*>>asEnum(enum: Array<T>): T = asEnum(enum, false)!!
   fun asInt(): Int = asInt(false)!!
@@ -153,6 +161,7 @@ class AnyServerDrivenData private constructor (
 
   // Nullable type converters: aliases to asType(true)
 
+  fun asAnyOrNull(): Any? = asAny(true)
   fun asStringOrNull(): String? = asString(true)
   fun <T: Enum<*>>asEnumOrNull(enum: Array<T>): T? = asEnum(enum, true)
   fun asIntOrNull(): Int? = asInt(true)
