@@ -10,6 +10,10 @@ class AnyServerDrivenData private constructor (
 ) {
   constructor(value: Any?): this(value, "", mutableListOf())
 
+  companion object {
+    val any = Any()
+  }
+
   // Private functions
 
   private fun addTypeError(expected: String, shouldUseValueInsteadOfType: Boolean = false) {
@@ -25,7 +29,7 @@ class AnyServerDrivenData private constructor (
   fun asAny(nullable: Boolean): Any? {
     return value ?: if (nullable) null else {
       addTypeError("anything")
-      Any()
+      any
     }
   }
 
@@ -210,4 +214,6 @@ class AnyServerDrivenData private constructor (
     val actualValue = if (value is List<*>) value.getOrNull(index) else null
     return AnyServerDrivenData(actualValue, buildPath(index), errors)
   }
+
+  override fun equals(other: Any?): Boolean = other is AnyServerDrivenData && value == other.value
 }

@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.unity.action
+package com.zup.nimbus.core.unity
 
 import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.scope.Scope

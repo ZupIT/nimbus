@@ -8,6 +8,8 @@ import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.ui.action.condition
+import com.zup.nimbus.core.unity.SimpleAction
+import com.zup.nimbus.core.unity.SimpleEvent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
