@@ -11,13 +11,29 @@ class AnyServerDrivenData private constructor (
   constructor(value: Any?): this(value, "", mutableListOf())
 
   companion object {
-    val any = Any()
+    val emptyAny = Any()
+    val emptyEvent = DynamicEvent("Unknown")
+    const val emptyString = ""
+    const val emptyInt = 0
+    const val emptyLong = 0L
+    const val emptyFloat = 0F
+    const val emptyDouble = 0.0
+    const val emptyBoolean = false
+    val emptyMap = emptyMap<String, AnyServerDrivenData>()
+    val emptyList = emptyList<AnyServerDrivenData>()
   }
 
   // Private functions
 
   private fun addTypeError(expected: String, shouldUseValueInsteadOfType: Boolean = false) {
-    val found = if (value == null) "null" else if (shouldUseValueInsteadOfType) value else value::class.simpleName
+    val found = when {
+      value == null -> "null"
+      shouldUseValueInsteadOfType -> value
+      value is Map<*, *> -> "Map"
+      value is List<*> -> "List"
+      value is ServerDrivenEvent -> "Event"
+      else -> value::class.simpleName
+    }
     errors.add("Expected $expected for property \"$path\", but found $found.")
   }
 
@@ -29,14 +45,14 @@ class AnyServerDrivenData private constructor (
   fun asAny(nullable: Boolean): Any? {
     return value ?: if (nullable) null else {
       addTypeError("anything")
-      any
+      emptyAny
     }
   }
 
   fun asString(nullable: Boolean): String? {
     return value?.let { "$value" } ?: if (nullable) null else {
       addTypeError("a string")
-      ""
+      emptyString
     }
   }
 
@@ -62,7 +78,7 @@ class AnyServerDrivenData private constructor (
       else -> null
     } ?: run {
       addTypeError("a number")
-      0
+      emptyInt
     }
   }
 
@@ -78,7 +94,7 @@ class AnyServerDrivenData private constructor (
       else -> null
     } ?: run {
       addTypeError("a number")
-      0
+      emptyLong
     }
   }
 
@@ -94,7 +110,7 @@ class AnyServerDrivenData private constructor (
       else -> null
     } ?: run {
       addTypeError("a number")
-      0.0
+      emptyDouble
     }
   }
 
@@ -110,7 +126,7 @@ class AnyServerDrivenData private constructor (
       else -> null
     } ?: run {
       addTypeError("a number")
-      0.0F
+      emptyFloat
     }
   }
 
@@ -118,7 +134,7 @@ class AnyServerDrivenData private constructor (
     if (nullable && value == null) return null
     if (value is Boolean) return value
     addTypeError("a boolean")
-    return false
+    return emptyBoolean
   }
 
   fun asList(nullable: Boolean): List<AnyServerDrivenData>? {
@@ -126,8 +142,8 @@ class AnyServerDrivenData private constructor (
     if (value is List<*>) {
       return value.mapIndexed { index, item -> AnyServerDrivenData(item, buildPath(index), errors) }
     }
-    addTypeError("an array")
-    return emptyList()
+    addTypeError("a list")
+    return emptyList
   }
 
   fun asMap(nullable: Boolean): Map<String, AnyServerDrivenData>? {
@@ -138,15 +154,15 @@ class AnyServerDrivenData private constructor (
         AnyServerDrivenData(it.value, buildPath("${it.key}"), errors)
       } as Map<String, AnyServerDrivenData>
     }
-    addTypeError("an object")
-    return emptyMap()
+    addTypeError("a map")
+    return emptyMap
   }
 
   fun asEvent(nullable: Boolean): ServerDrivenEvent? {
     if (nullable && value == null) return null
     if (value is ServerDrivenEvent) return value
-    addTypeError("an event, i.e. an array of actions.")
-    return DynamicEvent("Unknown")
+    addTypeError("an event")
+    return emptyEvent
   }
 
   // Non-nullable type converters: aliases to asType(false)!!
@@ -188,12 +204,11 @@ class AnyServerDrivenData private constructor (
   fun isFloat(): Boolean = value is Float
   fun isBoolean(): Boolean = value is Boolean
   fun isNull(): Boolean = value == null
+  fun isEvent(): Boolean = value is ServerDrivenEvent
 
   // Map and List utilities
-  fun containsKey(key: String): Boolean = value is Map<*, *> && value.containsKey(key)
   fun hasValueForKey(key: String): Boolean = value is Map<*, *> && value[key] != null
   fun hasAnyOfKeys(keys: List<String>): Boolean = value is Map<*, *> && keys.find { value.keys.contains(it) } != null
-  fun containsElement(element: Any?): Boolean = value is List<*> && value.contains(element)
   fun hasValueForIndex(index: Int): Boolean = value is List<*> && value.getOrNull(index) != null
   fun listSize(): Int = if (value is List<*>) value.size else 0
   fun mapSize(): Int = if (value is Map<*, *>) value.size else 0
@@ -216,4 +231,10 @@ class AnyServerDrivenData private constructor (
   }
 
   override fun equals(other: Any?): Boolean = other is AnyServerDrivenData && value == other.value
+
+  override fun hashCode(): Int {
+    return value?.hashCode() ?: 0
+  }
+
+  override fun toString() = "$value"
 }
