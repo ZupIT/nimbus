@@ -25,10 +25,10 @@ actual class FastRegex actual constructor(actual val pattern: String) {
     memScoped {
       val error = alloc<ObjCObjectVar<NSError?>>()
       try {
-          regex = NSRegularExpression(pattern, 0, error.ptr)
+        regex = NSRegularExpression(pattern, 0, error.ptr)
       } catch (e: Throwable) {
-          val errorMessage = error.value?.localizedDescription
-          throw if (errorMessage != null) IllegalArgumentException(errorMessage) else e
+        val errorMessage = error.value?.localizedDescription
+        throw if (errorMessage != null) IllegalArgumentException(errorMessage) else e
       }
     }
   }
