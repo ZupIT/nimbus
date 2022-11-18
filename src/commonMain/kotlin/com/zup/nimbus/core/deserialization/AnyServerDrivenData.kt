@@ -3,6 +3,20 @@ package com.zup.nimbus.core.deserialization
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.tree.dynamic.DynamicEvent
 
+/**
+ * This class helps to deserialize data of unknown type. This is very useful for deserializing the data that comes from
+ * the JSON of a Nimbus response.
+ *
+ * To get the wrapped value as a specific type, use the methods: `asString()`, `asStringOrNull()`, `asInt()`,
+ * `asLong()`, `asListOrNull()`, `asEnum(enum: Array<Enum<*>>)`, etc.
+ *
+ * This class **will never throw errors**, instead, whenever a deserialization error happens, it will fill its own
+ * array of errors with a new error string. To check if any error happened during deserialization, call the method
+ * `hasError()`. To get the errors themselves, call `errorsAsString()`.
+ *
+ * If the value wrapped by this represents a map or a list, you can navigate through the structure using the methods
+ * `get(key: String)` and `at(index: Int)`, which returns the child value wrapped in a new `AnyServerDrivenData`.
+ */
 class AnyServerDrivenData private constructor (
   /**
    * The actual value wrapped by this.
