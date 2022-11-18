@@ -13,6 +13,7 @@ class BooleanTest: AnyServerDrivenDataTest() {
     mapData to error("a boolean", "map"),
     listData to error("a boolean", "list"),
     eventData to error("a boolean", "event"),
+    enumData to error("a boolean", "string"),
   )
 
   private fun shouldDeserialize(
@@ -31,6 +32,7 @@ class BooleanTest: AnyServerDrivenDataTest() {
       expectedMap = AnyServerDrivenData.emptyBoolean,
       expectedList = AnyServerDrivenData.emptyBoolean,
       expectedEvent = AnyServerDrivenData.emptyBoolean,
+      expectedEnum = AnyServerDrivenData.emptyBoolean,
       deserialize = deserialize,
     )
     checkErrors(errors() + additionalErrors)

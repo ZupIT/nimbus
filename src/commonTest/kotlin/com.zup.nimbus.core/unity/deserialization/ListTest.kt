@@ -17,6 +17,7 @@ class ListTest: AnyServerDrivenDataTest() {
     booleanData to error("a list", "boolean"),
     mapData to error("a list", "map"),
     eventData to error("a list", "event"),
+    enumData to error("a list", "string"),
   )
 
   private fun shouldDeserialize(
@@ -35,6 +36,7 @@ class ListTest: AnyServerDrivenDataTest() {
       expectedMap = AnyServerDrivenData.emptyList,
       expectedList = listValue.map { AnyServerDrivenData(it) },
       expectedEvent = AnyServerDrivenData.emptyList,
+      expectedEnum = AnyServerDrivenData.emptyList,
       deserialize = deserialize,
     )
     checkErrors(errors() + additionalErrors)
@@ -48,6 +50,15 @@ class ListTest: AnyServerDrivenDataTest() {
     AnyServerDrivenData.emptyList,
     mapOf(nullData to error("a list", "null")),
   ) { it.asList() }
+
+  @Test
+  fun `should correctly generate path when using asList`() {
+    val list = listData.asList()
+    assertEquals("[0]", list[0].path)
+    assertEquals("[1]", list[1].path)
+    assertEquals("[2]", list[2].path)
+    assertEquals("[3]", list[3].path)
+  }
 
   @Test
   fun `should correctly identify if the content of the AnyServerDrivenData is a list`() =

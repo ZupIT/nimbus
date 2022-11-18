@@ -17,6 +17,7 @@ class MapTest: AnyServerDrivenDataTest() {
     booleanData to error("a map", "boolean"),
     listData to error("a map", "list"),
     eventData to error("a map", "event"),
+    enumData to error("a map", "string"),
   )
 
   private fun shouldDeserialize(
@@ -35,6 +36,7 @@ class MapTest: AnyServerDrivenDataTest() {
       expectedMap = mapValue.mapValues { AnyServerDrivenData(it.value) },
       expectedList = AnyServerDrivenData.emptyMap,
       expectedEvent = AnyServerDrivenData.emptyMap,
+      expectedEnum = AnyServerDrivenData.emptyMap,
       deserialize = deserialize,
     )
     checkErrors(errors() + additionalErrors)
@@ -48,6 +50,14 @@ class MapTest: AnyServerDrivenDataTest() {
     AnyServerDrivenData.emptyMap,
     mapOf(nullData to error("a map", "null")),
   ) { it.asMap() }
+
+  @Test
+  fun `should correctly generate path when using asMap`() {
+    val map = mapData.asMap()
+    assertEquals("a", map["a"]?.path)
+    assertEquals("b", map["b"]?.path)
+    assertEquals("c", map["c"]?.path)
+  }
 
   @Test
   fun `should correctly identify if the content of the AnyServerDrivenData is a map`() =

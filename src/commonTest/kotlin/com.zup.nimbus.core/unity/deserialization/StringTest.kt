@@ -20,6 +20,7 @@ class StringTest: AnyServerDrivenDataTest() {
       expectedMap = "$mapValue",
       expectedList = "$listValue",
       expectedEvent = "$eventValue",
+      expectedEnum = enumValue,
       deserialize = deserialize,
     )
     checkErrors(errors)
@@ -36,5 +37,5 @@ class StringTest: AnyServerDrivenDataTest() {
 
   @Test
   fun `should correctly identify if the content of the AnyServerDrivenData is a string`() =
-    checkType(typeName = "a string", expectedMatch = stringData) { it.isString() }
+    checkType(typeName = "a string", expectedMatches = listOf(stringData, enumData)) { it.isString() }
 }

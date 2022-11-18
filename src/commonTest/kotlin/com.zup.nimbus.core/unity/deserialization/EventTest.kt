@@ -13,6 +13,7 @@ class EventTest: AnyServerDrivenDataTest() {
     doubleData to error("an event", "double"),
     mapData to error("an event", "map"),
     listData to error("an event", "list"),
+    enumData to error("an event", "string"),
   )
 
   private fun shouldDeserialize(
@@ -31,6 +32,7 @@ class EventTest: AnyServerDrivenDataTest() {
       expectedMap = AnyServerDrivenData.emptyEvent,
       expectedList = AnyServerDrivenData.emptyEvent,
       expectedEvent = eventValue,
+      expectedEnum = AnyServerDrivenData.emptyEvent,
       deserialize = deserialize,
     )
     checkErrors(errors() + additionalErrors)

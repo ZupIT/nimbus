@@ -20,6 +20,7 @@ class AnyTest: AnyServerDrivenDataTest() {
       expectedMap = mapValue,
       expectedList = listValue,
       expectedEvent = eventValue,
+      expectedEnum = enumValue,
       deserialize = deserialize,
     )
     checkErrors(errors)

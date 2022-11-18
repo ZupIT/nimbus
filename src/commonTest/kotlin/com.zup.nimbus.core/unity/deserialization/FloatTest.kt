@@ -23,6 +23,7 @@ class FloatTest: AnyServerDrivenDataTest() {
       expectedMap = AnyServerDrivenData.emptyFloat,
       expectedList = AnyServerDrivenData.emptyFloat,
       expectedEvent = AnyServerDrivenData.emptyFloat,
+      expectedEnum = AnyServerDrivenData.emptyFloat,
       deserialize = deserialize,
     )
     checkErrors(numberErrors() + additionalErrors)
@@ -38,11 +39,34 @@ class FloatTest: AnyServerDrivenDataTest() {
   ) { it.asFloat() }
 
   @Test
-  fun `should truncate big number and lose decimal part`() {
-    assertEquals(1.23456788E10F, AnyServerDrivenData("12345678901.0123456789").asFloat())
+  fun `should correctly identify if the content of the AnyServerDrivenData is a float`() =
+    checkType(typeName = "a float", expectedMatch = floatData) { it.isFloat() }
+
+  @Test
+  fun `should be able to deserialize strings with both the minimum and maximum float`() {
+    assertEquals(Float.MIN_VALUE, AnyServerDrivenData("${Float.MIN_VALUE}").asFloat())
+    assertEquals(Float.MAX_VALUE, AnyServerDrivenData("${Float.MAX_VALUE}").asFloat())
   }
 
   @Test
-  fun `should correctly identify if the content of the AnyServerDrivenData is a float`() =
-    checkType(typeName = "a float", expectedMatch = floatData) { it.isFloat() }
+  fun `should truncate Double that won't fit a Float`() {
+    assertEquals(1.0123457F, AnyServerDrivenData(1.01234567).asFloat())
+    assertEquals(-1.0123457F, AnyServerDrivenData(-1.01234567).asFloat())
+  }
+
+  @Test
+  fun `should truncate numerical strings that won't fit a Float`() {
+    assertEquals(1.0123457F, AnyServerDrivenData("1.01234567890123456789").asFloat())
+    assertEquals(-1.0123457F, AnyServerDrivenData("-1.01234567890123456789").asFloat())
+  }
+
+  @Test
+  fun `should assume infinity for positive integer strings that won't fit a Float`() {
+    assertEquals(Float.POSITIVE_INFINITY, AnyServerDrivenData("${Float.MAX_VALUE}9").asFloat())
+  }
+
+  @Test
+  fun `should assume zero for negative integer strings that won't fit a Float`() {
+    assertEquals(0F, AnyServerDrivenData("${Float.MIN_VALUE}9").asFloat())
+  }
 }
