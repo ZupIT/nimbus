@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.unity.network
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.network.DefaultUrlBuilder
@@ -31,7 +32,8 @@ class UrlBuilderTest {
       ServerDrivenConfig(
         baseUrl = "/",
         platform = "test",
-        urlBuilder = { CustomUrlBuilderTest() }
+        urlBuilder = { CustomUrlBuilderTest() },
+        httpClient = EmptyHttpClient,
       )
     )
     val result = nimbus.urlBuilder.build("new-path")

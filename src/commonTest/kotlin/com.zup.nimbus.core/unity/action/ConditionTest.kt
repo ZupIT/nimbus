@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.unity.action
 
 import com.zup.nimbus.core.ActionTriggeredEvent
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
@@ -64,7 +65,12 @@ class ConditionTest {
   @Test
   fun `should fail if condition is not provided`() {
     val logger = ObservableLogger()
-    val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test", logger = logger))
+    val nimbus = Nimbus(ServerDrivenConfig(
+      baseUrl = "",
+      platform = "test",
+      logger = logger,
+      httpClient = EmptyHttpClient,
+    ))
     val event = createActionTriggeredEvent(parent = nimbus)
     condition(event)
     assertEquals(1, logger.entries.size)

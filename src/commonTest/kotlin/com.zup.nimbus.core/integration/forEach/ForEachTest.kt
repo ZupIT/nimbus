@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration.forEach
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
@@ -21,7 +22,7 @@ class ForEachTest {
   @Test
   fun shouldCorrectlyProcessGeneralForEachScreen() {
     // WHEN the GENERAL_FOR_EACH screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(GENERAL_FOR_EACH)
     tree.initialize(nimbus)
     assertFalse(getComponentsInTree(tree).contains("forEach"))
@@ -63,7 +64,7 @@ class ForEachTest {
   @Test
   fun shouldCorrectlyProcessForEachWithStatesScreen() {
     // WHEN the FOR_EACH_WITH_STATES screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(STATEFUL_FOR_EACH)
     tree.initialize(nimbus)
     // THEN it should have replaced the forEach
@@ -125,7 +126,7 @@ class ForEachTest {
   @Test
   fun shouldCorrectlyProcessForEachWithKeyScreen() {
     // WHEN the FOR_EACH_WITH_KEY screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_WITH_KEY)
     tree.initialize(nimbus)
     // THEN it should have replaced the forEach
@@ -150,7 +151,7 @@ class ForEachTest {
   @Test
   fun shouldCorrectlyProcessNestedEmptyForEachScreen() {
     // WHEN the NESTED_EMPTY_FOR_EACH screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(NESTED_EMPTY_FOR_EACH)
     tree.initialize(nimbus)
     val column = NodeUtils.getContent(tree)
@@ -185,7 +186,7 @@ class ForEachTest {
   @Test
   fun shouldCorrectlyProcessNestedForEachScreen() {
     // WHEN the NESTED_FOR_EACH screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(NESTED_FOR_EACH)
     tree.initialize(nimbus)
     // THEN it should have replaced the forEach
@@ -229,7 +230,7 @@ class ForEachTest {
   @Test
   fun `should add and remove elements in the dataset`() {
     // WHEN the FOR_EACH_MUTABLE_DATASET screen is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_MUTABLE_DATASET)
     tree.initialize(nimbus)
     val column = NodeUtils.getContent(tree).children?.first()!!

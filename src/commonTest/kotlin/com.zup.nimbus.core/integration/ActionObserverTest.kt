@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.integration
 
 import com.zup.nimbus.core.ActionTriggeredEvent
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ObservableLogger
@@ -103,7 +104,8 @@ class ActionObserverTest {
       baseUrl = "",
       platform = "",
       logger = logger,
-      ui = listOf(UILibrary().addActionObserver { analytics.createRecord(it) })
+      ui = listOf(UILibrary().addActionObserver { analytics.createRecord(it) }),
+      httpClient = EmptyHttpClient,
     )
   )
 

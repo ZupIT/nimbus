@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.unity.expression
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.ServerDrivenState
@@ -14,7 +15,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ExpressionTest {
-  private val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test"))
+  private val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test", httpClient = EmptyHttpClient))
   private val parser = ExpressionParser(nimbus)
 
   // #Tests for function "containsExpression"
