@@ -107,6 +107,10 @@ tasks.register<Copy>("copyiOSTestResources") {
 tasks.findByName("iosX64Test")!!.dependsOn("copyiOSTestResources")
 
 // TODO Extract the code below to another file
+val javadocJar by tasks.registering(Jar::class) {
+  archiveClassifier.set("javadoc")
+}
+
 // ------------------------- Publication configuration --------------------- //
 val releaseVersion = !version.toString().endsWith("-SNAPSHOT")
 val sonatypeUsername = System.getenv("ORG_GRADLE_PROJECT_mavenCentralUsername") ?: ""
