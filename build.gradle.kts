@@ -6,7 +6,6 @@ plugins {
   kotlin("native.cocoapods") version "1.7.10"
   kotlin("plugin.serialization") version "1.7.10"
   id("io.gitlab.arturbosch.detekt") version "1.20.0"
-  id("com.android.library") version "7.2.0"
   id("maven-publish")
   id("io.codearte.nexus-staging") version "0.22.0"
   id("signing")
@@ -25,10 +24,7 @@ repositories {
 }
 
 kotlin {
-  android {
-    publishAllLibraryVariants()
-  }
-  android()
+  jvm()
   iosX64()
   iosArm64()
   iosSimulatorArm64()
@@ -71,19 +67,6 @@ kotlin {
         implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
       }
     }
-    val androidMain by getting {
-      dependencies {
-        implementation("com.google.android.material:material:1.6.0")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
-        implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-      }
-    }
-    val androidTest by getting {
-      dependsOn(commonTest)
-      dependencies {
-        implementation(kotlin("test-junit"))
-      }
-    }
     val iosX64Main by getting
     val iosArm64Main by getting
     val iosSimulatorArm64Main by getting
@@ -123,18 +106,6 @@ tasks.register<Copy>("copyiOSTestResources") {
 
 tasks.findByName("iosX64Test")!!.dependsOn("copyiOSTestResources")
 
-android {
-  compileSdk = 31
-  sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-  defaultConfig {
-    minSdk = 21
-    targetSdk = 31
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-  }
-}
 // TODO Extract the code below to another file
 // ------------------------- Publication configuration --------------------- //
 val releaseVersion = !version.toString().endsWith("-SNAPSHOT")

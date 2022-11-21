@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.performance
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.JsonLoader
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
@@ -50,7 +51,12 @@ class PerformanceTest {
 
   private fun runPerformanceTest(jsonFileName: String, maxTimeMs: Int) {
     val json = JsonLoader.loadJson(jsonFileName)
-    val nimbus = Nimbus(ServerDrivenConfig("", "test", ui = listOf(uiLibrary)))
+    val nimbus = Nimbus(ServerDrivenConfig(
+      baseUrl = "",
+      platform = "test",
+      ui = listOf(uiLibrary),
+      httpClient = EmptyHttpClient,
+    ))
     val started = Clock.System.now().toEpochMilliseconds()
     val content = nimbus.nodeBuilder.buildFromJsonString(json)
     content.initialize(nimbus)

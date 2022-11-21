@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration.setState
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ObservableLogger
@@ -13,7 +14,12 @@ import kotlin.test.assertTrue
 
 class SetStateTest {
   private val logger = ObservableLogger()
-  private val nimbus = Nimbus(ServerDrivenConfig("", "test", logger = logger))
+  private val nimbus = Nimbus(ServerDrivenConfig(
+    baseUrl = "",
+    platform = "test",
+    logger = logger,
+    httpClient = EmptyHttpClient,
+  ))
 
   @BeforeTest
   fun setup() {

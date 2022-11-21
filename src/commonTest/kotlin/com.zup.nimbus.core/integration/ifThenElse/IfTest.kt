@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration.ifThenElse
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ServerDrivenConfig
@@ -29,7 +30,7 @@ class IfTest {
   @Test
   fun `should render the content of Then when condition is true and no Else exists`() {
     // WHEN a screen with if (condition = true) and then is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(createIfThenElseScreen(true))
     content.initialize(nimbus)
     val ifResult = content.children?.first()?.children
@@ -39,7 +40,7 @@ class IfTest {
   @Test
   fun `should render nothing when condition is false and no Else exists`() {
     // WHEN a screen with if (condition = false) and then is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(createIfThenElseScreen(false))
     content.initialize(nimbus)
     val ifResult = content.children?.first()?.children
@@ -50,7 +51,7 @@ class IfTest {
   @Test
   fun `should render the content of Then when condition is true and Else exists`() {
     // WHEN a screen with if (condition = true), then and else is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(createIfThenElseScreen(true, includeElse = true))
     content.initialize(nimbus)
     val ifResult = content.children?.first()?.children
@@ -60,7 +61,7 @@ class IfTest {
   @Test
   fun `should render the content of Else when condition is false and Else exists`() {
     // WHEN a screen with if (condition = false), then and else is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(createIfThenElseScreen(false, includeElse = true))
     content.initialize(nimbus)
     val ifResult = content.children?.first()?.children
@@ -70,7 +71,7 @@ class IfTest {
   @Test
   fun `should render nothing when a component different than Then or Else is passed to If`() {
     // WHEN a screen with if and an invalid component is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(
       createIfThenElseScreen(false, includeInvalid = true)
     )
@@ -83,7 +84,7 @@ class IfTest {
   @Test
   fun `should render the content of Else when If has no Then and condition is false`() {
     // WHEN a screen with if and else (but no then) is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(createIfThenElseScreen(
       false,
       includeThen = false,
@@ -97,7 +98,7 @@ class IfTest {
   @Test
   fun `should toggle then-else content`() {
     // WHEN a screen with if (condition = true) and then is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(
       createIfThenElseScreen(true, includeElse = true, includeButton = true)
     )
@@ -112,7 +113,7 @@ class IfTest {
   @Test
   fun `should create if-then-else behavior when if is the root node and declare its state`() {
     // WHEN a screen with if as the root component is rendered
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val content = nimbus.nodeBuilder.buildFromJsonString(simpleRootIf)
     content.initialize(nimbus)
     // THEN the content of then should be rendered

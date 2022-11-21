@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.unity.tree
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.dynamic.builder.MalformedJsonError
@@ -7,7 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class NodeBuilderTest {
-  val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test"))
+  val nimbus = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test", httpClient = EmptyHttpClient))
 
   @Test
   fun `should throw when json is invalid`() {

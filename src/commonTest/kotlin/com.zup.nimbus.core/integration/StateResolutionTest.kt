@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.findNodeById
@@ -43,7 +44,7 @@ private const val SCREEN = """{
 class StateResolutionTest {
   @Test
   fun shouldResolveStates() {
-    val nimbus = Nimbus(ServerDrivenConfig("", "test"))
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
     val tree = nimbus.nodeBuilder.buildFromJsonString(SCREEN)
     tree.initialize(nimbus)
     assertEquals("How are you?", tree.findNodeById("formal")?.properties?.get("text"))

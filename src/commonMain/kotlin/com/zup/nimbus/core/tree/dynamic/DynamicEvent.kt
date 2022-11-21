@@ -36,7 +36,13 @@ class DynamicEvent(
 
   override fun run() {
     val dependencies = mutableSetOf<CommonDependency>()
-    actions.forEach { it.handler(ActionTriggeredEvent(action = it, dependencies = dependencies, scope = this)) }
+    actions.forEach {
+      try {
+        it.handler(ActionTriggeredEvent(action = it, dependencies = dependencies, scope = this))
+      } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {
+        nimbus.logger.error(t.stackTraceToString())
+      }
+    }
     DependencyUpdateManager.updateDependentsOf(dependencies)
   }
 

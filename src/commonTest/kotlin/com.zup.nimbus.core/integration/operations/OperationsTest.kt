@@ -1,5 +1,6 @@
 package com.zup.nimbus.core.integration.operations
 
+import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
 import com.zup.nimbus.core.ObservableLogger
@@ -16,7 +17,7 @@ class OperationsTest {
       ServerDrivenConfig(
       baseUrl = BASE_URL,
       platform = "test",
-      httpClient = DefaultHttpClient(),
+      httpClient = EmptyHttpClient,
       logger = logger,
     )
   )
