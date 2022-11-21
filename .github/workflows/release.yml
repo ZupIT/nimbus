@@ -1,9 +1,9 @@
 name: Nimbus Release
 
 on:
-    push:
-#        tags:
-            - '*'
+  pull_request:
+    branches: [ main ]
+
 jobs:
     generate-release:
         name: Generate release
