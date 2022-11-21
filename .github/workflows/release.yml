@@ -25,12 +25,12 @@ jobs:
             env:
               GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
 
-          - name: Generate javadocs
+          - name: Generate release artifact
             uses: gradle/gradle-build-action@v2
             env:
               VERSION_NAME: ${{ env.TAGNAME }}
             with:
-              arguments: javadocJar
+              arguments: jvmJar
 
           - name: Generate metadata file for publication
             uses: gradle/gradle-build-action@v2
