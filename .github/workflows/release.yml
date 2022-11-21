@@ -41,7 +41,7 @@ jobs:
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
               ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
             with:
-              arguments: generateMetadataFileForAndroidReleasePublication
+              arguments: generateMetadataFileForJvmPublication
 
           - name: Publish the artifact
             uses: gradle/gradle-build-action@v2
@@ -52,4 +52,4 @@ jobs:
               ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
               ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
             with:
-              arguments: publishAndroidReleasePublicationToOssRepository
+              arguments: publishJvmPublicationToOssRepository
