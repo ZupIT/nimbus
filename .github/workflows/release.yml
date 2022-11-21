@@ -12,7 +12,7 @@ jobs:
           - name: Checkout repo
             uses: actions/checkout@v3
           - name: Get the tag name
-            run: echo "1.0.0-alpha9" >> $GITHUB_ENV
+            run: echo "TAGNAME=1.0.0-alpha9" >> $GITHUB_ENV
 
           - name: Stup Java version
             uses: actions/setup-java@v3
