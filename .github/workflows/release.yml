@@ -1,9 +1,9 @@
 name: Nimbus Release
 
 on:
-  pull_request:
-    branches: [ main ]
-
+    push:
+        tags:
+            - '*'
 jobs:
     generate-release:
         name: Generate release
@@ -12,7 +12,7 @@ jobs:
           - name: Checkout repo
             uses: actions/checkout@v3
           - name: Get the tag name
-            run: echo "TAGNAME=1.0.0-alpha9" >> $GITHUB_ENV
+            run: echo "TAGNAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
           - name: Stup Java version
             uses: actions/setup-java@v3
@@ -24,13 +24,6 @@ jobs:
             run: bash publication/maven_signing.sh
             env:
               GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
-
-          - name: Generate release artifact
-            uses: gradle/gradle-build-action@v2
-            env:
-              VERSION_NAME: ${{ env.TAGNAME }}
-            with:
-              arguments: jvmJar
 
           - name: Generate javadocs
             uses: gradle/gradle-build-action@v2

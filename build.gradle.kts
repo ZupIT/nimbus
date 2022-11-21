@@ -164,7 +164,7 @@ publishing {
     withType<MavenPublication> {
       // Stub javadoc.jar artifact
       artifact(javadocJar.get())
-      
+
       pom {
         name.set(pomName)
         description.set(pomDescription)
