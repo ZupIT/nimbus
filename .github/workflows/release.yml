@@ -32,6 +32,13 @@ jobs:
             with:
               arguments: jvmJar
 
+          - name: Generate javadocs
+              uses: gradle/gradle-build-action@v2
+              env:
+                VERSION_NAME: ${{ env.TAGNAME }}
+              with:
+                arguments: javadocJar
+
           - name: Generate metadata file for publication
             uses: gradle/gradle-build-action@v2
             env:
