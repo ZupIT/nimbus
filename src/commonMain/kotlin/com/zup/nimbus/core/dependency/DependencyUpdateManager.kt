@@ -42,15 +42,18 @@ object DependencyUpdateManager {
     groups: List<List<Dependent>>,
     dependencyMap: Map<Dependent, Set<Dependency>>,
   ): Set<Dependency> {
+    val errors = mutableListOf<Throwable>()
     val updated = mutableSetOf<Dependency>()
     groups.forEach { group ->
       group.forEach { dependent ->
         if (dependencyMap[dependent]?.find { it.hasChanged } != null) {
-          dependent.update()
+          try { dependent.update() }
+          catch(t: Throwable) { errors.add(t) }
           dependencyMap[dependent]?.let { updated.addAll(it) }
         }
       }
     }
+    if (errors.isNotEmpty()) throw UpdateError(errors)
     return updated
   }
 

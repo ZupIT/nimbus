@@ -7,7 +7,9 @@ import com.zup.nimbus.core.scope.DoubleInitializationError
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.ServerDrivenView
+import com.zup.nimbus.core.dependency.Dependency
 import com.zup.nimbus.core.dependency.DependencyUpdateManager
+import com.zup.nimbus.core.dependency.UpdateError
 import com.zup.nimbus.core.scope.CommonScope
 import com.zup.nimbus.core.scope.LazilyScoped
 import com.zup.nimbus.core.scope.Scope
@@ -34,6 +36,14 @@ class DynamicEvent(
     closestScopeWithType() ?: throw IllegalStateException("This event is not linked to a nimbus instance!")
   }
 
+  private fun update(dependencies: Set<Dependency>) {
+    try {
+      DependencyUpdateManager.updateDependentsOf(dependencies)
+    } catch(e: UpdateError) {
+      nimbus.logger.error(e.message)
+    }
+  }
+
   override fun run() {
     val dependencies = mutableSetOf<CommonDependency>()
     actions.forEach {
@@ -43,12 +53,12 @@ class DynamicEvent(
         nimbus.logger.error(t.stackTraceToString())
       }
     }
-    DependencyUpdateManager.updateDependentsOf(dependencies)
+    update(dependencies)
   }
 
   override fun run(implicitStateValue: Any?) {
     states!!.first().set(implicitStateValue)
-    DependencyUpdateManager.updateDependentsOf(states.toSet())
+    update(states.toSet())
     run()
   }
 

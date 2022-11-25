@@ -3,9 +3,11 @@ package com.zup.nimbus.core.integration.ifThenElse
 import com.zup.nimbus.core.EmptyHttpClient
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.NodeUtils
+import com.zup.nimbus.core.ObservableLogger
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class IfTest {
@@ -124,5 +126,17 @@ class IfTest {
     // THEN the content of else should be rendered
     assertEquals(1, content?.children?.size)
     assertEquals("toggle-false", content?.children?.get(0)?.id)
+  }
+
+  @Test
+  fun `should log error when condition is not provided`() {
+    val logger = ObservableLogger()
+    // WHEN a screen with an invalid if is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient, logger = logger))
+    val content = nimbus.nodeBuilder.buildFromJsonString(INVALID_IF)
+    content.initialize(nimbus)
+    assertEquals(1, logger.entries.size)
+    val error = logger.entries.first().message
+    assertContains(error, "Unexpected value type at \"condition\". Expected \"Boolean\", found \"null\"")
   }
 }

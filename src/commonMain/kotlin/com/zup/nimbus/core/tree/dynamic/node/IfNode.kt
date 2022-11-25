@@ -1,6 +1,9 @@
 package com.zup.nimbus.core.tree.dynamic.node
 
+import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
+import com.zup.nimbus.core.scope.closestScopeWithType
+import com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import com.zup.nimbus.core.utils.valueOfKey
 
 // fixme(1): normally, in UI frameworks, if-else blocks completely remove the other branch from the tree and rebuilds it
@@ -41,7 +44,12 @@ class IfNode(
   states: List<ServerDrivenState>?,
 ) : DynamicNode(id, "if", states, true) {
   override fun update() {
-    val condition: Boolean = valueOfKey(propertyContainer?.read(), "condition")
+    val condition: Boolean = try {
+      valueOfKey(propertyContainer?.read(), "condition")
+    } catch (e: UnexpectedDataTypeError) {
+        closestScopeWithType<Nimbus>()?.logger?.error(e.message)
+        return
+    }
     val fromContainer = childrenContainer?.read()
     val thenNode = fromContainer?.find { it.component == "then" }
     val elseNode = fromContainer?.find { it.component == "else" }

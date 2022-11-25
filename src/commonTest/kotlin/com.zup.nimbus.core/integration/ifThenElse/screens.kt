@@ -127,3 +127,31 @@ val simpleRootIf = """{
     }
   ]
 }"""
+
+const val INVALID_IF = """{
+  "_:component": "if",
+  "children": [
+    {
+      "_:component": "then",
+      "children": [
+        {
+          "_:component": "layout:text",
+          "properties": {
+            "text": "Then"
+          }
+        }
+      ]
+    },
+    {
+      "_:component": "else",
+      "children": [
+        {
+          "_:component": "layout:text",
+          "properties": {
+            "text": "Else"
+          }
+        }
+      ]
+    }
+  ]
+}"""
