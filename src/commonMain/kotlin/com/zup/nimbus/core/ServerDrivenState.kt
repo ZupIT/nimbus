@@ -2,6 +2,7 @@ package com.zup.nimbus.core
 
 import com.zup.nimbus.core.dependency.CommonDependency
 import com.zup.nimbus.core.dependency.DependencyUpdateManager
+import com.zup.nimbus.core.dependency.UpdateError
 import com.zup.nimbus.core.utils.deepCopyMutable
 import com.zup.nimbus.core.utils.setMapValue
 import com.zup.nimbus.core.utils.valueOfPath
@@ -63,7 +64,9 @@ class ServerDrivenState(
    * @param shouldUpdateDependents whether or not to propagate this change to everything that depends on the value of
    * this state. This is useful for making multiple changes to states and still have a single UI update. In this case,
    * you would pass false to every `set`, but the last one. By default, it will update its dependents.
+   * @throws UpdateError if shouldUpdateDependents is true and an error is thrown while updating the dependencies.
    */
+  @Throws(UpdateError::class)
   fun set(newValue: Any?, path: String, shouldUpdateDependents: Boolean = true) {
     val currentValue: Any? = valueOfPath(value, path)
     if (currentValue != newValue) {
@@ -74,14 +77,28 @@ class ServerDrivenState(
     }
   }
 
-  /**
-   * Shortcut to `set(newValue, "")`, i.e. replaces the entire value of the state with `newValue`.
-   */
-  fun set(newValue: Any?) {
-    set(newValue, "")
-  }
-
   fun clone(): ServerDrivenState {
     return ServerDrivenState(id, deepCopyMutable(value))
+  }
+
+  // Attention: don't remove the methods below, they're useful for iOS because Kotlin Native doesn't accept default
+  // arguments and, on Swift, we must add try-catch to every method annotated with @Throws.
+
+  /**
+   * Alias to `set(newValue, path, false)`. This method can't throw.
+   */
+  fun setSilently(newValue: Any?, path: String) = set(newValue, path, false)
+
+  /**
+   * Alias to `set(newValue, "", false)`. This method can't throw.
+   */
+  fun setSilently(newValue: Any?) = set(newValue, "", false)
+
+  /**
+   * Alias to `set(newValue, "", true)`.
+   */
+  @Throws(UpdateError::class)
+  fun set(newValue: Any?) {
+    set(newValue, "")
   }
 }
