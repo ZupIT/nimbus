@@ -4,10 +4,10 @@ import com.zup.nimbus.core.ui.UILibrary
 import com.zup.nimbus.core.utils.compareTo
 import com.zup.nimbus.core.utils.toNumberOrNull
 
-private fun compareNumbers(left: Any?, right: Any?): Boolean {
+private fun areNumbersEqual(left: Any?, right: Any?): Boolean {
   val leftNumber = toNumberOrNull(left) ?: return false
   val rightNumber = toNumberOrNull(right) ?: return false
-  return leftNumber == rightNumber
+  return leftNumber.compareTo(rightNumber) == 0
 }
 
 @Suppress("ComplexMethod")
@@ -52,7 +52,7 @@ internal fun registerOtherOperations(library: UILibrary) {
     .addOperation("eq"){
       val (left, right) = it
       if (left == right) true
-      else compareNumbers(left, right)
+      else areNumbersEqual(left, right)
     }
     .addOperation("isNull"){
       it[0] == null
