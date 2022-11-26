@@ -7,7 +7,7 @@ import com.zup.nimbus.core.utils.toNumberOrNull
 private fun compareNumbers(left: Any?, right: Any?): Boolean {
   val leftNumber = toNumberOrNull(left) ?: return false
   val rightNumber = toNumberOrNull(right) ?: return false
-  return leftNumber.compareTo(rightNumber) == 0
+  return leftNumber == rightNumber
 }
 
 @Suppress("ComplexMethod")
