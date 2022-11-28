@@ -10,7 +10,8 @@ import com.zup.nimbus.core.utils.toNumberOrNull
 
 private fun toNumberList(values: List<Any?>) = values.map { toNumberOrNull(it) }
 
-  internal fun registerNumberOperations(library: UILibrary) {
+@Suppress("ComplexMethod")
+internal fun registerNumberOperations(library: UILibrary) {
   library
     .addOperation("sum"){
       toNumberList(it).reduce { result, item -> if (result == null || item == null) null else result + item }
