@@ -2,18 +2,14 @@ package com.zup.nimbus.core.ui.action
 
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.utils.UnexpectedDataTypeError
-import com.zup.nimbus.core.utils.valueOfEnum
-import com.zup.nimbus.core.utils.valueOfKey
+import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+import com.zup.nimbus.core.ui.action.error.ActionDeserializationError
 
 internal fun log(event: ActionTriggeredEvent) {
   val logger = event.scope.nimbus.logger
-  val properties = event.action.properties
-  try {
-    val message: String = valueOfKey(properties, "message")
-    val level: LogLevel = valueOfEnum(properties, "level", LogLevel.Info)
-    logger.log(message, level)
-  } catch (e: UnexpectedDataTypeError) {
-    logger.error("Error while attempting to log.\n${e.message}")
-  }
+  val properties = AnyServerDrivenData(event.action.properties)
+  val message = properties.get("message").asString()
+  val level = properties.get("level").asEnumOrNull(LogLevel.values()) ?: LogLevel.Info
+  if (properties.hasError()) throw ActionDeserializationError(event, properties)
+  logger.log(message, level)
 }

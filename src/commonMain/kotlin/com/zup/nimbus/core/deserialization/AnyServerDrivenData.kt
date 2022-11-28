@@ -10,9 +10,9 @@ import com.zup.nimbus.core.tree.dynamic.DynamicEvent
  * To get the wrapped value as a specific type, use the methods: `asString()`, `asStringOrNull()`, `asInt()`,
  * `asLong()`, `asListOrNull()`, `asEnum(enum: Array<Enum<*>>)`, etc.
  *
- * This class **will never throw errors**, instead, whenever a deserialization error happens, it will fill its own
- * array of errors with a new error string. To check if any error happened during deserialization, call the method
- * `hasError()`. To get the errors themselves, call `errorsAsString()`.
+ * With the exception of the method `toJson()`, this class **will never throw errors**, instead, whenever a
+ * deserialization error happens, it will fill its own array of errors with a new error string. To check if any error
+ * happened during deserialization, call the method `hasError()`. To get the errors themselves, call `errorsAsString()`.
  *
  * If the value wrapped by this represents a map or a list, you can navigate through the structure using the methods
  * `get(key: String)` and `at(index: Int)`, which returns the child value wrapped in a new `AnyServerDrivenData`.
@@ -510,6 +510,8 @@ class AnyServerDrivenData private constructor (
     return AnyServerDrivenData(actualValue, buildPath(index), errors)
   }
 
+  // other
+
   override fun equals(other: Any?): Boolean = other is AnyServerDrivenData && value == other.value
 
   override fun hashCode(): Int {
@@ -517,4 +519,22 @@ class AnyServerDrivenData private constructor (
   }
 
   override fun toString() = "$value"
+
+  /**
+   * Returns the JSON representation of this data. If some part of it is not serializable, a SerializationError will be
+   * thrown.
+   *
+   * @return the json representing this data structure
+   * @throws SerializationError when something in the structure is not of the types String, Int, Long, Float, Double,
+   * Boolean, Map or List.
+   */
+  @Throws(SerializationError::class)
+  fun toJson(): String = when {
+    this.isNull() -> "null"
+    this.isString() -> "\"${this.asString()}\""
+    this.isInt() || this.isLong() || this.isFloat() || this.isDouble() || this.isBoolean() -> this.asString()
+    this.isList() -> "[${this.asList().joinToString(",") { it.toJson() }}]"
+    this.isMap() -> "{${this.asMap().map { "\"${it.key}\":${it.value.toJson()}" }.joinToString(",") }}"
+    else -> throw SerializationError(path)
+  }
 }

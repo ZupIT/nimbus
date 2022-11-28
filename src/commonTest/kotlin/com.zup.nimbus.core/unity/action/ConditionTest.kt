@@ -9,11 +9,14 @@ import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.ui.action.condition
+import com.zup.nimbus.core.ui.action.error.ActionDeserializationError
 import com.zup.nimbus.core.unity.SimpleAction
 import com.zup.nimbus.core.unity.SimpleEvent
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class ConditionTest {
   private fun createActionTriggeredEvent(
@@ -64,16 +67,17 @@ class ConditionTest {
 
   @Test
   fun `should fail if condition is not provided`() {
-    val logger = ObservableLogger()
     val nimbus = Nimbus(ServerDrivenConfig(
       baseUrl = "",
       platform = "test",
-      logger = logger,
       httpClient = EmptyHttpClient,
     ))
     val event = createActionTriggeredEvent(parent = nimbus)
-    condition(event)
-    assertEquals(1, logger.entries.size)
-    assertEquals(LogLevel.Error, logger.entries[0].level)
+    try {
+      condition(event)
+      fail("Expected to throw")
+    } catch (e: ActionDeserializationError) {
+      assertContains(e.message, "Expected a boolean for property \"condition\", but found null")
+    }
   }
 }

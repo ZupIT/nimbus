@@ -5,32 +5,30 @@ import com.zup.nimbus.core.ActionInitializedEvent
 import com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.utils.UnexpectedDataTypeError
-import com.zup.nimbus.core.utils.then
-import com.zup.nimbus.core.utils.valueOfEnum
-import com.zup.nimbus.core.utils.valueOfKey
+import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+import com.zup.nimbus.core.deserialization.SerializationError
+import com.zup.nimbus.core.ui.action.error.ActionExecutionError
+import com.zup.nimbus.core.ui.action.error.ActionDeserializationError
 
 private inline fun getNavigator(event: ActionEvent) = event.scope.view.navigator
 
 private fun requestFromEvent(event: ActionEvent, isPushOrPresent: Boolean): ViewRequest {
-  val properties = event.action.properties
-  return ViewRequest(
-    url = valueOfKey(properties, "url"),
-    method = valueOfEnum(properties, "method", ServerDrivenHttpMethod.Get),
-    headers = valueOfKey(properties, "headers"),
-    fallback = valueOfKey(properties, "fallback"),
-    params = (isPushOrPresent then valueOfKey(properties, "params")),
-  )
+  val properties = AnyServerDrivenData(event.action.properties)
+  val url = properties.get("url").asString()
+  val method = properties.get("method").asEnumOrNull(ServerDrivenHttpMethod.values()) ?: ServerDrivenHttpMethod.Get
+  val headers = properties.get("headers").asMapOrNull()?.mapValues { it.value.asString() }
+  val body = attemptJsonSerialization(properties.get("body"), event)
+  val fallback = properties.get("fallback").asMapOrNull()?.mapValues { it.value.asAnyOrNull() }
+  val params = if (isPushOrPresent) properties.get("params").asMapOrNull()?.mapValues { it.value.asAnyOrNull() }
+  else null
+  if (properties.hasError()) throw ActionDeserializationError(event, properties)
+  return ViewRequest(url, method, headers, body, fallback, params)
 }
 
 private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
-  try {
-    val request = requestFromEvent(event, true)
-    if (isPush) getNavigator(event).push(request)
-    else getNavigator(event).present(request)
-  } catch (e: UnexpectedDataTypeError) {
-    event.scope.nimbus.logger.error("Error while navigating.\n${e.message}")
-  }
+  val request = requestFromEvent(event, true)
+  if (isPush) getNavigator(event).push(request)
+  else getNavigator(event).present(request)
 }
 
 internal fun push(event: ActionTriggeredEvent) = pushOrPresent(event, true)
@@ -38,11 +36,10 @@ internal fun push(event: ActionTriggeredEvent) = pushOrPresent(event, true)
 internal fun pop(event: ActionTriggeredEvent) = getNavigator(event).pop()
 
 internal fun popTo(event: ActionTriggeredEvent) {
-  try {
-    getNavigator(event).popTo(valueOfKey(event.action.properties, "url"))
-  } catch (e: UnexpectedDataTypeError) {
-    event.scope.nimbus.logger.error("Error while navigating.\n${e.message}")
-  }
+  val properties = AnyServerDrivenData(event.action.properties)
+  val url = properties.get("url").asString()
+  if (properties.hasError()) throw ActionDeserializationError(event, properties)
+  getNavigator(event).popTo(url)
 }
 
 internal fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
@@ -50,12 +47,13 @@ internal fun present(event: ActionTriggeredEvent) = pushOrPresent(event, false)
 internal fun dismiss(event: ActionTriggeredEvent) = getNavigator(event).dismiss()
 
 internal fun onPushOrPresentInitialized(event: ActionInitializedEvent) {
+  val properties = AnyServerDrivenData(event.action.properties)
+  val prefetch = properties.get("prefetch").asBooleanOrNull() ?: false
+  if (!prefetch) return
+  val request = requestFromEvent(event, true)
   try {
-    val prefetch: Boolean = valueOfKey(event.action.properties, "prefetch") ?: false
-    if (!prefetch) return
-    val request = requestFromEvent(event, true)
     event.scope.nimbus.viewClient.preFetch(request)
   } catch (e: Throwable) {
-    event.scope.nimbus.logger.error("Error while pre-fetching view.\n${e.message}")
+    throw ActionExecutionError(event, e)
   }
 }

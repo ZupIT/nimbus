@@ -37,7 +37,7 @@ class SendRequestTest {
     val tree = nimbus.nodeBuilder.buildFromJsonString(json)
     tree.initialize(nimbus)
     NodeUtils.pressButton(tree, "send-request-btn")
-    AsyncUtils.waitUntil { logger.entries.size >= numberOfLogsToWaitFor }
+    AsyncUtils.waitUntil(5 * 60000) { logger.entries.size >= numberOfLogsToWaitFor }
     onLogEvent()
   }
 
@@ -71,7 +71,7 @@ class SendRequestTest {
   fun `should fail before sending request`() = runSendRequestTest(buildScreen(null), 1) {
     assertEquals(1, logger.entries.size)
     val firstLog = logger.entries.first()
-    assertContains(firstLog.message, "Unexpected value type at \"url\". Expected \"String\", found \"null\".")
+    assertContains(firstLog.message, "Expected a string for property \"url\", but found null")
     assertEquals(LogLevel.Error, firstLog.level)
   }
 
@@ -85,4 +85,43 @@ class SendRequestTest {
     assertEquals("success", firstLog.message)
     assertEquals(LogLevel.Info, firstLog.level)
   }
+
+  private fun runPostTest(
+    data: String,
+    expressionToLog: String,
+    expectedLog: String,
+  ) = runSendRequestTest(createPostScreen(data, expressionToLog), 1) {
+    assertEquals(1, logger.entries.size)
+    val firstLog = logger.entries.first()
+    assertEquals(expectedLog, firstLog.message)
+    assertEquals(LogLevel.Info, firstLog.level)
+  }
+
+  @Test
+  fun `should post string`() = runPostTest("\"my data\"", "@{onSuccess.data}", "my data")
+
+  @Test
+  fun `should post int`() = runPostTest("123", "@{onSuccess.data}", "123")
+
+  @Test
+  fun `should post long`() = runPostTest("2147483649", "@{onSuccess.data}", "2147483649")
+
+  @Test
+  fun `should post double`() = runPostTest("123.456789", "@{onSuccess.data}", "123.456789")
+
+  @Test
+  fun `should post List`() = runPostTest(
+    "[1, \"test\", true, null, 50.3, [1], { \"hello\": \"world\" }]",
+    "@{onSuccess.data[0]} @{onSuccess.data[1]} @{onSuccess.data[2]} @{onSuccess.data[3]} @{onSuccess.data[4]} " +
+      "@{onSuccess.data[5][0]} @{onSuccess.data[6].hello}",
+    "1 test true  50.3 1 world",
+  )
+
+  @Test
+  fun `should post Map`() = runPostTest(
+    """{ "a": 1, "b": "test", "c": true, "d": null, "e": 50.3, "f": [1], "g": { "hello": "world" } }""",
+    "@{onSuccess.data.a} @{onSuccess.data.b} @{onSuccess.data.c} @{onSuccess.data.d} @{onSuccess.data.e} " +
+      "@{onSuccess.data.f[0]} @{onSuccess.data.g.hello}",
+    "1 test true  50.3 1 world",
+  )
 }
