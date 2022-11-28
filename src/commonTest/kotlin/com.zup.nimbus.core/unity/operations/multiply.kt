@@ -24,4 +24,23 @@ class MultiplyOperationTest {
     val result = multiply(listOf(16, 2.5, 2))
     assertEquals(80.0, result)
   }
+
+  @Test
+  fun `should multiply despite the type of the data - type coercion`() {
+    // Given
+    val operations = listOf<Pair<Any, Any>>(
+      6 to 4, 4.5 to 6, 4.5 to 4.5, 6 to 4.5,
+      1 to 1.5, 2.0 to 1, "1" to 1.0, 2.5 to "1.0", "1" to "1", "2" to 1,
+      1 to true, "1" to false, "" to ""
+    )
+
+    // When
+    val result = operations.map {
+      multiply(listOf(it.first, it.second))
+    }
+
+    // Then
+    val expected = listOf<Number?>(24, 27.0, 20.25, 27.0, 1.5, 2.0, 1.0, 2.5, 1, 2, null, null, null)
+    assertEquals(expected, result)
+  }
 }
