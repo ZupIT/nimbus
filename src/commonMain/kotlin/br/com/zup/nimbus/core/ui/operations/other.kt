@@ -1,6 +1,7 @@
 package br.com.zup.nimbus.core.ui.operations
 
 import br.com.zup.nimbus.core.ui.UILibrary
+import br.com.zup.nimbus.core.utils.Null
 import br.com.zup.nimbus.core.utils.compareTo
 import br.com.zup.nimbus.core.utils.toNumberOrNull
 
@@ -14,7 +15,8 @@ private fun areNumbersEqual(left: Any?, right: Any?): Boolean {
 internal fun registerOtherOperations(library: UILibrary) {
   library
     .addOperation("contains"){
-      val (collection, element) = it
+      val collection = it.firstOrNull()
+      val element = it.getOrNull(1)
       when (collection) {
         is List<*> -> collection.contains(element)
         is Map<*, *> -> collection.contains(element)
@@ -23,7 +25,7 @@ internal fun registerOtherOperations(library: UILibrary) {
       }
     }
     .addOperation("concat"){
-      when (it[0]) {
+      when (it.firstOrNull()) {
         is List<*> -> {
           val result = ArrayList<Any?>()
           it.forEach { list ->
@@ -42,7 +44,7 @@ internal fun registerOtherOperations(library: UILibrary) {
       }
     }
     .addOperation("length"){
-      when (val collection = it[0]) {
+      when (val collection = it.firstOrNull()) {
         is List<*> -> collection.size
         is Map<*, *> -> collection.size
         is String -> collection.length
@@ -50,19 +52,20 @@ internal fun registerOtherOperations(library: UILibrary) {
       }
     }
     .addOperation("eq"){
-      val (left, right) = it
+      val left = it.firstOrNull()
+      val right = it.getOrNull(1)
       if (left == right) true
       else areNumbersEqual(left, right)
     }
     .addOperation("isNull"){
-      it[0] == null
+      Null.isNull(it.firstOrNull())
     }
     .addOperation("isEmpty"){
-      when (val collection = it[0]) {
+      when (val collection = it.firstOrNull()) {
         is List<*> -> collection.isEmpty()
         is Map<*, *> -> collection.isEmpty()
         is String -> collection.isEmpty()
-        else -> collection == null
+        else -> Null.isNull(collection)
       }
     }
 }

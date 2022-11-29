@@ -10,6 +10,12 @@ import br.com.zup.nimbus.core.utils.toNumberOrNull
 
 private fun toNumberList(values: List<Any?>) = values.map { toNumberOrNull(it) }
 
+// examples: left == right; left > right; left <= right
+private fun toLeftAndRight(values: List<Any?>): Pair<Number?, Number?> {
+  val numberList = toNumberList(values)
+  return numberList.firstOrNull() to numberList.getOrNull(1)
+}
+
 @Suppress("ComplexMethod")
 internal fun registerNumberOperations(library: UILibrary) {
   library
@@ -26,22 +32,22 @@ internal fun registerNumberOperations(library: UILibrary) {
       toNumberList(it).reduce { result, item -> if (result == null || item == null) null else result / item }
     }
     .addOperation("gt"){
-      val (left, right) = toNumberList(it)
+      val (left, right) = toLeftAndRight(it)
       if (left == null || right == null) false
       else left > right
     }
     .addOperation("gte"){
-      val (left, right) = toNumberList(it)
+      val (left, right) = toLeftAndRight(it)
       if (left == null || right == null) false
       else left >= right
     }
     .addOperation("lt"){
-      val (left, right) = toNumberList(it)
+      val (left, right) = toLeftAndRight(it)
       if (left == null || right == null) false
       else left < right
     }
     .addOperation("lte"){
-      val (left, right) = toNumberList(it)
+      val (left, right) = toLeftAndRight(it)
       if (left == null || right == null) false
       else left <= right
     }

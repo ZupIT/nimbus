@@ -1,5 +1,6 @@
 package br.com.zup.nimbus.core.ui.operations
 
+import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import br.com.zup.nimbus.core.ui.UILibrary
 import br.com.zup.nimbus.core.utils.then
 
@@ -16,12 +17,17 @@ internal fun registerLogicOperations(library: UILibrary) {
       toBooleanList(it).contains(true)
     }
     .addOperation("not") {
-      !(it[0] as Boolean)
+      val arguments = AnyServerDrivenData(it)
+      val value = arguments.at(0).asBoolean()
+      if (arguments.hasError()) throw IllegalArgumentException(arguments.errorsAsString())
+      !value
     }
     .addOperation("condition") {
-      val premise = it[0] as Boolean
-      val trueValue = it[1]
-      val falseValue = it[2]
+      val arguments = AnyServerDrivenData(it)
+      val premise = arguments.at(0).asBoolean()
+      val trueValue = arguments.at(1).asAnyOrNull()
+      val falseValue = arguments.at(2).asAnyOrNull()
+      if (arguments.hasError()) throw IllegalArgumentException(arguments.errorsAsString())
       ((premise) then trueValue) ?: falseValue
     }
 }

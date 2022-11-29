@@ -6,6 +6,7 @@ import br.com.zup.nimbus.core.network.ResponseError
 import br.com.zup.nimbus.core.network.ViewRequest
 import br.com.zup.nimbus.core.scope.closestScopeWithType
 import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
+import br.com.zup.nimbus.core.tree.findNodeById
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -131,6 +132,16 @@ class NavigationTest {
     lastPage = navigator.pages.last()
     view = lastPage.closestScopeWithType()
     assertEquals("/screen1", view?.description)
+  }
+
+  @Test
+  fun `should use a navigation state`() = scope.runTest {
+    navigator.push(ViewRequest("/stateful-navigation-1"))
+    val page1 = navigator.awaitPushCompletion()
+    NodeUtils.pressButton(page1, "next")
+    val page2 = navigator.awaitPushCompletion()
+    val address = page2.findNodeById("address")?.properties?.get("text")
+    assertEquals("Rua dos bobos, 0", address)
   }
 }
 
