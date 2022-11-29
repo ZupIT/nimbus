@@ -2,6 +2,7 @@ package com.zup.nimbus.core.deserialization
 
 import com.zup.nimbus.core.tree.ServerDrivenEvent
 import com.zup.nimbus.core.tree.dynamic.DynamicEvent
+import com.zup.nimbus.core.utils.Null
 
 /**
  * This class helps to deserialize data of unknown type. This is very useful for deserializing the data that comes from
@@ -21,7 +22,7 @@ class AnyServerDrivenData private constructor (
   /**
    * The actual value wrapped by this.
    */
-  val value: Any?,
+  value: Any?,
   /**
    * The path for the current data access.
    *
@@ -55,6 +56,12 @@ class AnyServerDrivenData private constructor (
      */
     value: Any?,
   ): this(value, "", mutableListOf())
+
+  val value: Any?
+
+  init {
+    this.value = Null.sanitize(value)
+  }
 
   /**
    * Holds the values to use when null is found on functions that can't return null.
