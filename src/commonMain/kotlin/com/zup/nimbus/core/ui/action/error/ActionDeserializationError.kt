@@ -5,6 +5,6 @@ import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.core.scope.getPathToScope
 
 class ActionDeserializationError(event: ActionEvent, properties: AnyServerDrivenData): IllegalArgumentException() {
-  override val message = "Error while deserializing properties for the action \"condition\".\nAt: " +
+  override val message = "Error while deserializing properties for the action \"${event.action.name}\".\nAt: " +
     "${event.scope.getPathToScope()}${properties.errorsAsString()}"
 }

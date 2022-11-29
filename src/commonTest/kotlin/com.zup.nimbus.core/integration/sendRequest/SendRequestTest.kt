@@ -37,7 +37,7 @@ class SendRequestTest {
     val tree = nimbus.nodeBuilder.buildFromJsonString(json)
     tree.initialize(nimbus)
     NodeUtils.pressButton(tree, "send-request-btn")
-    AsyncUtils.waitUntil(5 * 60000) { logger.entries.size >= numberOfLogsToWaitFor }
+    AsyncUtils.waitUntil { logger.entries.size >= numberOfLogsToWaitFor }
     onLogEvent()
   }
 
@@ -99,6 +99,9 @@ class SendRequestTest {
 
   @Test
   fun `should post string`() = runPostTest("\"my data\"", "@{onSuccess.data}", "my data")
+
+  @Test
+  fun `should post boolean`() = runPostTest("true", "@{onSuccess.data}", "true")
 
   @Test
   fun `should post int`() = runPostTest("123", "@{onSuccess.data}", "123")

@@ -525,14 +525,15 @@ class AnyServerDrivenData private constructor (
    * thrown.
    *
    * @return the json representing this data structure
-   * @throws SerializationError when something in the structure is not of the types String, Int, Long, Float, Double,
-   * Boolean, Map or List.
+   * @throws SerializationError when something in the structure is not of the types String, Short, Int, Long, Float,
+   * Double, Boolean, Map or List.
    */
   @Throws(SerializationError::class)
   fun toJson(): String = when {
     isNull() -> "null"
     isString() -> "\"${this.asString()}\""
-    isInt() || this.isLong() || this.isFloat() || this.isDouble() || this.isBoolean() -> this.asString()
+    value is Short || isInt() || this.isLong() || this.isFloat() || this.isDouble() || this.isBoolean() ->
+      this.asString()
     isList() -> "[${this.asList().joinToString(",") { it.toJson() }}]"
     isMap() -> "{${this.asMap().map { "\"${it.key}\":${it.value.toJson()}" }.joinToString(",") }}"
     else -> throw SerializationError(path, value)
