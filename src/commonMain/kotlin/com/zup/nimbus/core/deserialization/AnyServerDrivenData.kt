@@ -530,11 +530,11 @@ class AnyServerDrivenData private constructor (
    */
   @Throws(SerializationError::class)
   fun toJson(): String = when {
-    this.isNull() -> "null"
-    this.isString() -> "\"${this.asString()}\""
-    this.isInt() || this.isLong() || this.isFloat() || this.isDouble() || this.isBoolean() -> this.asString()
-    this.isList() -> "[${this.asList().joinToString(",") { it.toJson() }}]"
-    this.isMap() -> "{${this.asMap().map { "\"${it.key}\":${it.value.toJson()}" }.joinToString(",") }}"
-    else -> throw SerializationError(path)
+    isNull() -> "null"
+    isString() -> "\"${this.asString()}\""
+    isInt() || this.isLong() || this.isFloat() || this.isDouble() || this.isBoolean() -> this.asString()
+    isList() -> "[${this.asList().joinToString(",") { it.toJson() }}]"
+    isMap() -> "{${this.asMap().map { "\"${it.key}\":${it.value.toJson()}" }.joinToString(",") }}"
+    else -> throw SerializationError(path, value)
   }
 }

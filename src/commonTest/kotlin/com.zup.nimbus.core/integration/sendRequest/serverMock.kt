@@ -87,7 +87,6 @@ private const val SEND_REQUEST_RESPONSE = """{
 }"""
 
 val serverMock = MockEngine { request ->
-  println("!!!!!!! ${request.body}")
   return@MockEngine when(request.url.toString()) {
     "$BASE_URL/user/1" -> respond(
       content = ByteReadChannel(SEND_REQUEST_RESPONSE),

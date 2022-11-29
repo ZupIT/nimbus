@@ -50,7 +50,7 @@ class DynamicEvent(
       try {
         it.handler(ActionTriggeredEvent(action = it, dependencies = dependencies, scope = this))
       } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {
-        nimbus.logger.error(t.stackTraceToString())
+        nimbus.logger.error(t.message ?: "Unknown error")
       }
     }
     update(dependencies)
