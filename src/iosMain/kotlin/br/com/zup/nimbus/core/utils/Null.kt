@@ -1,4 +1,4 @@
-package com.zup.nimbus.core.utils
+package br.com.zup.nimbus.core.utils
 
 import platform.Foundation.NSNull
 
