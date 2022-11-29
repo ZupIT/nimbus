@@ -255,6 +255,31 @@ const val PREFETCH2 = """{
   ]
 }"""
 
+private const val STATEFUL_NAVIGATION_1 = """{
+  "_:component": "material:button",
+  "id": "next",
+  "properties": {
+    "text": "next",
+    "onPress": [{
+      "_:action": "push",
+      "properties": {
+        "url": "/stateful-navigation-2",
+        "params": {
+          "address": "Rua dos bobos, 0"
+        }
+      }
+    }]
+  }
+}"""
+
+private const val STATEFUL_NAVIGATION_2 = """{
+  "_:component": "layout:text",
+  "id": "address",
+  "properties": {
+    "text": "@{address}"
+  }
+}"""
+
 val serverMock = MockEngine { request ->
   return@MockEngine when(request.url.toString()) {
     "$BASE_URL/screen1" -> respond(
@@ -279,6 +304,16 @@ val serverMock = MockEngine { request ->
     )
     "$BASE_URL/prefetch2" -> respond(
       content = ByteReadChannel(PREFETCH2),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/stateful-navigation-1" -> respond(
+      content = ByteReadChannel(STATEFUL_NAVIGATION_1),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/stateful-navigation-2" -> respond(
+      content = ByteReadChannel(STATEFUL_NAVIGATION_2),
       status = HttpStatusCode.OK,
       headers = headersOf(HttpHeaders.ContentType, "application/json")
     )

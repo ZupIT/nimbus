@@ -2,12 +2,12 @@ package com.zup.nimbus.core.tree.dynamic.node
 
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenState
+import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.core.scope.Scope
 import com.zup.nimbus.core.scope.StateOnlyScope
 import com.zup.nimbus.core.scope.closestScopeWithType
 import com.zup.nimbus.core.scope.getPathToScope
 import com.zup.nimbus.core.tree.dynamic.container.NodeContainer
-import com.zup.nimbus.core.utils.valueOfKey
 
 /**
  * A rendered list that can change must somehow identify each of its item. This encapsulates an item with an object
@@ -18,8 +18,7 @@ private class IdentifiableItem(val value: Any?, index: Int, key: String?) {
   val id: String
 
   init {
-    // fixme: we probably want to change this to valueOfPath, but it would be computationally more expensive
-    val keyValue: Any? = key?.let { valueOfKey(value, it) }
+    val keyValue = key?.let { AnyServerDrivenData(value).get(it).asAnyOrNull() }
     id = if (keyValue == null) "$index" else "$keyValue"
   }
 
@@ -89,9 +88,14 @@ class ForEachNode(
     propertyContainer?.initialize(this)
     propertyContainer?.addDependent(this)
     properties = propertyContainer?.read()
-    iteratorName = valueOfKey(properties, "iteratorName") ?: iteratorName
-    indexName = valueOfKey(properties, "indexName") ?: indexName
-    key = valueOfKey(properties, "key")
+    val deserializer = AnyServerDrivenData(properties)
+    iteratorName = deserializer.get("iteratorName").asStringOrNull() ?: iteratorName
+    indexName = deserializer.get("indexName").asStringOrNull() ?: indexName
+    key = deserializer.get("key").asStringOrNull()
+    if (deserializer.hasError()) {
+      nimbus?.logger?.error("Error while deserializing the properties for the component forEach.\nAt: " +
+        getPathToScope() + deserializer.errorsAsString())
+    }
     hasInitialized = true
     update()
     hasChanged = false
@@ -131,11 +135,17 @@ class ForEachNode(
 
   override fun update() {
     properties = propertyContainer?.read()
-    val newItems: List<Any?> = valueOfKey(properties, "items") ?: emptyList()
-    val newIdentified = newItems.mapIndexed { index, item -> IdentifiableItem(item, index, key) }
-    if (newIdentified != items) {
+    val deserializer = AnyServerDrivenData(properties)
+    val newItems = deserializer.get("items").asListOrNull()?.mapIndexed { index, item ->
+      IdentifiableItem(item.asAnyOrNull(), index, key)
+    } ?: emptyList()
+    if (deserializer.hasError()) {
+      nimbus?.logger?.error("Error while deserializing the items for the component forEach.\nAt: " +
+        getPathToScope() + deserializer.errorsAsString())
+    }
+    else if (newItems != items) {
       warnIfUpdatingWithoutKey()
-      items = newIdentified
+      items = newItems
       val newChildren = calculateChildren()
       hasChanged = true
       children = newChildren
