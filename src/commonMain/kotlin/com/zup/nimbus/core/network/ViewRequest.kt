@@ -16,7 +16,7 @@ data class ViewRequest(
   /**
    * The request body. Invalid for "Get" requests.
    */
-  val body: Any? = null,
+  val body: String? = null,
   /**
    * UI tree to show if an error occurs and the view can't be fetched.
    */

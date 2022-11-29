@@ -104,8 +104,8 @@ inline fun <reified T>valueOfPath(data: Any?, path: String = ""): T {
 inline fun <reified T>valueOfKey(data: Any?, key: String = ""): T {
   var result: Any? = null
   try {
-    result = if (data !is Map<*, *>) null as T else data[key] as T
-    return result
+    result = if (data !is Map<*, *>) null else data[key]
+    return result as T
   } catch (e: Throwable) {
     if (e is ClassCastException || e is NullPointerException) {
       throw UnexpectedDataTypeError(key, T::class, result)

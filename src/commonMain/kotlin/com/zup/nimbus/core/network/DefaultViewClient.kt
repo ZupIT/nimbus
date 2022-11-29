@@ -1,6 +1,7 @@
 package com.zup.nimbus.core.network
 
 import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -37,7 +38,7 @@ class DefaultViewClient(val nimbus: Nimbus) : ViewClient {
             url = url,
             method = request.method,
             headers = coreHeaders + (request.headers ?: emptyMap()),
-            body = if (request.body == null) null else Json.encodeToString(request.body),
+            body = request.body,
           )
         )
       } catch (e: Throwable) {

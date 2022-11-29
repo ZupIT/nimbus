@@ -6,7 +6,7 @@ import io.ktor.utils.io.*
 
 const val BASE_URL = "http://tests.com"
 
-fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true): String {
+fun buildScreen(sendRequestUrl: String?, shouldHaveOnErrorAndOnFinish: Boolean = true): String {
   return """{
     "_:component": "layout:container",
     "children": [
@@ -24,7 +24,7 @@ fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true
                 "properties": {
                   "message": "success"
                  }
-              }]${if (shouldHaveOnAndOnFinish) """,
+              }]${if (shouldHaveOnErrorAndOnFinish) """,
               "onError": [{
                 "_:action": "log",
                 "properties": {
@@ -47,6 +47,39 @@ fun buildScreen(sendRequestUrl: String?, shouldHaveOnAndOnFinish: Boolean = true
   }"""
 }
 
+fun createPostScreen(data: String, log: String) = """{
+  "_:component": "material:button",
+  "id": "send-request-btn",
+  "properties": {
+    "onPress": [
+      {
+        "_:action": "sendRequest",
+        "properties": {
+          "method": "POST",
+          "url": "$BASE_URL/post-data",
+          "data": $data,
+          "onSuccess": [
+            {
+              "_:action": "log",
+              "properties": {
+                "message": "$log"
+              }
+            }
+          ],
+          "onError": [
+            {
+              "_:action": "log",
+              "properties": {
+                "message": "ERROR"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}"""
+
 private const val SEND_REQUEST_RESPONSE = """{
   "name": "John",
   "age": 30,
@@ -57,6 +90,11 @@ val serverMock = MockEngine { request ->
   return@MockEngine when(request.url.toString()) {
     "$BASE_URL/user/1" -> respond(
       content = ByteReadChannel(SEND_REQUEST_RESPONSE),
+      status = HttpStatusCode.OK,
+      headers = headersOf(HttpHeaders.ContentType, "application/json")
+    )
+    "$BASE_URL/post-data" -> respond(
+      content = ByteReadChannel(request.body.toByteArray()),
       status = HttpStatusCode.OK,
       headers = headersOf(HttpHeaders.ContentType, "application/json")
     )
