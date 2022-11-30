@@ -5,9 +5,9 @@ import br.com.zup.nimbus.core.scope.getPathToScope
 
 class ActionExecutionError private constructor (
   event: ActionEvent,
-  cause: Throwable?,
+  override val cause: Throwable?,
   message: String,
-): Error(cause = cause) {
+): Error() {
   constructor(event: ActionEvent, cause: Throwable): this(
     event,
     cause,
