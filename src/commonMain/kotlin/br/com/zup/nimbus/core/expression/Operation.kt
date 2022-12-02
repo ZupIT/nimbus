@@ -36,7 +36,7 @@ class Operation(
     val newValue = try {
       handler(argValues)
     } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {
-      getLogger?.let { it()?.error(t.stackTraceToString()) }
+      getLogger?.let { it()?.error(t.message ?: t.stackTraceToString()) }
       null
     }
     if (value != newValue) {
