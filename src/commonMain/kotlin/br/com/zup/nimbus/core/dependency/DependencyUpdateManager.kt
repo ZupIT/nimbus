@@ -31,7 +31,8 @@ object DependencyUpdateManager {
     levels.forEach {
       val dependent = it.key
       val level = it.value
-      if (groups.getOrNull(level) == null) groups.add(level, mutableListOf())
+      // todo: verify if a map wouldn't be better than risking creating unnecessary empty lists
+      while(groups.size < level + 1) groups.add(mutableListOf())
       groups[level].add(dependent)
     }
     return Pair(groups, dependencyMap)

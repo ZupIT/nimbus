@@ -7,9 +7,14 @@ import br.com.zup.nimbus.core.ObservableLogger
 import br.com.zup.nimbus.core.ServerDrivenConfig
 import br.com.zup.nimbus.core.log.LogLevel
 import br.com.zup.nimbus.core.network.DefaultHttpClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -18,6 +23,16 @@ import kotlin.test.assertEquals
 class SendRequestTest {
   private val scope = TestScope()
   private val logger = ObservableLogger()
+
+  @BeforeTest
+  fun setup() {
+    Dispatchers.setMain(Dispatchers.Unconfined)
+  }
+
+  @AfterTest
+  fun tearDown() {
+    Dispatchers.resetMain()
+  }
 
   private val nimbus = Nimbus(
     ServerDrivenConfig(

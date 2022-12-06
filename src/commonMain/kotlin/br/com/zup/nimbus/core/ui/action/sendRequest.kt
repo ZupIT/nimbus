@@ -5,9 +5,8 @@ import br.com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import br.com.zup.nimbus.core.network.ServerDrivenRequest
 import br.com.zup.nimbus.core.ActionTriggeredEvent
 import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
-import br.com.zup.nimbus.core.deserialization.SerializationError
+import br.com.zup.nimbus.core.network.ResponseError
 import br.com.zup.nimbus.core.ui.action.error.ActionDeserializationError
-import br.com.zup.nimbus.core.ui.action.error.ActionExecutionError
 import br.com.zup.nimbus.core.utils.transformJsonElementToKotlinType
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
@@ -40,32 +39,39 @@ internal fun sendRequest(event: ActionTriggeredEvent) {
     body = data,
   )
   val coroutineScope = CoroutineScope(Dispatchers.Default)
+  val mainScope = CoroutineScope(Dispatchers.Main)
 
   // launch the request thread
   coroutineScope.launch {
     try {
       val response = nimbus.httpClient.sendRequest(request)
-      val callbackData = HashMap<String, Any?>()
-      val statusText = HttpStatusCode.fromValue(response.status).description
-      callbackData["status"] = response.status
-      callbackData["statusText"] = statusText
-      try {
-        val jsonElement = Json.decodeFromString<JsonElement>(response.body)
-        callbackData["data"] = transformJsonElementToKotlinType(jsonElement)
-      } catch (e: Throwable) {
-        callbackData["data"] = response.body
+      if (response.status >= FIRST_BAD_STATUS) throw ResponseError(response.status, response.body)
+      onSuccess?.let { successEvent ->
+        val callbackData = HashMap<String, Any?>()
+        callbackData["status"] = response.status
+        callbackData["statusText"] = HttpStatusCode.fromValue(response.status).description
+        try {
+          val jsonElement = Json.decodeFromString<JsonElement>(response.body)
+          callbackData["data"] = transformJsonElementToKotlinType(jsonElement)
+        } catch (e: Throwable) {
+          callbackData["data"] = response.body
+        }
+        mainScope.launch { successEvent.run(callbackData) }
       }
-      // todo: verify
-      if (response.status >= FIRST_BAD_STATUS) @Suppress("TooGenericExceptionThrown") throw Error(statusText)
-      onSuccess?.run(callbackData)
     } catch (e: Throwable) {
       nimbus.logger.error("Unable to send request.\n${e.message ?: ""}")
-      onError?.run(mapOf(
-        "status" to 0,
-        "statusText" to "Unable to send request",
-        "message" to (e.message ?: "Unknown error."),
-      ))
+      onError?.let { errorEvent ->
+        mainScope.launch {
+          errorEvent.run(mapOf(
+            "status" to 0,
+            "statusText" to "Unable to send request",
+            "message" to (e.message ?: "Unknown error."),
+          ))
+        }
+      }
     }
-    onFinish?.run()
+    onFinish?.let { finishEvent ->
+      mainScope.launch { finishEvent.run() }
+    }
   }
 }

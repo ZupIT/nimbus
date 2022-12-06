@@ -28,6 +28,6 @@ internal fun registerLogicOperations(library: UILibrary) {
       val trueValue = arguments.at(1).asAnyOrNull()
       val falseValue = arguments.at(2).asAnyOrNull()
       if (arguments.hasError()) throw IllegalArgumentException(arguments.errorsAsString())
-      ((premise) then trueValue) ?: falseValue
+      if (premise) trueValue else falseValue
     }
 }

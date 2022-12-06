@@ -7,6 +7,7 @@ import br.com.zup.nimbus.core.ObservableLogger
 import br.com.zup.nimbus.core.ServerDrivenConfig
 import br.com.zup.nimbus.core.integration.sendRequest.BASE_URL
 import br.com.zup.nimbus.core.network.DefaultHttpClient
+import br.com.zup.nimbus.core.tree.findNodeById
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -39,5 +40,14 @@ class OperationsTest {
 
     count = content.states?.first()?.value as Number
     assertEquals(3, count)
+  }
+
+  @Test
+  fun `should run condition`() {
+    val tree = nimbus.nodeBuilder.buildFromJsonString(CONDITION_TEST)
+    tree.initialize(nimbus)
+    val content = NodeUtils.getContent(tree)
+    val result = content.findNodeById("result")?.properties?.get("text")
+    assertEquals(null, result)
   }
 }
