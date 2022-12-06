@@ -11,8 +11,7 @@ import io.ktor.utils.io.ByteReadChannel
 const val FIRST_PAGE = """{
   "_:component": "layout:container",
   "state": {
-    "id": "count",
-    "value": 1
+    "count": 1
   },
   "children": [
     {

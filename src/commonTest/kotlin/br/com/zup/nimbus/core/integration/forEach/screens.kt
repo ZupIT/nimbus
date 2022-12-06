@@ -3,18 +3,17 @@ package br.com.zup.nimbus.core.integration.forEach
 const val GENERAL_FOR_EACH = """{
   "_:component": "layout:column",
   "state": {
-    "id": "users",
-    "value": {
-        "premium": [
-          { "name": "John", "age": 30 },
-          { "name": "Mary", "age": 22 },
-          { "name": "Anthony", "age": 5 }
-        ],
-        "basic": [
-          { "name": "Rose", "age": 21 },
-          { "name": "Paul", "age": 54 }
-        ]
-      }
+    "users": {
+      "premium": [
+        { "name": "John", "age": 30 },
+        { "name": "Mary", "age": 22 },
+        { "name": "Anthony", "age": 5 }
+      ],
+      "basic": [
+        { "name": "Rose", "age": 21 },
+        { "name": "Paul", "age": 54 }
+      ]
+    }
   },
   "children": [
     {
@@ -103,8 +102,7 @@ const val STATEFUL_FOR_EACH = """{
     {
       "_:component": "forEach",
       "state": {
-        "id": "listCounter",
-        "value": 0
+        "listCounter": 0
       },
       "properties": {
         "items": ["John", "Mary", "Anthony"]
@@ -113,8 +111,7 @@ const val STATEFUL_FOR_EACH = """{
         {
           "_:component": "layout:row",
           "state": {
-            "id": "itemCounter",
-            "value": 0
+            "itemCounter": 0
           },
           "children": [
             {
@@ -304,8 +301,7 @@ const val NESTED_FOR_EACH = """{
 const val FOR_EACH_MUTABLE_DATASET = """{
   "_:component":"layout:column",
   "state":{
-    "id":"dataset",
-    "value":[
+    "dataset":[
       {
         "id":1,
         "name":"John"
@@ -324,8 +320,7 @@ const val FOR_EACH_MUTABLE_DATASET = """{
     {
       "_:component":"layout:column",
       "state":{
-        "id":"newItem",
-        "value":{
+        "newItem":{
           "id":4,
           "name":"Paul"
         }
@@ -386,15 +381,13 @@ const val FOR_EACH_MUTABLE_DATASET = """{
 const val FOR_EACH_DYNAMIC_ITEM = """{
   "_:component":"layout:column",
   "state": {
-    "id": "newList",
-    "value": [{ "id": 1, "message": "bye" }]
+    "newList": [{ "id": 1, "message": "bye" }]
   },
   "children": [
     {
       "_:component":"layout:column",
       "state": {
-        "id": "list",
-        "value": [{ "id": 1, "message": "hello" }]
+        "list": [{ "id": 1, "message": "hello" }]
       },
       "children": [
         {

@@ -7,6 +7,7 @@ import br.com.zup.nimbus.core.ObservableLogger
 import br.com.zup.nimbus.core.ServerDrivenConfig
 import br.com.zup.nimbus.core.log.LogLevel
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
+import br.com.zup.nimbus.core.tree.findNodeById
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -221,5 +222,40 @@ class SetStateTest {
     assertTrue(logger.entries.isEmpty())
     // AND text should be Hey John!
     assertEquals("Hey John!", content.children?.get(0)?.properties?.get("text"))
+  }
+
+  @Test
+  fun `should use multiple states in single component`() {
+    // WHEN the MULTIPLE_STATES screen is rendered
+    val tree = nimbus.nodeBuilder.buildFromJsonString(MULTIPLE_STATES)
+    tree.initialize(nimbus)
+    val content = NodeUtils.getContent(tree)
+    // THEN nothing should've been logged
+    assertTrue(logger.entries.isEmpty())
+    // AND each button should have 0 as the its text
+    assertEquals(0, content.findNodeById("incCounterA")?.properties?.get("text"))
+    assertEquals(0, content.findNodeById("incCounterB")?.properties?.get("text"))
+    assertEquals(0, content.findNodeById("incCounterC")?.properties?.get("text"))
+    // When the button to increment counterA is pressed
+    NodeUtils.pressButton(content, "incCounterA")
+    // Then the button for counterA should display 1 and the others 0
+    assertEquals(1, content.findNodeById("incCounterA")?.properties?.get("text"))
+    assertEquals(0, content.findNodeById("incCounterB")?.properties?.get("text"))
+    assertEquals(0, content.findNodeById("incCounterC")?.properties?.get("text"))
+    // When teh button to increment counterA is pressed twice
+    NodeUtils.pressButton(content, "incCounterB")
+    NodeUtils.pressButton(content, "incCounterB")
+    // Then the button for counterA should display 1, the button for counterB 2 and the button for counterC 0
+    assertEquals(1, content.findNodeById("incCounterA")?.properties?.get("text"))
+    assertEquals(2, content.findNodeById("incCounterB")?.properties?.get("text"))
+    assertEquals(0, content.findNodeById("incCounterC")?.properties?.get("text"))
+    // When teh button to increment counterA is pressed three times
+    NodeUtils.pressButton(content, "incCounterC")
+    NodeUtils.pressButton(content, "incCounterC")
+    NodeUtils.pressButton(content, "incCounterC")
+    // Then the button for counterA should display 1, the button for counterB 2 and the button for counterC 3
+    assertEquals(1, content.findNodeById("incCounterA")?.properties?.get("text"))
+    assertEquals(2, content.findNodeById("incCounterB")?.properties?.get("text"))
+    assertEquals(3, content.findNodeById("incCounterC")?.properties?.get("text"))
   }
 }

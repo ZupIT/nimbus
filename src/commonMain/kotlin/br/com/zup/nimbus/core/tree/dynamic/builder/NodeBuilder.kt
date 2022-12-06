@@ -24,12 +24,8 @@ class NodeBuilder(private val nimbus: Nimbus) {
     try {
       val id = originalId ?: nimbus.idManager.next()
       val component: String = valueOfKey(jsonNode, "_:component")
-      val stateMap: Map<String, Any>? = valueOfKey(jsonNode, "state")
-      val states = stateMap?.let {
-        val stateId: String = valueOfKey(stateMap, "id")
-        val stateValue: Any? = valueOfKey(stateMap, "value")
-        listOf(ServerDrivenState(stateId, stateValue))
-      }
+      val stateMap: Map<String, Any?>? = valueOfKey(jsonNode, "state")
+      val states = stateMap?.map { ServerDrivenState(it.key, it.value) }
       val properties: Map<String, Any?>? = valueOfKey(jsonNode, "properties")
       val children: List<Map<String, *>>? = valueOfKey(jsonNode, "children")
 

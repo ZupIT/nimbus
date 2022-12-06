@@ -10,8 +10,7 @@ import kotlin.test.assertEquals
 private const val SCREEN = """{
   "_:component": "layout:column",
   "state": {
-    "id": "greetings",
-    "value": {
+    "greetings": {
       "formal": "How are you",
       "mundane": "Whazap"
     }
@@ -27,8 +26,7 @@ private const val SCREEN = """{
     {
       "_:component": "layout:column",
       "state": {
-        "id": "firstName",
-        "value": "John"
+        "firstName": "John"
       },
       "children": [{
         "_:component": "material:text",
