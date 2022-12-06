@@ -249,5 +249,16 @@ class ForEachTest {
     // AND the second text must be "Anthony"
     assertEquals(column.children?.get(1)?.properties?.get("text"), "Anthony")
   }
+
+  @Test
+  fun `should update property of item when source list changes`() {
+    // WHEN the FOR_EACH_DYNAMIC_ITEM screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_DYNAMIC_ITEM)
+    tree.initialize(nimbus)
+    assertEquals("hello", tree.findNodeById("message:1")?.properties?.get("text"))
+    NodeUtils.pressButton(tree, "update")
+    assertEquals("bye", tree.findNodeById("message:1")?.properties?.get("text"))
+  }
 }
 

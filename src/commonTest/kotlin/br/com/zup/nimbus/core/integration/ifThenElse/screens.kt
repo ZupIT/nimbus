@@ -155,3 +155,112 @@ const val INVALID_IF = """{
     }
   ]
 }"""
+
+const val NESTED_IF = """{
+  "_:component": "layout:column",
+  "id": "counter-column",
+  "state": {
+    "id": "counter",
+    "value": 0
+  },
+  "children": [
+    {
+      "_:component": "layout:column",
+      "state": {
+        "id": "showCounter",
+        "value": false
+      },
+      "children": [
+        {
+          "_:component": "material:button",
+          "id": "show",
+          "properties": {
+            "onPress": [
+              {
+                "_:action": "setState",
+                "properties": {
+                  "path": "showCounter",
+                  "value": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component": "material:button",
+          "id": "count",
+          "properties": {
+            "onPress": [
+              {
+                "_:action": "setState",
+                "properties": {
+                  "path": "counter",
+                  "value": "@{sum(counter, 1)}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component": "if",
+          "id": "outer-if",
+          "properties": {
+            "condition": "@{showCounter}"
+          },
+          "children": [
+            {
+              "_:component": "then",
+              "children": [
+                {
+                  "_:component": "if",
+                  "id": "inner-if",
+                  "properties": {
+                    "condition": "@{eq(counter, 0)}"
+                  },
+                  "children": [
+                    {
+                      "_:component": "then",
+                      "children": [
+                        {
+                          "_:component": "layout:text",
+                          "id": "counter-zero",
+                          "properties": {
+                            "text": "Counter is zero"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "_:component": "else",
+                      "children": [
+                        {
+                          "_:component": "layout:text",
+                          "id": "counter",
+                          "properties": {
+                            "text": "@{counter}"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "_:component": "else",
+              "children": [
+                {
+                  "_:component": "layout:text",
+                  "id": "not-showing",
+                  "properties": {
+                    "text": "Not showing counter"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""

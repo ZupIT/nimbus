@@ -5,10 +5,15 @@ import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.NodeUtils
 import br.com.zup.nimbus.core.ObservableLogger
 import br.com.zup.nimbus.core.ServerDrivenConfig
+import br.com.zup.nimbus.core.scope.closestState
+import br.com.zup.nimbus.core.tree.ServerDrivenEvent
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
+import br.com.zup.nimbus.core.tree.findNodeById
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class IfTest {
   private fun assertThenContent(content: List<ServerDrivenNode>?, hasButton: Boolean = false) {
@@ -138,5 +143,30 @@ class IfTest {
     assertEquals(1, logger.entries.size)
     val error = logger.entries.first().message
     assertContains(error, "Unexpected value type at \"condition\". Expected \"Boolean\", found \"null\"")
+  }
+
+  @Test
+  fun `should update inner If when nested ifs are used`() {
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val content = nimbus.nodeBuilder.buildFromJsonString(NESTED_IF)
+    content.initialize(nimbus)
+    // THEN only the message "Not showing counter" should be displayed
+    assertNotNull(content.findNodeById("not-showing"))
+    assertNull(content.findNodeById("counter-zero"))
+    assertNull(content.findNodeById("counter"))
+    // WHEN the button to show the counter is pressed
+    NodeUtils.pressButton(content, "show")
+    // THEN only the message "Counter is zero" should be displayed
+    assertNull(content.findNodeById("not-showing"))
+    assertNotNull(content.findNodeById("counter-zero"))
+    assertNull(content.findNodeById("counter"))
+    // WHEN the button to increment the counter is pressed
+    NodeUtils.pressButton(content, "count")
+    // THEN the value of the state "counter" should be 1
+    assertEquals(1, content.findNodeById("counter-column")?.closestState("counter")?.get())
+    // THEN only the message with the value of the counter should be displayed
+    assertNull(content.findNodeById("not-showing"))
+    assertNull(content.findNodeById("counter-zero"))
+    assertNotNull(content.findNodeById("counter"))
   }
 }

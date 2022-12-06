@@ -2,7 +2,10 @@ package br.com.zup.nimbus.core.tree.dynamic.node
 
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.ServerDrivenState
+import br.com.zup.nimbus.core.scope.Scope
 import br.com.zup.nimbus.core.scope.closestScopeWithType
+import br.com.zup.nimbus.core.scope.getPathToScope
+import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import br.com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import br.com.zup.nimbus.core.utils.valueOfKey
 
@@ -43,16 +46,34 @@ class IfNode(
   id: String,
   states: List<ServerDrivenState>?,
 ) : DynamicNode(id, "if", states, true) {
+  private var thenNode: DynamicNode? = null
+  private var elseNode: DynamicNode? = null
+
+  private fun findThenAndElse() {
+    val fromContainer = childrenContainer?.read()
+    // `then` and `else` will never change, so we don't need to find them again after we found them for the first time
+    if (thenNode == null) {
+      thenNode = fromContainer?.find { it.component == "then" }
+      // we make this node dependent on `then` because we need any changes to the children of `then` to be propagated
+      // to this node. This wouldn't be necessary if `then` was correctly initialized as a polymorphic node, but for
+      // the sake of simplicity, we didn't do this.
+      thenNode?.addDependent(this)
+    }
+    if (elseNode == null) {
+      elseNode = fromContainer?.find { it.component == "else" }
+      // we add this dependency for the same reason as `then`.
+      elseNode?.addDependent(this)
+    }
+  }
+
   override fun update() {
     val condition: Boolean = try {
       valueOfKey(propertyContainer?.read(), "condition")
     } catch (e: UnexpectedDataTypeError) {
-        closestScopeWithType<Nimbus>()?.logger?.error(e.message)
+        closestScopeWithType<Nimbus>()?.logger?.error("${e.message}\nAt: ${getPathToScope()}")
         return
     }
-    val fromContainer = childrenContainer?.read()
-    val thenNode = fromContainer?.find { it.component == "then" }
-    val elseNode = fromContainer?.find { it.component == "else" }
+    findThenAndElse()
     val previousChildrenStructure = children?.map { it.id }
     children = if (condition) thenNode?.children else elseNode?.children
     hasChanged = previousChildrenStructure != children?.map { it.id }

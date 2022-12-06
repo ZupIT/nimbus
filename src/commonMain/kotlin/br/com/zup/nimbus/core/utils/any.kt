@@ -17,8 +17,8 @@ class UnexpectedDataTypeError(
     if (message == null) {
       val at = if (path.isEmpty()) "" else """ at "$path""""
       val expected = expectedType.simpleName
-      val found = if (valueFound == null) "null" else valueFound::class.simpleName
-      this.message = """Unexpected value type$at. Expected "$expected", found "$found"."""
+      val found = if (valueFound == null) "\"null\"" else "\"${valueFound::class.simpleName}\" ($valueFound)"
+      this.message = """Unexpected value type$at. Expected "$expected", found $found."""
     }
     else this.message = message
   }

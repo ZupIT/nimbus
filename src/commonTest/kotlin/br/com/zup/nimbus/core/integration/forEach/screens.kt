@@ -382,3 +382,53 @@ const val FOR_EACH_MUTABLE_DATASET = """{
     }
   ]
 }"""
+
+const val FOR_EACH_DYNAMIC_ITEM = """{
+  "_:component":"layout:column",
+  "state": {
+    "id": "newList",
+    "value": [{ "id": 1, "message": "bye" }]
+  },
+  "children": [
+    {
+      "_:component":"layout:column",
+      "state": {
+        "id": "list",
+        "value": [{ "id": 1, "message": "hello" }]
+      },
+      "children": [
+        {
+          "_:component": "store:button",
+          "id": "update",
+          "properties": {
+            "onPress": [
+              {
+                "_:action": "setState",
+                "properties": {
+                  "path": "list",
+                  "value": "@{newList}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component":"forEach",
+          "properties": {
+            "key": "id",
+            "items": "@{list}"
+          },
+          "children": [
+            {
+              "_:component":"layout:text",
+              "id": "message",
+              "properties": {
+                "text": "@{item.message}"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""

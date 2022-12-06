@@ -37,3 +37,11 @@ const val FIRST_PAGE = """{
     }
   ]
 }"""
+
+const val CONDITION_TEST = """{
+  "_:component": "layout:text",
+  "id": "result",
+  "properties": {
+    "text": "@{condition(true, null, 10)}"
+  }
+}"""

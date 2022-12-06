@@ -6,6 +6,7 @@ import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import br.com.zup.nimbus.core.scope.Scope
 import br.com.zup.nimbus.core.scope.StateOnlyScope
 import br.com.zup.nimbus.core.scope.closestScopeWithType
+import br.com.zup.nimbus.core.scope.closestState
 import br.com.zup.nimbus.core.scope.getPathToScope
 import br.com.zup.nimbus.core.tree.dynamic.container.NodeContainer
 
@@ -48,8 +49,6 @@ private class IdentifiableItem(val value: Any?, index: Int, key: String?) {
 //  A possible fix would be to make each item state depend on the array. The problem is, by implementing this fix and
 //  the fix to the previous issue (2), we create lots of cyclic dependencies, which will end up in an infinity loop
 //  when processed by the function updateDependents.
-//
-// fixme: (4) when a child is moved in the dataset, the index state doesn't update.
 /**
  * ForEachNode is a polymorphic DynamicNode that iterates over a data set (items) and generate some UI for each of its
  * items. The template used for each iteration is the children in the original json.
@@ -102,9 +101,9 @@ class ForEachNode(
   }
 
   private fun buildChild(
-      index: Int,
-      item: IdentifiableItem,
-      template: NodeContainer,
+    index: Int,
+    item: IdentifiableItem,
+    template: NodeContainer,
   ): NodeContainer {
     val itemState = ServerDrivenState(iteratorName, item.value)
     val indexState = ServerDrivenState(indexName, index)
@@ -112,15 +111,22 @@ class ForEachNode(
     val child = template.clone(":${item.id}")
     nodeStorage[item.id] = child
     child.initialize(itemScope)
-    child.addDependent(this)
     return child
   }
 
   private fun calculateChildren(): List<DynamicNode>? {
     return childrenContainer?.let { childrenContainer ->
       val containers = items.mapIndexed { index, item ->
+        val recovered = nodeStorage[item.id]
+        recovered?.read()?.first()?.let {
+          val itemState = it.closestState(iteratorName)
+          val indexState = it.closestState(indexName)
+          itemState?.set(item.value)
+          indexState?.set(index)
+        }
         nodeStorage[item.id] ?: buildChild(index, item, childrenContainer)
       }
+      // .flatten because we accept multiple child elements in the template
       containers.map { it.read() }.flatten()
     }
   }
@@ -143,13 +149,11 @@ class ForEachNode(
       nimbus?.logger?.error("Error while deserializing the items for the component forEach.\nAt: " +
         getPathToScope() + deserializer.errorsAsString())
     }
-    else if (newItems != items) {
-      warnIfUpdatingWithoutKey()
-      items = newItems
-      val newChildren = calculateChildren()
-      hasChanged = true
-      children = newChildren
-    }
+    warnIfUpdatingWithoutKey()
+    items = newItems
+    val newChildren = calculateChildren()
+    hasChanged = true
+    children = newChildren
   }
 
   override fun clone(idSuffix: String): DynamicNode = clone(idSuffix) { id, states -> ForEachNode(id, states) }
