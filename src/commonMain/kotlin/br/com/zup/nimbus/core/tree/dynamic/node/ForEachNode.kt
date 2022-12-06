@@ -49,8 +49,6 @@ private class IdentifiableItem(val value: Any?, index: Int, key: String?) {
 //  A possible fix would be to make each item state depend on the array. The problem is, by implementing this fix and
 //  the fix to the previous issue (2), we create lots of cyclic dependencies, which will end up in an infinity loop
 //  when processed by the function updateDependents.
-//
-// fixme: (4) when a child is moved in the dataset, the index state doesn't update.
 /**
  * ForEachNode is a polymorphic DynamicNode that iterates over a data set (items) and generate some UI for each of its
  * items. The template used for each iteration is the children in the original json.
@@ -113,7 +111,6 @@ class ForEachNode(
     val child = template.clone(":${item.id}")
     nodeStorage[item.id] = child
     child.initialize(itemScope)
-    //child.addDependent(this) // <== investigate this
     return child
   }
 

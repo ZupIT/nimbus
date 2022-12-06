@@ -20,8 +20,6 @@ import br.com.zup.nimbus.core.utils.valueOfKey
 //  guaranteed by the if's condition. By initializing both Then and Else no matter the condition value, we'll end up
 //  processing way more than we need and risk running operations that expect values different than the ones we have.
 //  PS: fixing the first issue automatically fixes this.
-//
-// fixme(3): inner if's will never update the UI. An If component
 /**
  * IfNode is a polymorphic DynamicNode that chooses only one of its original subtree (json) to render at a time. The
  * chosen subtree depends on the value of the property "condition". When "condition" is true and "Then" is a child of
