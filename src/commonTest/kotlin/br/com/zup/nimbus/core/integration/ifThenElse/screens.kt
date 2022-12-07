@@ -75,8 +75,7 @@ fun createIfThenElseScreen(
   return """{
     "_:component": "layout:column",
     "state": {
-      "id": "isMorning",
-      "value": $conditionValue
+      "isMorning": $conditionValue
     },
     "children": [
       {
@@ -110,8 +109,7 @@ private fun createRootIfButton(value: Boolean) = """{
 val simpleRootIf = """{
   "_:component": "if",
   "state": {
-    "id": "test",
-    "value": true
+    "test": true
   },
   "properties": {
     "condition": "@{test}"
@@ -160,15 +158,13 @@ const val NESTED_IF = """{
   "_:component": "layout:column",
   "id": "counter-column",
   "state": {
-    "id": "counter",
-    "value": 0
+    "counter": 0
   },
   "children": [
     {
       "_:component": "layout:column",
       "state": {
-        "id": "showCounter",
-        "value": false
+        "showCounter": false
       },
       "children": [
         {

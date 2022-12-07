@@ -3,8 +3,7 @@ package br.com.zup.nimbus.core.integration.setState
 const val GENERAL_SET_STATE = """{
   "_:component": "layout:column",
   "state": {
-    "id": "user",
-    "value": {
+    "user": {
       "name": "",
       "age": 0
     }
@@ -62,8 +61,7 @@ const val GENERAL_SET_STATE = """{
           "_:component": "material:button",
           "id": "setButtonText",
           "state": {
-            "id": "btnText",
-            "value": "aaa"
+            "btnText": "aaa"
           },
           "properties": {
             "text": "Set this next text to bbb: @{btnText}",
@@ -94,8 +92,7 @@ const val UNREACHABLE_STATE = """{
     {
       "_:component": "material:text",
       "state": {
-        "id": "test",
-        "value": ""
+        "test": ""
       },
       "properties": {
         "text": "@{test}"
@@ -107,8 +104,7 @@ const val UNREACHABLE_STATE = """{
 const val MANY_TYPES = """{
   "_:component": "layout:column",
   "state": {
-    "id": "test",
-    "value": "string"
+    "test": "string"
   },
   "children": [
     {
@@ -224,8 +220,7 @@ const val MANY_TYPES = """{
 const val DEEP_STATE = """{
   "_:component": "layout:column",
   "state": {
-    "id": "test",
-    "value": {
+    "test": {
       "a": {
         "b": {
           "c": {
@@ -312,6 +307,65 @@ const val GLOBAL_STATE = """{
             "value": "John"
           }
         }]
+      }
+    }
+  ]
+}"""
+
+const val MULTIPLE_STATES = """{
+  "_:component": "layout:column",
+  "state": {
+    "counterA": 0,
+    "counterB": 0,
+    "counterC": 0
+  },
+  "children": [
+    {
+      "_:component": "material:button",
+      "id": "incCounterA",
+      "properties": {
+        "text": "@{counterA}",
+        "onPress": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "counterA",
+              "value": "@{sum(counterA, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component": "material:button",
+      "id": "incCounterB",
+      "properties": {
+        "text": "@{counterB}",
+        "onPress": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "counterB",
+              "value": "@{sum(counterB, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component": "material:button",
+      "id": "incCounterC",
+      "properties": {
+        "text": "@{counterC}",
+        "onPress": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "counterC",
+              "value": "@{sum(counterC, 1)}"
+            }
+          }
+        ]
       }
     }
   ]

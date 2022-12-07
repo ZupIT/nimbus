@@ -8,6 +8,7 @@ import br.com.zup.nimbus.core.tree.dynamic.node.DynamicNode
 import br.com.zup.nimbus.core.tree.dynamic.node.ForEachNode
 import br.com.zup.nimbus.core.tree.dynamic.node.IfNode
 import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
+import br.com.zup.nimbus.core.utils.Null
 import br.com.zup.nimbus.core.utils.UnexpectedDataTypeError
 import br.com.zup.nimbus.core.utils.transformJsonObjectToMap
 import br.com.zup.nimbus.core.utils.valueOfKey
@@ -24,12 +25,8 @@ class NodeBuilder(private val nimbus: Nimbus) {
     try {
       val id = originalId ?: nimbus.idManager.next()
       val component: String = valueOfKey(jsonNode, "_:component")
-      val stateMap: Map<String, Any>? = valueOfKey(jsonNode, "state")
-      val states = stateMap?.let {
-        val stateId: String = valueOfKey(stateMap, "id")
-        val stateValue: Any? = valueOfKey(stateMap, "value")
-        listOf(ServerDrivenState(stateId, stateValue))
-      }
+      val stateMap: Map<String, Any?>? = valueOfKey(jsonNode, "state")
+      val states = stateMap?.map { ServerDrivenState(it.key, Null.sanitize(it.value)) }
       val properties: Map<String, Any?>? = valueOfKey(jsonNode, "properties")
       val children: List<Map<String, *>>? = valueOfKey(jsonNode, "children")
 
