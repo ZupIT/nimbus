@@ -19,13 +19,6 @@ package br.com.zup.nimbus.core.log
 class DefaultLogger: Logger {
   private var isEnabled = true
 
-  private enum class LoggerColor(val code: String) {
-    RESET("\u001B[0m"),
-    BLUE("\u001B[34m"),
-    RED("\u001B[31m"),
-    YELLOW("\u001B[33m"),
-  }
-
   override fun enable() {
     isEnabled = true
   }
@@ -43,20 +36,20 @@ class DefaultLogger: Logger {
   }
 
   override fun info(message: String) {
-    print(LoggerColor.BLUE, message)
+    print(LogLevel.Info, message)
   }
 
   override fun warn(message: String) {
-    print(LoggerColor.YELLOW, message)
+    print(LogLevel.Warning, message)
   }
 
   override fun error(message: String) {
-    print(LoggerColor.RED, message)
+    print(LogLevel.Error, message)
   }
 
-  private fun print(color: LoggerColor, message: String) {
+  private fun print(level: LogLevel, message: String) {
     if (isEnabled) {
-      println("${color.code}${message}${LoggerColor.RESET.code}")
+      println("${level.name}: $message")
     }
   }
 }
