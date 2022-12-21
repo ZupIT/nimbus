@@ -28,7 +28,7 @@ private fun areNumbersEqual(left: Any?, right: Any?): Boolean {
   return leftNumber.compareTo(rightNumber) == 0
 }
 
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod", "LongMethod")
 internal fun registerOtherOperations(library: UILibrary) {
   library
     .addOperation("contains"){
