@@ -1,66 +1,35 @@
+# Nimbus
+The Nimbus SDUI is:
+
+1. A solution for applications that need to have some of its user interface (UI) driven by the backend, i.e. Server Driven UI (SDUI).
+1. A protocol for serializing the content and behavior of a UI into JSON so it can be sent by a backend sever and interpreted by the front-end.
+1. A set of libraries that implements this protocol.
+
+An application that uses Nimbus will have:
+1. A backend that provides the JSON describing the UI.
+1. A frontend application that will interpret the JSON sent by the backend and show the UI.
+
+Nimbus is currently available for iOS and Android and is built on top of SwiftUI and Jetpack Compose, respectively.
+
+To know more about Nimbus SDUI, please check our [documentation](https://github.com/ZupIT/nimbus-docs/blob/main/readme.md).
+
 # Nimbus Core
-Nimbus is the codename (or actual name) for the next version of Beagle (Zup's Server Driven UI library).
+This repository contains the core code for all Nimbus frontend libraries. It's built using
+[Kotlin Mobile Platform (KMM)](https://kotlinlang.org/lp/mobile/) and concentrates all the code common to both
+[Nimbus Compose](https://github.com/ZupIT/nimbus-compose) and [Nimbus SwiftUI](https://github.com/ZupIT/nimbus-swiftui).
 
-Nimbus will be first released with support for SwiftUI and Compose. Everything shared by the 2 libs will be written
-in Kotlin (KMM) and placed in the Core library (this repo).
+# Development stage
+Nimbus is currently in beta.
 
-## Development remarks
+# Useful links
+- [Introductory article](https://medium.com/p/9a0d95686fd9/): blog post introducing Nimbus SDUI.
+- [Documentation](https://github.com/ZupIT/nimbus-docs): the documentation for both the frontend and backend libraries. This is not in a website format yet, but you can read everything through GitHub.
+- [Nimbus](https://github.com/ZupIT/nimbus): the common code between Nimbus SwiftUI and Nimbus Compose. This has been built using Kotlin Multiplatform Mobile (KMM).
+- [Nimbus Compose](https://github.com/ZupIT/nimbus-compose): all modules necessary to run Nimbus in a Jetpack Compose project.
+- [Nimbus SwiftUI](https://github.com/ZupIT/nimbus-swiftui): all modules necessary to run Nimbus in a SwiftUI project.
+- [Nimbus Compose Layout](https://github.com/ZupIT/nimbus-layout-compose): layout components for Nimbus Compose.
+- [Nimbus SwiftUI Layout](https://github.com/ZupIT/nimbus-layout-swiftui): layout components for Nimbus SwiftUI.
+- [Nimbus Backend TS](https://github.com/ZupIT/nimbus-backend-ts): modules for the backend in Typescript.
 
-### iOS interoperability
-
-1. Don't ever use default values other than null. Example:
-
-```kotlin
-data class Person {
-  val name: String? // ok
-  val age: Int? = null // ok
-  val maritalStatus: MaritalStatus = MaritalStatus.single // invalid: ObjectiveC doesn't support default values
-}
-
-fun start(httpClient: HttpClient?) { // ok
-  // ...
-}
-
-fun start(httpClient: HttpClient? = null) { // ok, but see the next topic
-  // ...
-}
-
-fun start(httpClient: HttpClient? = HttpClient()) { // invalid: ObjectiveC doesn't support default values
-  // ...
-}
-```
-
-2. Prefer method overload instead of default null values
-
-```kotlin
-fun paint(tree: ServerDrivenNode, anchor: String? = null, mode: TreeUpdateMode? = null) {
-  // ...
-}
-```
-
-The function above is ok. It can be called in iOS, but since ObjectiveC doesn't support optional method parameters,
-it would need to be called like this:
-
-```swift
-paint(tree, null, null)
-```
-
-To avoid this problem, in kotlin, always prefer method overloading:
-
-```kotlin
-fun paint(tree: ServerDrivenNode, anchor: String?, mode: TreeUpdateMode) {
-  // ...
-}
-
-fun paint(tree: ServerDrivenNode, anchor: String) {
-  paint(tree, anchor, TreeUpdateMode.REPLACE_ITSELF)
-}
-
-fun paint(tree: ServerDrivenNode, mode: TreeUpdateMode? = null) {
-  paint(tree, null, mode)
-}
-```
-
-This way, in iOS, you can call any of the three signatures.
-
-3. Avoid using generics. Generics are not always correctly converted to ObjectiveC.
+## **License**
+[**Apache License 2.0**](https://github.com/ZupIT/nimbus-core/blob/main/LICENSE.txt).
