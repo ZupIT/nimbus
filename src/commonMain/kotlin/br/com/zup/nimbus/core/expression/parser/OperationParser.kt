@@ -63,7 +63,7 @@ private fun parseParameters(parameterString: String): List<String> {
 
 class OperationParser(private val nimbus: Nimbus) {
   @Suppress("ReturnCount")
-  fun parse(code: String): Expression {
+  fun parse(code: String, detached: Boolean = false): Expression {
     val match = operationRegex.findWithGroups(code)
 
     if (match == null) {
@@ -81,9 +81,9 @@ class OperationParser(private val nimbus: Nimbus) {
     return try {
       val params = parseParameters(paramString)
       val resolvedParams = params.map { param ->
-        nimbus.expressionParser.parseExpression(param)
+        nimbus.expressionParser.parseExpression(param, detached)
       }
-      Operation(operationHandler, resolvedParams)
+      Operation(operationHandler, resolvedParams, detached)
     } catch (e: IllegalArgumentException) {
       nimbus.logger.error(e.message ?: "Error while parsing expression.")
       Literal(null)
