@@ -24,7 +24,7 @@ import br.com.zup.nimbus.core.regex.toFastRegex
 private val expressionRegex = """(\\*)@\{(([^'}]|('([^'\\]|\\.)*'))*)\}""".toFastRegex()
 
 class StringTemplateParser(private val nimbus: Nimbus) {
-  fun parse(stringContainingExpression: String): StringTemplate {
+  fun parse(stringContainingExpression: String, detached: Boolean = false): StringTemplate {
     val composition = expressionRegex.transform(stringContainingExpression, { Literal(it) }) {
       val (slashes, code) = it.destructured
       val isExpressionEscaped = slashes.length % 2 == 1
@@ -32,7 +32,7 @@ class StringTemplateParser(private val nimbus: Nimbus) {
 
       if (isExpressionEscaped) return@transform Literal("${escapedSlashes.dropLast(1)}@{$code}")
 
-      val expression = nimbus.expressionParser.parseExpression(code)
+      val expression = nimbus.expressionParser.parseExpression(code, detached)
       return@transform (
         if (escapedSlashes.isEmpty()) expression
         else StringTemplate(listOf(Literal(escapedSlashes), expression))

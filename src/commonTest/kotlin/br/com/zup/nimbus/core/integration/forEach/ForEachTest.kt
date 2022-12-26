@@ -19,9 +19,11 @@ package br.com.zup.nimbus.core.integration.forEach
 import br.com.zup.nimbus.core.EmptyHttpClient
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.NodeUtils
+import br.com.zup.nimbus.core.OperationHandler
 import br.com.zup.nimbus.core.ServerDrivenConfig
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import br.com.zup.nimbus.core.tree.findNodeById
+import br.com.zup.nimbus.core.ui.UILibrary
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -275,6 +277,106 @@ class ForEachTest {
     assertEquals("hello", tree.findNodeById("message:1")?.properties?.get("text"))
     NodeUtils.pressButton(tree, "update")
     assertEquals("bye", tree.findNodeById("message:1")?.properties?.get("text"))
+  }
+
+  @Test
+  fun `should filter items in list`() {
+    // Given a filtering operation
+    val filterNotes: OperationHandler = { arguments ->
+      val notes = arguments.first() as List<Map<String, Any>>
+      val term = arguments[1] as String
+      if (term.isBlank()) notes
+      else notes.filter { (it["title"] as String).contains(term) || (it["description"] as String).contains(term) }
+    }
+    val ui = UILibrary("test").addOperation("filterNotes", filterNotes)
+    // WHEN the FOR_EACH_FILTERING screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", ui = listOf(ui), httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_FILTERING)
+    tree.initialize(nimbus)
+    // THEN it should render 2 components plus an empty list
+    assertEquals(2, tree.findNodeById("container")?.children?.size)
+    // WHEN we press the button to fill up the list
+    NodeUtils.pressButton(tree, "start")
+    // THEN it should render 2 components plus every note in the list (13)
+    assertEquals(15, tree.findNodeById("container")?.children?.size)
+    // WHEN we filter the list by the term "cereal"
+    NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", "cereal")
+    // THEN it should render 2 components plus 1 note in the list: "Buy cereal for the kids"
+    assertEquals(3, tree.findNodeById("container")?.children?.size)
+    assertEquals(
+      "11: Buy cereal for the kids: 5 boxes",
+      tree.findNodeById("container")?.children?.last()?.properties?.get("text"),
+    )
+    // WHEN we remove the filter
+    NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", "")
+    // THEN it should show every note again (2 components + 13 notes = 15)
+    assertEquals(15, tree.findNodeById("container")?.children?.size)
+  }
+
+  @Test
+  fun `should filter items in Map of String to List`() {
+    // Given a filtering operation
+    val filterNotes: OperationHandler = { arguments ->
+      val notesByDate = arguments.first() as Map<String, List<Map<String, Any>>>
+      val term = arguments[1] as String
+      if (term.isBlank()) notesByDate
+      else {
+        val result = mutableMapOf<String, List<Map<String, Any>>>()
+        notesByDate.forEach { entry ->
+          val filtered = entry.value.filter {
+            (it["title"] as String).contains(term) || (it["description"] as String).contains(term)
+          }
+          if (filtered.isNotEmpty()) result[entry.key] = filtered
+        }
+        result
+      }
+    }
+    val ui = UILibrary("test").addOperation("filterNotes", filterNotes)
+    // WHEN the FOR_EACH_MAP_FILTERING screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", ui = listOf(ui), httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_MAP_FILTERING)
+    tree.initialize(nimbus)
+    // THEN it should render only 2 components: the button and the text input
+    assertEquals(2, tree.findNodeById("container")?.children?.size)
+    // WHEN we press the button to fill up the list
+    NodeUtils.pressButton(tree, "start")
+    // THEN it should render 2 components plus every section (3)
+    assertEquals(5, tree.findNodeById("container")?.children?.size)
+    // AND it should render the title and all notes for each section
+    assertEquals(7, tree.findNodeById("section:1671408000000")?.children?.size)
+    assertEquals(4, tree.findNodeById("section:1671148800000")?.children?.size)
+    assertEquals(5, tree.findNodeById("section:1670976000000")?.children?.size)
+    // WHEN we filter the list by the term "cereal", typing letter by letter in the keyboard
+    fun type(str: String) {
+      NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", str)
+    }
+    type("c")
+    type("ce")
+    type("cer")
+    type("cere")
+    type("cerea")
+    type("cereal")
+    // THEN it should render 2 components plus 1 section
+    assertEquals(3, tree.findNodeById("container")?.children?.size)
+    // AND this section (1671408000000) should have a title plus a single note: "Buy cereal for the kids"
+    assertEquals(2, tree.findNodeById("section:1671408000000")?.children?.size)
+    assertEquals(
+      "11: Buy cereal for the kids: 5 boxes",
+      tree.findNodeById("section:1671408000000")?.children?.last()?.properties?.get("text"),
+    )
+    // WHEN we remove the filter, using backspace to remove letter by letter from the text input
+    type("cerea")
+    type("cere")
+    type("cer")
+    type("ce")
+    type("c")
+    type("")
+    // THEN it should show every section again
+    assertEquals(5, tree.findNodeById("container")?.children?.size)
+    // AND, in every section, the title and every note
+    assertEquals(7, tree.findNodeById("section:1671408000000")?.children?.size)
+    assertEquals(4, tree.findNodeById("section:1671148800000")?.children?.size)
+    assertEquals(5, tree.findNodeById("section:1670976000000")?.children?.size)
   }
 }
 

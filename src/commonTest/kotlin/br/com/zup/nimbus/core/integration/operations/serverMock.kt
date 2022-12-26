@@ -60,3 +60,74 @@ const val CONDITION_TEST = """{
     "text": "@{condition(true, null, 10)}"
   }
 }"""
+
+const val ACTION_OPERATION = """{
+  "_:component": "layout:column",
+  "state": {
+    "counter": 0
+  },
+  "children": [
+    {
+      "_:component": "material:button",
+      "id": "count",
+      "properties": {
+        "text": "count",
+        "onPress": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "counter",
+              "value": "@{sum(counter, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component": "material:button",
+      "id": "log",
+      "properties": {
+        "onPress": [
+          {
+            "_:action": "log",
+            "properties": {
+              "message": "@{myOperationB(myOperationA(counter))}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}"""
+
+const val STATE_CHANGE = """{
+  "_:component": "layout:column",
+  "state": {
+    "counter": 0
+  },
+  "children": [
+    {
+      "_:component": "layout:button",
+      "id": "count",
+      "properties": {
+        "text": "count",
+        "onPress": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "counter",
+              "value": "@{sum(counter, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component": "layout:text",
+      "id": "countText",
+      "properties": {
+        "text": "@{myOperationB(myOperationA(counter))}"
+      }
+    }
+  ]
+}"""

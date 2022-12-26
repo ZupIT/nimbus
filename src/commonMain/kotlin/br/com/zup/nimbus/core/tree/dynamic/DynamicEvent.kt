@@ -63,6 +63,7 @@ class DynamicEvent(
   override fun run() {
     val dependencies = mutableSetOf<CommonDependency>()
     actions.forEach {
+      it.update()
       try {
         it.handler(ActionTriggeredEvent(action = it, dependencies = dependencies, scope = this))
       } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {

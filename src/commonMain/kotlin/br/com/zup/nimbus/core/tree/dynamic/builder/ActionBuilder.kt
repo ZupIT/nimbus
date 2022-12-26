@@ -63,11 +63,11 @@ class ActionBuilder(private val nimbus: Nimbus) {
     val action = DynamicAction(name, handler, initHandler)
 
     action.propertyContainer = properties?.let {
-      PropertyContainer(it, nimbus)
+      PropertyContainer(it, nimbus, detached = true)
     }
 
     action.metadataContainer = metadata?.let {
-      PropertyContainer(it, nimbus)
+      PropertyContainer(it, nimbus, detached = true)
     }
 
     return action
