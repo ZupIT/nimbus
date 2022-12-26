@@ -127,6 +127,15 @@ class ForEachNode(
     val child = template.clone(":${item.id}")
     nodeStorage[item.id] = child
     child.initialize(itemScope)
+    /* This is important because, if the child updates its content, the forEach might also need to update. Example:
+     * - ForEach
+     *   - If
+     *     - Content
+     *
+     * Suppose the content (children) of `If` is empty. Then the content of ForEach will also be empty. Now, something
+     * changes and `If` is not empty anymore. Without the following line, the children of ForEach will still be empty.
+     */
+    child.addDependent(this)
     return child
   }
 
@@ -134,7 +143,7 @@ class ForEachNode(
     return childrenContainer?.let { childrenContainer ->
       val containers = items.mapIndexed { index, item ->
         val recovered = nodeStorage[item.id]
-        recovered?.read()?.first()?.let {
+        recovered?.read()?.firstOrNull()?.let {
           val itemState = it.closestState(iteratorName)
           val indexState = it.closestState(indexName)
           itemState?.set(item.value)
@@ -143,7 +152,10 @@ class ForEachNode(
         nodeStorage[item.id] ?: buildChild(index, item, childrenContainer)
       }
       // .flatten because we accept multiple child elements in the template
-      containers.map { it.read() }.flatten()
+      containers.map {
+        val read = it.read()
+        read
+      }.flatten()
     }
   }
 
