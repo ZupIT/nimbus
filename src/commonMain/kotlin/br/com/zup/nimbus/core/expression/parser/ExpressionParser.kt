@@ -38,14 +38,14 @@ class ExpressionParser(nimbus: Nimbus) {
   private val operationParser = OperationParser(nimbus)
   private val stringTemplateParser = StringTemplateParser(nimbus)
 
-  fun parseExpression(code: String): Expression {
+  fun parseExpression(code: String, detached: Boolean = false): Expression {
     // if it's a Literal
     val literal = LiteralParser.parse(code)
     if (literal != null) return literal
 
     // if it's an Operation
     val isOperation = code.contains("(")
-    if (isOperation) return operationParser.parse(code)
+    if (isOperation) return operationParser.parse(code, detached)
 
     // otherwise, it's a state reference
     return stateReferenceParser.parse(code)
@@ -55,12 +55,12 @@ class ExpressionParser(nimbus: Nimbus) {
     return expressionRegex.containsMatchIn(string)
   }
 
-  fun parseString(stringContainingExpression: String): Expression {
+  fun parseString(stringContainingExpression: String, detached: Boolean = false): Expression {
     val fullMatch = fullMatchExpressionRegex.findWithGroups(stringContainingExpression)
     if (fullMatch != null) {
       val (code) = fullMatch.destructured
-      return parseExpression(code)
+      return parseExpression(code, detached)
     }
-    return stringTemplateParser.parse(stringContainingExpression)
+    return stringTemplateParser.parse(stringContainingExpression, detached)
   }
 }

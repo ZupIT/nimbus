@@ -52,6 +52,8 @@ class DynamicAction(
   private var hasInitialized = false
 
   override fun update() {
+    propertyContainer?.update()
+    metadataContainer?.update()
     properties = propertyContainer?.read()
     metadata = metadataContainer?.read()
   }
@@ -61,10 +63,10 @@ class DynamicAction(
     if (hasInitialized) throw DoubleInitializationError()
     propertyContainer?.initialize(scope)
     metadataContainer?.initialize(scope)
-    propertyContainer?.addDependent(this)
-    metadataContainer?.addDependent(this)
-    update()
-    initHandler?.let { it(ActionInitializedEvent(this, scope)) }
+    initHandler?.let {
+      update()
+      it(ActionInitializedEvent(this, scope))
+    }
     hasInitialized = true
   }
 

@@ -22,7 +22,9 @@ import br.com.zup.nimbus.core.scope.LazilyScoped
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.expression.Expression
 import br.com.zup.nimbus.core.dependency.CommonDependency
+import br.com.zup.nimbus.core.dependency.DependencyUpdateManager
 import br.com.zup.nimbus.core.dependency.Dependent
+import br.com.zup.nimbus.core.expression.StateReference
 import br.com.zup.nimbus.core.scope.Scope
 import br.com.zup.nimbus.core.tree.dynamic.DynamicEvent
 
@@ -31,6 +33,7 @@ import br.com.zup.nimbus.core.tree.dynamic.DynamicEvent
  */
 class PropertyContainer private constructor(
   private val nimbus: Nimbus,
+  private val detached: Boolean,
 ): LazilyScoped<PropertyContainer>, CommonDependency(), Dependent {
   // General variables
 
@@ -53,7 +56,7 @@ class PropertyContainer private constructor(
 
   // Constructors
 
-  constructor(properties: Map<String, Any?>, nimbus: Nimbus): this(nimbus) {
+  constructor(properties: Map<String, Any?>, nimbus: Nimbus, detached: Boolean = false): this(nimbus, detached) {
     currentProperties = parseMap(properties)
   }
 
@@ -63,7 +66,8 @@ class PropertyContainer private constructor(
     expressionEvaluators: MutableList<() -> Unit>,
     events: MutableList<DynamicEvent>,
     nimbus: Nimbus,
-  ): this(nimbus) {
+    detached: Boolean,
+  ): this(nimbus, detached) {
     this.currentProperties = currentProperties
     this.expressions = expressions
     this.expressionEvaluators = expressionEvaluators
@@ -76,14 +80,16 @@ class PropertyContainer private constructor(
     if (hasInitialized) throw DoubleInitializationError()
     expressions?.forEach {
       if (it is LazilyScoped<*>) it.initialize(scope)
-      if (it is CommonDependency) it.dependents.add(this)
+      if (!detached && it is CommonDependency) it.dependents.add(this)
     }
     events?.forEach { it.initialize(scope) }
     expressions = null
     events = null
     hasInitialized = true
-    update()
-    hasChanged = false
+    if (!detached) {
+      update()
+      hasChanged = false
+    }
   }
 
   override fun clone(): PropertyContainer {
@@ -97,7 +103,9 @@ class PropertyContainer private constructor(
       clonedExpressionEvaluators,
       clonedEvents,
     )
-    return PropertyContainer(clonedProperties, clonedExpressions, clonedExpressionEvaluators, clonedEvents, nimbus)
+    return PropertyContainer(
+      clonedProperties, clonedExpressions, clonedExpressionEvaluators, clonedEvents, nimbus, detached
+    )
   }
 
   // Other methods
@@ -109,7 +117,7 @@ class PropertyContainer private constructor(
     return when(toParse) {
       is String -> {
         if (nimbus.expressionParser.containsExpression(toParse)) {
-          val expression = nimbus.expressionParser.parseString(toParse)
+          val expression = nimbus.expressionParser.parseString(toParse, detached)
           expressions?.add(expression)
           expression
         }
@@ -154,7 +162,10 @@ class PropertyContainer private constructor(
       val value = it.value
       val parsed = parseAny(value, key)
       if (parsed is Expression) {
-        expressionEvaluators.add { result[key] = parsed.getValue() }
+        expressionEvaluators.add {
+          if (detached && parsed is Dependent) parsed.update()
+          result[key] = parsed.getValue()
+        }
       }
       result[key] = parsed
     }

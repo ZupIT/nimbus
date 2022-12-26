@@ -30,6 +30,7 @@ import br.com.zup.nimbus.core.scope.closestScopeWithType
 class Operation(
   private val handler: OperationHandler,
   private val arguments: List<Expression>,
+  private val detached: Boolean = false,
 ): Expression, CommonDependency(), Dependent, LazilyScoped<Operation> {
   private var value: Any? = null
   private var hasInitialized = false
@@ -40,15 +41,20 @@ class Operation(
     getLogger = { scope.closestScopeWithType<Nimbus>()?.logger }
     arguments.forEach {
       if (it is LazilyScoped<*>) it.initialize(scope)
-      if (it is CommonDependency) it.addDependent(this)
+      if (it is CommonDependency && !detached) it.addDependent(this)
     }
     hasInitialized = true
-    update()
-    hasChanged = false
+    if (!detached) {
+      update()
+      hasChanged = false
+    }
   }
 
   override fun update() {
-    val argValues = arguments.map { it.getValue() }
+    val argValues = arguments.map {
+      if (detached && it is Dependent) it.update()
+      it.getValue()
+    }
     val newValue = try {
       handler(argValues)
     } catch (@Suppress("TooGenericExceptionCaught") t: Throwable) {
