@@ -464,9 +464,38 @@ class ForEachTest {
     // THEN it should render the text input + all ForEach items (3)
     assertEquals(4, tree.findNodeById("content")?.children?.size)
     // WHEN we type "k" into the text input
-    NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", "k")
+    fun type(input: String) {
+      NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", input)
+    }
+    type("k")
     // THEN only the text input and one of the ForEach items should be visible
     assertEquals(2, tree.findNodeById("content")?.children?.size)
+    // WHEN we erase "k" from the text input
+    type("")
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "pas" into the text input
+    type("p")
+    type("pa")
+    type("pas")
+    // THEN it should render the text input + 2 ForEach items
+    assertEquals(3, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "pass" into the text input
+    type("pass")
+    // THEN it should render the text input + 1 ForEach item
+    assertEquals(2, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "passs" into the text input
+    type("passs")
+    // THEN it should render only the text input
+    assertEquals(1, tree.findNodeById("content")?.children?.size)
+    // WHEN we remove the filter
+    type("pass")
+    type("pas")
+    type("pa")
+    type("p")
+    type("")
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
   }
 }
 
