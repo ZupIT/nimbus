@@ -152,10 +152,7 @@ class ForEachNode(
         nodeStorage[item.id] ?: buildChild(index, item, childrenContainer)
       }
       // .flatten because we accept multiple child elements in the template
-      containers.map {
-        val read = it.read()
-        read
-      }.flatten()
+      containers.map { it.read() }.flatten()
     }
   }
 
