@@ -454,5 +454,19 @@ class ForEachTest {
     assertEquals(2, tree.findNodeById("content:2")?.children?.size)
     assertEquals(2, tree.findNodeById("content:3")?.children?.size)
   }
+
+  @Test
+  fun `should filter ForEach using If`() {
+    // WHEN the FOR_EACH_IF_FILTERING screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_IF_FILTERING)
+    tree.initialize(nimbus)
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "k" into the text input
+    NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", "k")
+    // THEN only the text input and one of the ForEach items should be visible
+    assertEquals(2, tree.findNodeById("content")?.children?.size)
+  }
 }
 

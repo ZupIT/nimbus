@@ -967,3 +967,71 @@ const val FOR_EACH_IF_INTERNAL = """{
     }
   ]
 }"""
+
+const val FOR_EACH_IF_FILTERING = """{
+  "_:component": "layout:column",
+  "id": "content",
+  "state": {
+    "searchTerm": ""
+  },
+  "children": [
+    {
+      "_:component": "todoapp:textInput",
+      "id": "filter",
+      "properties": {
+        "onChange": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "searchTerm",
+              "value": "@{onChange}"
+            }
+          }
+        ],
+        "value": "@{searchTerm}",
+        "label": "search"
+      }
+    },
+    {
+      "_:component": "forEach",
+      "children": [
+        {
+          "_:component": "if",
+          "children": [
+            {
+              "_:component": "then",
+              "children": [
+                {
+                  "_:component": "layout:text",
+                  "properties": {
+                    "text": "@{item.title}"
+                  }
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "condition": "@{contains(item.title, searchTerm)}"
+          }
+        }
+      ],
+      "properties": {
+        "key": "id",
+        "items": [
+          {
+            "id": 1,
+            "title": "Hello darkness, my old friend"
+          },
+          {
+            "id": 2,
+            "title": "É ela a morena, que vem e que passa"
+          },
+          {
+            "id": 3,
+            "title": "Ne me quitte pas, Il fault oublier"
+          }
+        ]
+      }
+    }
+  ]
+}"""
