@@ -378,5 +378,124 @@ class ForEachTest {
     assertEquals(4, tree.findNodeById("section:1671148800000")?.children?.size)
     assertEquals(5, tree.findNodeById("section:1670976000000")?.children?.size)
   }
+
+  @Test
+  fun `if inside foreach should update according to external state`() {
+    // WHEN the FOR_EACH_IF_EXTERNAL screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_IF_EXTERNAL)
+    tree.initialize(nimbus)
+    // THEN it should render no components inside the "forEachContent"
+    assertEquals(0, tree.findNodeById("forEachContent")?.children?.size)
+    // WHEN we press the button to increment the counter
+    NodeUtils.pressButton(tree, "sum")
+    // THEN it should render 5 components inside the "forEachContent"
+    assertEquals(5, tree.findNodeById("forEachContent")?.children?.size)
+    // WHEN we press the button to decrement the counter
+    NodeUtils.pressButton(tree, "subtract")
+    // THEN it should render no components inside the "forEachContent"
+    assertEquals(0, tree.findNodeById("forEachContent")?.children?.size)
+  }
+
+  @Test
+  fun `if inside foreach should update according to item`() {
+    // WHEN the FOR_EACH_IF_ITEM screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_IF_ITEM)
+    tree.initialize(nimbus)
+    // THEN it should render 5 components
+    assertEquals(5, tree.children?.size)
+    // WHEN we press the button to hide the 1st item
+    NodeUtils.pressButton(tree, "toggle:1")
+    // THEN it should render 4 components
+    assertEquals(4, tree.children?.size)
+    // WHEN we press the button to hide the 2nd item
+    NodeUtils.pressButton(tree, "toggle:2")
+    // THEN it should render 3 components
+    assertEquals(3, tree.children?.size)
+    // WHEN we press the button to hide the 3rd item
+    NodeUtils.pressButton(tree, "toggle:3")
+    // THEN it should render 2 components
+    assertEquals(2, tree.children?.size)
+    // WHEN we press the button to hide the 4th item
+    NodeUtils.pressButton(tree, "toggle:4")
+    // THEN it should render 1 component
+    assertEquals(1, tree.children?.size)
+    // WHEN we press the button to hide the last item
+    NodeUtils.pressButton(tree, "toggle:5")
+    // THEN it should render no components
+    assertEquals(0, tree.children?.size)
+  }
+
+  @Test
+  fun `if inside foreach should update according to internal state`() {
+    // WHEN the FOR_EACH_IF_INTERNAL screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_IF_INTERNAL)
+    tree.initialize(nimbus)
+    // THEN it should render only the 2 buttons inside each item
+    assertEquals(2, tree.findNodeById("content:1")?.children?.size)
+    assertEquals(2, tree.findNodeById("content:2")?.children?.size)
+    assertEquals(2, tree.findNodeById("content:3")?.children?.size)
+    // WHEN we press the buttons to increment the counters on each item
+    NodeUtils.pressButton(tree, "sum:1")
+    NodeUtils.pressButton(tree, "sum:2")
+    NodeUtils.pressButton(tree, "sum:3")
+    // THEN each item should show a new text component
+    assertEquals(3, tree.findNodeById("content:1")?.children?.size)
+    assertEquals(3, tree.findNodeById("content:2")?.children?.size)
+    assertEquals(3, tree.findNodeById("content:3")?.children?.size)
+    // WHEN we press the buttons to decrement the counters on each item
+    NodeUtils.pressButton(tree, "subtract:1")
+    NodeUtils.pressButton(tree, "subtract:2")
+    NodeUtils.pressButton(tree, "subtract:3")
+    // THEN each item should show only the 2 buttons again
+    assertEquals(2, tree.findNodeById("content:1")?.children?.size)
+    assertEquals(2, tree.findNodeById("content:2")?.children?.size)
+    assertEquals(2, tree.findNodeById("content:3")?.children?.size)
+  }
+
+  @Test
+  fun `should filter ForEach using If`() {
+    // WHEN the FOR_EACH_IF_FILTERING screen is rendered
+    val nimbus = Nimbus(ServerDrivenConfig("", "test", httpClient = EmptyHttpClient))
+    val tree = nimbus.nodeBuilder.buildFromJsonString(FOR_EACH_IF_FILTERING)
+    tree.initialize(nimbus)
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "k" into the text input
+    fun type(input: String) {
+      NodeUtils.triggerEvent(tree.findNodeById("filter"), "onChange", input)
+    }
+    type("k")
+    // THEN only the text input and one of the ForEach items should be visible
+    assertEquals(2, tree.findNodeById("content")?.children?.size)
+    // WHEN we erase "k" from the text input
+    type("")
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "pas" into the text input
+    type("p")
+    type("pa")
+    type("pas")
+    // THEN it should render the text input + 2 ForEach items
+    assertEquals(3, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "pass" into the text input
+    type("pass")
+    // THEN it should render the text input + 1 ForEach item
+    assertEquals(2, tree.findNodeById("content")?.children?.size)
+    // WHEN we type "passs" into the text input
+    type("passs")
+    // THEN it should render only the text input
+    assertEquals(1, tree.findNodeById("content")?.children?.size)
+    // WHEN we remove the filter
+    type("pass")
+    type("pas")
+    type("pa")
+    type("p")
+    type("")
+    // THEN it should render the text input + all ForEach items (3)
+    assertEquals(4, tree.findNodeById("content")?.children?.size)
+  }
 }
 

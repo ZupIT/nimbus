@@ -37,7 +37,7 @@ internal fun registerOtherOperations(library: UILibrary) {
       when (collection) {
         is List<*> -> collection.contains(element)
         is Map<*, *> -> collection.contains(element)
-        is String -> collection.contains(element as String)
+        is String -> collection.contains(element?.toString() ?: "")
         else -> false
       }
     }
