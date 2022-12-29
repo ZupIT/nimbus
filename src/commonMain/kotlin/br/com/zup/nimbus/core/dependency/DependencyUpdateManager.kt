@@ -30,9 +30,9 @@ object DependencyUpdateManager {
       val level = levels[it]
       if (level == null || level < currentLevel) {
         levels[it] = currentLevel
-        dependencyMap[it] = dependencyMap[it] ?: mutableSetOf()
-        dependencyMap[it]?.add(dependency)
       }
+      dependencyMap[it] = dependencyMap[it] ?: mutableSetOf()
+      dependencyMap[it]?.add(dependency)
       if (it is Dependency) traverseAndUpdateLevels(it, levels, dependencyMap, currentLevel + 1)
     }
   }

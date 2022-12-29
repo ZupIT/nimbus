@@ -74,7 +74,7 @@ class DynamicEvent(
   }
 
   override fun run(implicitStateValue: Any?) {
-    states!!.first().set(implicitStateValue)
+    states!!.first().setSilently(implicitStateValue)
     update(states.toSet())
     run()
   }

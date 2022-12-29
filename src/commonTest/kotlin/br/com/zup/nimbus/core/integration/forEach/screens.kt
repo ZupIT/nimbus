@@ -778,3 +778,260 @@ const val FOR_EACH_MAP_FILTERING = """{
     }
   ]
 }"""
+
+const val FOR_EACH_IF_EXTERNAL = """{
+  "_:component":"layout:column",
+  "state":{
+    "count":0
+  },
+  "children":[
+    {
+      "_:component":"material:button",
+      "id":"subtract",
+      "properties":{
+        "text":"-1",
+        "onPress":[
+          {
+            "_:action":"setState",
+            "properties":{
+              "path":"count",
+              "value":"@{subtract(count, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component":"material:button",
+      "id":"sum",
+      "properties":{
+        "text":"+1",
+        "onPress":[
+          {
+            "_:action":"setState",
+            "properties":{
+              "path":"count",
+              "value":"@{sum(count, 1)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component":"layout:column",
+      "id":"forEachContent",
+      "children":[
+        {
+          "_:component":"forEach",
+          "properties":{
+            "items":[1, 2, 3, 4, 5]
+          },
+          "children":[
+            {
+              "_:component":"if",
+              "properties":{
+                "condition":"@{gt(count, 0)}"
+              },
+              "children":[
+                {
+                  "_:component":"then",
+                  "children":[
+                    {
+                      "_:component":"layout:text",
+                      "properties":{
+                        "text":"test"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""
+
+const val FOR_EACH_IF_ITEM = """{
+  "_:component":"forEach",
+  "properties":{
+    "items":[
+      { "id":1, "show":true },
+      { "id":2, "show":true },
+      { "id":3, "show":true },
+      { "id":4, "show":true },
+      { "id":5, "show":true }
+    ],
+    "key": "id"
+  },
+  "children":[
+    {
+      "_:component":"if",
+      "properties":{
+        "condition":"@{item.show}"
+      },
+      "children":[
+        {
+          "_:component":"then",
+          "children":[
+            {
+              "_:component":"material:button",
+              "id": "toggle",
+              "properties":{
+                "text":"@{item.id}",
+                "onPress":[
+                  {
+                    "_:action":"setState",
+                    "properties":{
+                      "path":"item.show",
+                      "value":"@{not(item.show)}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""
+
+const val FOR_EACH_IF_INTERNAL = """{
+  "_:component":"forEach",
+  "properties":{
+    "items":[{ "id": 1 }, { "id": 2 }, { "id": 3 }],
+    "key": "id"
+  },
+  "children":[
+    {
+      "_:component":"layout:column",
+      "id": "content",
+      "state": {
+        "count": 0
+      },
+      "children": [
+        {
+          "_:component":"material:button",
+          "id":"subtract",
+          "properties":{
+            "text":"-1",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"count",
+                  "value":"@{subtract(count, 1)}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component":"material:button",
+          "id":"sum",
+          "properties":{
+            "text":"+1",
+            "onPress":[
+              {
+                "_:action":"setState",
+                "properties":{
+                  "path":"count",
+                  "value":"@{sum(count, 1)}"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_:component":"if",
+          "properties":{
+            "condition":"@{gt(count, 0)}"
+          },
+          "children":[
+            {
+              "_:component":"then",
+              "children":[
+                {
+                  "_:component":"layout:text",
+                  "properties":{
+                    "text":"test"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""
+
+const val FOR_EACH_IF_FILTERING = """{
+  "_:component": "layout:column",
+  "id": "content",
+  "state": {
+    "searchTerm": ""
+  },
+  "children": [
+    {
+      "_:component": "todoapp:textInput",
+      "id": "filter",
+      "properties": {
+        "onChange": [
+          {
+            "_:action": "setState",
+            "properties": {
+              "path": "searchTerm",
+              "value": "@{onChange}"
+            }
+          }
+        ],
+        "value": "@{searchTerm}",
+        "label": "search"
+      }
+    },
+    {
+      "_:component": "forEach",
+      "children": [
+        {
+          "_:component": "if",
+          "children": [
+            {
+              "_:component": "then",
+              "children": [
+                {
+                  "_:component": "layout:text",
+                  "properties": {
+                    "text": "@{item.title}"
+                  }
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "condition": "@{contains(item.title, searchTerm)}"
+          }
+        }
+      ],
+      "properties": {
+        "key": "id",
+        "items": [
+          {
+            "id": 1,
+            "title": "Hello darkness, my old friend"
+          },
+          {
+            "id": 2,
+            "title": "É ela a morena, que vem e que passa"
+          },
+          {
+            "id": 3,
+            "title": "Ne me quitte pas, Il fault oublier"
+          }
+        ]
+      }
+    }
+  ]
+}"""
