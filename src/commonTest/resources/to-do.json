@@ -1,0 +1,428 @@
+{
+  "_:component": "layout:lifecycle",
+  "state": {
+    "notes": [
+      {
+        "date": 1671408000000,
+        "items": [
+          {
+            "id": 1,
+            "title": "Buy cereal for the kids",
+            "description": "5 boxes",
+            "date": 1671408000000,
+            "isDone": false
+          },
+          {
+            "id": 2,
+            "title": "Hairdresser appointment",
+            "description": "2PM, on 8th avenue",
+            "date": 1671408000000,
+            "isDone": false
+          },
+          {
+            "id": 3,
+            "title": "Research dates and prices for family trip",
+            "description": "Beach cities",
+            "date": 1671408000000,
+            "isDone": false
+          },
+          {
+            "id": 4,
+            "title": "Pick up clothes at the shop",
+            "description": "They're opened until 6PM",
+            "date": 1671408000000,
+            "isDone": true
+          },
+          {
+            "id": 5,
+            "title": "Pay credit card bill",
+            "description": "",
+            "date": 1671408000000,
+            "isDone": false
+          },
+          {
+            "id": 6,
+            "title": "Pick up kids at school",
+            "description": "",
+            "date": 1671408000000,
+            "isDone": true
+          }
+        ]
+      },
+      {
+        "date": 1671148800000,
+        "items": [
+          {
+            "id": 7,
+            "title": "Julia's birthday",
+            "description": "Must buy a small gift",
+            "date": 1671148800000,
+            "isDone": false
+          },
+          {
+            "id": 8,
+            "title": "Remember to eat more healthily",
+            "description": "Must lose some pounds",
+            "date": 1671148800000,
+            "isDone": false
+          },
+          {
+            "id": 9,
+            "title": "Cancel streaming subscription",
+            "description": "Netflix and Disney+",
+            "date": 1671148800000,
+            "isDone": true
+          }
+        ]
+      },
+      {
+        "date": 1670976000000,
+        "items": [
+          {
+            "id": 10,
+            "title": "Prepare special breakfast",
+            "description": "Anniversary",
+            "date": 1670976000000,
+            "isDone": true
+          },
+          {
+            "id": 11,
+            "title": "Finish marketing campaign",
+            "description": "Also prepare presentation",
+            "date": 1670976000000,
+            "isDone": true
+          },
+          {
+            "id": 12,
+            "title": "Need to cook dinner today",
+            "description": "Meat balls spaghetti",
+            "date": 1670889600000,
+            "isDone": false
+          },
+          {
+            "id": 13,
+            "title": "Buy new edition of Forbes Magazine",
+            "description": "When at the mall",
+            "date": 1670889600000,
+            "isDone": true
+          }
+        ]
+      }
+    ],
+    "searchTerm": "",
+    "doneFilter": "All",
+    "toastMessage": ""
+  },
+  "children": [
+    {
+      "_:component": "layout:column",
+      "children": [
+        {
+          "_:component": "layout:stack",
+          "children": [
+            {
+              "_:component": "layout:positioned",
+              "children": [
+                {
+                  "_:component": "layout:row",
+                  "children": [
+                    {
+                      "_:component": "todoapp:icon",
+                      "properties": {
+                        "name": "search",
+                        "color": "#FFFFFF",
+                        "size": 28
+                      }
+                    },
+                    {
+                      "_:component": "layout:row",
+                      "children": [
+                        {
+                          "_:component": "todoapp:textInput",
+                          "properties": {
+                            "onChange": [
+                              {
+                                "_:action": "setState",
+                                "properties": {
+                                  "path": "searchTerm",
+                                  "value": "@{onChange}"
+                                }
+                              }
+                            ],
+                            "color": "#FFFFFF",
+                            "label": "Search",
+                            "value": "@{searchTerm}"
+                          }
+                        }
+                      ],
+                      "properties": {
+                        "width": "expand"
+                      }
+                    },
+                    {
+                      "_:component": "todoapp:selectionGroup",
+                      "id": "status-filter",
+                      "properties": {
+                        "onChange": [
+                          {
+                            "_:action": "setState",
+                            "properties": {
+                              "path": "doneFilter",
+                              "value": "@{onChange}"
+                            }
+                          }
+                        ],
+                        "options": [
+                          "All",
+                          "To do",
+                          "Done"
+                        ],
+                        "value": "@{doneFilter}"
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "backgroundColor": "#5F72C0",
+                    "crossAxisAlignment": "center",
+                    "paddingHorizontal": 20,
+                    "height": 65
+                  }
+                },
+                {
+                  "_:component": "layout:scrollView",
+                  "children": [
+                    {
+                      "_:component": "forEach",
+                      "children": [
+                        {
+                          "_:component": "layout:column",
+                          "children": [
+                            {
+                              "_:component": "layout:text",
+                              "properties": {
+                                "size": 16,
+                                "color": "#616B76",
+                                "text": "@{formatDate(section.date)}"
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "paddingVertical": 12,
+                            "paddingHorizontal": 20
+                          }
+                        },
+                        {
+                          "_:component": "layout:column",
+                          "properties": {
+                            "height": 1,
+                            "width": "expand",
+                            "backgroundColor": "#E0E4E9"
+                          }
+                        },
+                        {
+                          "_:component": "forEach",
+                          "children": [
+                            {
+                              "_:component": "if",
+                              "children": [
+                                {
+                                  "_:component": "then",
+                                  "children": [
+                                    {
+                                      "_:component": "fragment",
+                                      "children": [
+                                        {
+                                          "_:component": "layout:row",
+                                          "children": [
+                                            {
+                                              "_:component": "layout:touchable",
+                                              "children": [
+                                                {
+                                                  "_:component": "layout:column",
+                                                  "properties": {
+                                                    "borderColor": "@{condition(item.isDone, '#5F7260', '#E0E4E9')}",
+                                                    "backgroundColor": "@{condition(item.isDone, '#CDD3EB', '#FFFFFF')}",
+                                                    "borderWidth": 2,
+                                                    "cornerRadius": 14,
+                                                    "width": 22,
+                                                    "height": 22
+                                                  }
+                                                }
+                                              ],
+                                              "properties": {
+                                                "onPress": [
+                                                  {
+                                                    "_:action": "setState",
+                                                    "properties": {
+                                                      "path": "item.isDone",
+                                                      "value": "@{not(item.isDone)}"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "_:component": "layout:column",
+                                              "children": [
+                                                {
+                                                  "_:component": "layout:text",
+                                                  "properties": {
+                                                    "weight": "bold",
+                                                    "color": "#616B76",
+                                                    "text": "@{item.title}"
+                                                  }
+                                                },
+                                                {
+                                                  "_:component": "if",
+                                                  "children": [
+                                                    {
+                                                      "_:component": "then",
+                                                      "children": [
+                                                        {
+                                                          "_:component": "layout:column",
+                                                          "children": [
+                                                            {
+                                                              "_:component": "layout:text",
+                                                              "properties": {
+                                                                "color": "#85919C",
+                                                                "text": "@{item.description}"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "properties": {
+                                                            "marginTop": 8
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ],
+                                                  "properties": {
+                                                    "condition": "@{not(isEmpty(item.description))}"
+                                                  }
+                                                }
+                                              ],
+                                              "properties": {
+                                                "marginHorizontal": 20,
+                                                "width": "expand"
+                                              }
+                                            },
+                                            {
+                                              "_:component": "todoapp:icon",
+                                              "properties": {
+                                                "name": "delete",
+                                                "size": 20,
+                                                "color": "#F00000"
+                                              }
+                                            }
+                                          ],
+                                          "properties": {
+                                            "crossAxisAlignment": "center",
+                                            "paddingVertical": 12,
+                                            "paddingHorizontal": 20,
+                                            "backgroundColor": "#FFFFFF",
+                                            "minHeight": 60
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "_:component": "layout:column",
+                                      "properties": {
+                                        "height": 1,
+                                        "width": "expand",
+                                        "backgroundColor": "#E0E4E9"
+                                      }
+                                    }
+                                  ]
+                                }
+                              ],
+                              "properties": {
+                                "condition": "@{and(or(isEmpty(searchTerm), contains(item.title, searchTerm), contains(item.description, searchTerm)), or(eq(doneFilter, 'All'), and(eq(doneFilter, 'To do'), not(item.isDone)), and(eq(doneFilter, 'Done'), item.isDone)))}"
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "key": "id",
+                            "items": "@{section.items}"
+                          }
+                        }
+                      ],
+                      "properties": {
+                        "key": "date",
+                        "iteratorName": "section",
+                        "items": "@{notes}"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "_:component": "layout:positioned",
+              "children": [
+                {
+                  "_:component": "todoapp:button",
+                  "properties": {
+                    "text": "+",
+                    "backgroundColor": "#5F72C0",
+                    "foregroundColor": "#FFFFFF",
+                    "width": 50,
+                    "height": 50,
+                    "radius": 25,
+                    "fontSize": 24,
+                    "onPress": [
+                      {
+                        "_:action": "setState",
+                        "properties": {
+                          "path": "toastMessage",
+                          "value": "A modal should be shown here"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "properties": {
+                "alignment": "bottomEnd",
+                "margin": 28
+              }
+            },
+            {
+              "_:component": "layout:positioned",
+              "children": [
+                {
+                  "_:component": "todoapp:toast",
+                  "properties": {
+                    "message": "@{toastMessage}",
+                    "onHide": [
+                      {
+                        "_:action": "setState",
+                        "properties": {
+                          "path": "toastMessage",
+                          "value": ""
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "properties": {
+                "alignment": "bottomCenter",
+                "marginBottom": 16
+              }
+            }
+          ],
+          "properties": {
+            "width": "expand",
+            "height": "expand"
+          }
+        }
+      ],
+      "properties": {
+        "height": "expand",
+        "width": "expand",
+        "backgroundColor": "#F1F3F5"
+      }
+    }
+  ]
+}
