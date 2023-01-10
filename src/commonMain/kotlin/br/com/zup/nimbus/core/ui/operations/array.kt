@@ -21,6 +21,7 @@ import br.com.zup.nimbus.core.ui.UILibrary
 
 internal fun registerArrayOperations(library: UILibrary) {
   library
+    .addOperation("array") { it }
     .addOperation("insert") {
       val arguments = AnyServerDrivenData(it)
       val list = if (arguments.at(0).isList()) (arguments.at(0).value as List<*>).toMutableList()

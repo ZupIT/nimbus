@@ -16,6 +16,8 @@
 
 package br.com.zup.nimbus.core.network
 
+import br.com.zup.nimbus.core.tree.ServerDrivenEvent
+
 data class ViewRequest(
   /**
    * The URL to send the request to. When it starts with "/", it's relative to the BaseUrl.
@@ -38,7 +40,8 @@ data class ViewRequest(
    */
   val fallback: Map<String, Any?>? = null,
   /**
-   * The map of state ids and its values that will be used on the next page.
+   * The map of states and their values that will be used on the next page.
    */
-  val params: Map<String, Any?>? = null,
+  val state: Map<String, Any?>? = null,
+  val events: List<ServerDrivenEvent>? = null,
 )

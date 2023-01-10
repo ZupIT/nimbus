@@ -16,7 +16,6 @@
 
 package br.com.zup.nimbus.core.ui.operations
 
-import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import br.com.zup.nimbus.core.ui.UILibrary
 import br.com.zup.nimbus.core.utils.Null
 import br.com.zup.nimbus.core.utils.compareTo
@@ -28,7 +27,7 @@ private fun areNumbersEqual(left: Any?, right: Any?): Boolean {
   return leftNumber.compareTo(rightNumber) == 0
 }
 
-@Suppress("ComplexMethod", "LongMethod")
+@Suppress("ComplexMethod")
 internal fun registerOtherOperations(library: UILibrary) {
   library
     .addOperation("contains"){
@@ -84,12 +83,5 @@ internal fun registerOtherOperations(library: UILibrary) {
         is String -> collection.isEmpty()
         else -> Null.isNull(collection)
       }
-    }
-    .addOperation("entries"){
-      val result = it.firstOrNull()?.let { map ->
-        if (map is Map<*, *>) map.entries.map { entry -> mapOf("key" to entry.key, "value" to entry.value) }
-        else null
-      }
-      result ?: emptyList<Any>()
     }
 }

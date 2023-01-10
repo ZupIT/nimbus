@@ -26,9 +26,11 @@ import br.com.zup.nimbus.core.ui.action.present
 import br.com.zup.nimbus.core.ui.action.push
 import br.com.zup.nimbus.core.ui.action.sendRequest
 import br.com.zup.nimbus.core.ui.action.setState
+import br.com.zup.nimbus.core.ui.action.triggerViewEvent
 import br.com.zup.nimbus.core.ui.operations.registerArrayOperations
 import br.com.zup.nimbus.core.ui.operations.registerLogicOperations
 import br.com.zup.nimbus.core.ui.operations.registerNumberOperations
+import br.com.zup.nimbus.core.ui.operations.registerObjectOperations
 import br.com.zup.nimbus.core.ui.operations.registerOtherOperations
 import br.com.zup.nimbus.core.ui.operations.registerStringOperations
 
@@ -42,6 +44,7 @@ val coreUILibrary = UILibrary("")
   .addAction("popTo") { popTo(it) }
   .addAction("present") { present(it) }
   .addAction("dismiss") { dismiss(it) }
+  .addAction("triggerViewEvent") { triggerViewEvent(it) }
   .addAction("log") { log(it) }
   .addAction("sendRequest") { sendRequest(it) }
   .addAction("setState") { setState(it) }
@@ -56,5 +59,6 @@ val coreUILibrary = UILibrary("")
     registerNumberOperations(this)
     registerOtherOperations(this)
     registerStringOperations(this)
+    registerObjectOperations(this)
     this
   }

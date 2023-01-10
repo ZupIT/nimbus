@@ -41,8 +41,8 @@ class ObservableNavigator(
   }
 
   override fun push(request: ViewRequest) {
-    val states = request.params?.map { ServerDrivenState(it.key, it.value) }
-    val view = ServerDrivenView(nimbus, states = states, description = request.url) { this }
+    val states = request.state?.map { ServerDrivenState(it.key, it.value) }
+    val view = ServerDrivenView(nimbus, states = states, events = request.events, description = request.url) { this }
     testScope.launch {
       try {
         val tree = nimbus.viewClient.fetch(request)

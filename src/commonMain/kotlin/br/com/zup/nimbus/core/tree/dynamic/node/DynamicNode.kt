@@ -16,13 +16,17 @@
 
 package br.com.zup.nimbus.core.tree.dynamic.node
 
+import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.scope.CloneAfterInitializationError
 import br.com.zup.nimbus.core.scope.DoubleInitializationError
 import br.com.zup.nimbus.core.ServerDrivenState
 import br.com.zup.nimbus.core.dependency.CommonDependency
+import br.com.zup.nimbus.core.dependency.Dependency
+import br.com.zup.nimbus.core.dependency.Dependent
 import br.com.zup.nimbus.core.scope.CommonScope
 import br.com.zup.nimbus.core.scope.LazilyScoped
 import br.com.zup.nimbus.core.scope.Scope
+import br.com.zup.nimbus.core.scope.closestScopeWithType
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import br.com.zup.nimbus.core.tree.dynamic.container.NodeContainer
 import br.com.zup.nimbus.core.tree.dynamic.container.PropertyContainer
@@ -60,6 +64,7 @@ open class DynamicNode(
    * A container that knows how to update the dynamic children of this node.
    */
   internal var childrenContainer: NodeContainer? = null
+  private var express: Nimbus? = null
 
   override fun update() {
     propertyContainer?.let { properties = it.read() }
@@ -67,9 +72,30 @@ open class DynamicNode(
     hasChanged = true
   }
 
+  /**
+   * Compute the values of states that have been provided expressions as their initial values.
+   */
+  private fun initializeDependentStates() {
+    states?.let { states ->
+      val expressionParser = closestScopeWithType<Nimbus>()?.expressionParser
+      expressionParser?.let { parser ->
+        states.forEach { state ->
+          val value = state.get()
+          if (value is String && parser.containsExpression(value)) {
+            val parsed = parser.parseString(value, true)
+            if (parsed is LazilyScoped<*>) parsed.initialize(this)
+            if (parsed is Dependent) parsed.update()
+            state.setSilently(parsed.getValue())
+          }
+        }
+      }
+    }
+  }
+
   override fun initialize(scope: Scope) {
     if (parent != null) throw DoubleInitializationError()
     parent = scope
+    initializeDependentStates()
     propertyContainer?.initialize(this)
     childrenContainer?.initialize(this)
     propertyContainer?.addDependent(this)

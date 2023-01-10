@@ -280,7 +280,7 @@ private const val STATEFUL_NAVIGATION_1 = """{
       "_:action": "push",
       "properties": {
         "url": "/stateful-navigation-2",
-        "params": {
+        "state": {
           "address": "Rua dos bobos, 0"
         }
       }
