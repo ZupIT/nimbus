@@ -292,9 +292,10 @@ __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("ServerDrivenView")))
 @interface NimbusCoreServerDrivenView : NimbusCoreCommonScope
 - (instancetype)initWithNimbus:(NimbusCoreNimbus *)nimbus getNavigator:(id<NimbusCoreServerDrivenNavigator> (^)(void))getNavigator __attribute__((swift_name("init(nimbus:getNavigator:)"))) __attribute__((objc_designated_initializer));
-- (instancetype)initWithNimbus:(NimbusCoreNimbus *)nimbus states:(NSArray<NimbusCoreServerDrivenState *> * _Nullable)states description:(NSString * _Nullable)description getNavigator:(id<NimbusCoreServerDrivenNavigator> (^)(void))getNavigator __attribute__((swift_name("init(nimbus:states:description:getNavigator:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithNimbus:(NimbusCoreNimbus *)nimbus states:(NSArray<NimbusCoreServerDrivenState *> * _Nullable)states events:(NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable)events description:(NSString * _Nullable)description getNavigator:(id<NimbusCoreServerDrivenNavigator> (^)(void))getNavigator __attribute__((swift_name("init(nimbus:states:events:description:getNavigator:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)initWithStates:(NSArray<NimbusCoreServerDrivenState *> * _Nullable)states parent:(id<NimbusCoreScope> _Nullable)parent __attribute__((swift_name("init(states:parent:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (readonly) NSString * _Nullable description_ __attribute__((swift_name("description_")));
+@property (readonly) NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable events __attribute__((swift_name("events")));
 @property (readonly) id<NimbusCoreServerDrivenNavigator> navigator __attribute__((swift_name("navigator")));
 @property (readonly) NimbusCoreNimbus *nimbus __attribute__((swift_name("nimbus")));
 @end;
@@ -890,22 +891,24 @@ __attribute__((swift_name("ServerDrivenResponse")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("ViewRequest")))
 @interface NimbusCoreViewRequest : NimbusCoreBase
-- (instancetype)initWithUrl:(NSString *)url method:(NimbusCoreServerDrivenHttpMethod *)method headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers body:(NSString * _Nullable)body fallback:(NSDictionary<NSString *, id> * _Nullable)fallback params:(NSDictionary<NSString *, id> * _Nullable)params __attribute__((swift_name("init(url:method:headers:body:fallback:params:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithUrl:(NSString *)url method:(NimbusCoreServerDrivenHttpMethod *)method headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers body:(NSString * _Nullable)body fallback:(NSDictionary<NSString *, id> * _Nullable)fallback state:(NSDictionary<NSString *, id> * _Nullable)state events:(NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable)events __attribute__((swift_name("init(url:method:headers:body:fallback:state:events:)"))) __attribute__((objc_designated_initializer));
 - (NSString *)component1 __attribute__((swift_name("component1()"))) __attribute__((deprecated("use corresponding property instead")));
 - (NimbusCoreServerDrivenHttpMethod *)component2 __attribute__((swift_name("component2()"))) __attribute__((deprecated("use corresponding property instead")));
 - (NSDictionary<NSString *, NSString *> * _Nullable)component3 __attribute__((swift_name("component3()"))) __attribute__((deprecated("use corresponding property instead")));
 - (NSString * _Nullable)component4 __attribute__((swift_name("component4()"))) __attribute__((deprecated("use corresponding property instead")));
 - (NSDictionary<NSString *, id> * _Nullable)component5 __attribute__((swift_name("component5()"))) __attribute__((deprecated("use corresponding property instead")));
 - (NSDictionary<NSString *, id> * _Nullable)component6 __attribute__((swift_name("component6()"))) __attribute__((deprecated("use corresponding property instead")));
-- (NimbusCoreViewRequest *)doCopyUrl:(NSString *)url method:(NimbusCoreServerDrivenHttpMethod *)method headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers body:(NSString * _Nullable)body fallback:(NSDictionary<NSString *, id> * _Nullable)fallback params:(NSDictionary<NSString *, id> * _Nullable)params __attribute__((swift_name("doCopy(url:method:headers:body:fallback:params:)")));
+- (NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable)component7 __attribute__((swift_name("component7()"))) __attribute__((deprecated("use corresponding property instead")));
+- (NimbusCoreViewRequest *)doCopyUrl:(NSString *)url method:(NimbusCoreServerDrivenHttpMethod *)method headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers body:(NSString * _Nullable)body fallback:(NSDictionary<NSString *, id> * _Nullable)fallback state:(NSDictionary<NSString *, id> * _Nullable)state events:(NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable)events __attribute__((swift_name("doCopy(url:method:headers:body:fallback:state:events:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) NSString * _Nullable body __attribute__((swift_name("body")));
+@property (readonly) NSArray<id<NimbusCoreServerDrivenEvent>> * _Nullable events __attribute__((swift_name("events")));
 @property (readonly) NSDictionary<NSString *, id> * _Nullable fallback __attribute__((swift_name("fallback")));
 @property (readonly) NSDictionary<NSString *, NSString *> * _Nullable headers __attribute__((swift_name("headers")));
 @property (readonly) NimbusCoreServerDrivenHttpMethod *method __attribute__((swift_name("method")));
-@property (readonly) NSDictionary<NSString *, id> * _Nullable params __attribute__((swift_name("params")));
+@property (readonly) NSDictionary<NSString *, id> * _Nullable state __attribute__((swift_name("state")));
 @property (readonly) NSString *url __attribute__((swift_name("url")));
 @end;
 
