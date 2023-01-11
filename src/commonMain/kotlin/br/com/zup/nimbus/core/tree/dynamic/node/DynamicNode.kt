@@ -64,7 +64,6 @@ open class DynamicNode(
    * A container that knows how to update the dynamic children of this node.
    */
   internal var childrenContainer: NodeContainer? = null
-  private var express: Nimbus? = null
 
   override fun update() {
     propertyContainer?.let { properties = it.read() }
@@ -76,18 +75,16 @@ open class DynamicNode(
    * Compute the values of states that have been provided expressions as their initial values.
    */
   private fun initializeDependentStates() {
-    states?.let { states ->
-      val expressionParser = closestScopeWithType<Nimbus>()?.expressionParser
-      expressionParser?.let { parser ->
-        states.forEach { state ->
-          val value = state.get()
-          if (value is String && parser.containsExpression(value)) {
-            val parsed = parser.parseString(value, true)
-            if (parsed is LazilyScoped<*>) parsed.initialize(this)
-            if (parsed is Dependent) parsed.update()
-            state.setSilently(parsed.getValue())
-          }
-        }
+    if (states?.isEmpty() != false) return
+    val expressionParser = closestScopeWithType<Nimbus>()?.expressionParser ?: return
+
+    states?.forEach { state ->
+      val value = state.get()
+      if (value is String && expressionParser.containsExpression(value)) {
+        val parsed = expressionParser.parseString(value, true)
+        if (parsed is LazilyScoped<*>) parsed.initialize(this)
+        if (parsed is Dependent) parsed.update()
+        state.setSilently(parsed.getValue())
       }
     }
   }
