@@ -17,6 +17,7 @@
 package br.com.zup.nimbus.core
 
 import br.com.zup.nimbus.core.scope.CommonScope
+import br.com.zup.nimbus.core.tree.ServerDrivenEvent
 
 /**
  * A scope for the current view in a navigator.
@@ -30,6 +31,7 @@ class ServerDrivenView(
    * The states in this scope. Useful for creating view parameters in the navigation.
    */
   states: List<ServerDrivenState>? = null,
+  val events: List<ServerDrivenEvent>? = null,
   /**
    * A description for this view. Suggestion: the URL used to load the content of this view or "json", if a local json
    * string was used to load it.
@@ -44,7 +46,7 @@ class ServerDrivenView(
   getNavigator: () -> ServerDrivenNavigator,
 ): CommonScope(parent = nimbus, states = states) {
   constructor(nimbus: Nimbus, getNavigator: () -> ServerDrivenNavigator):
-    this(nimbus, null, null, getNavigator)
+    this(nimbus, null, null, null, getNavigator)
 
   val navigator = getNavigator()
 }

@@ -2,7 +2,7 @@
 The Nimbus SDUI is:
 
 1. A solution for applications that need to have some of its user interface (UI) driven by the backend, i.e. Server Driven UI (SDUI).
-1. A protocol for serializing the content and behavior of a UI into JSON so it can be sent by a backend sever and interpreted by the front-end.
+1. A protocol for serializing the content and behavior of a UI into JSON so it can be sent by a backend server and interpreted by the front-end.
 1. A set of libraries that implements this protocol.
 
 An application that uses Nimbus will have:

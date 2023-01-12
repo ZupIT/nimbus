@@ -22,7 +22,6 @@ import br.com.zup.nimbus.core.network.ServerDrivenHttpMethod
 import br.com.zup.nimbus.core.network.ViewRequest
 import br.com.zup.nimbus.core.ActionTriggeredEvent
 import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
-import br.com.zup.nimbus.core.deserialization.SerializationError
 import br.com.zup.nimbus.core.ui.action.error.ActionExecutionError
 import br.com.zup.nimbus.core.ui.action.error.ActionDeserializationError
 
@@ -35,10 +34,12 @@ private fun requestFromEvent(event: ActionEvent, isPushOrPresent: Boolean): View
   val headers = properties.get("headers").asMapOrNull()?.mapValues { it.value.asString() }
   val body = attemptJsonSerialization(properties.get("body"), event)
   val fallback = properties.get("fallback").asMapOrNull()?.mapValues { it.value.asAnyOrNull() }
-  val params = if (isPushOrPresent) properties.get("params").asMapOrNull()?.mapValues { it.value.asAnyOrNull() }
+  val state = if (isPushOrPresent) properties.get("state").asMapOrNull()?.mapValues { it.value.asAnyOrNull() }
+  else null
+  val events = if (isPushOrPresent) properties.get("events").asMapOrNull()?.map { it.value.asEvent() }
   else null
   if (properties.hasError()) throw ActionDeserializationError(event, properties)
-  return ViewRequest(url, method, headers, body, fallback, params)
+  return ViewRequest(url, method, headers, body, fallback, state, events)
 }
 
 private fun pushOrPresent(event: ActionTriggeredEvent, isPush: Boolean) {
